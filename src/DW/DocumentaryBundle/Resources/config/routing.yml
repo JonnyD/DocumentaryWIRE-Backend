@@ -1,0 +1,28 @@
+dw.admin_list_documentaries:
+   path: /admin/documentary/list
+   defaults: { _controller: DocumentaryBundle:Admin/Documentary:list }
+
+dw.admin_create_documentary:
+   path: /admin/documentary/create
+   defaults: { _controller: DocumentaryBundle:Admin/Documentary:create }
+
+dw.admin_show_documentary:
+   path: /admin/documentary/show/{slug}
+   defaults: { _controller: DocumentaryBundle:Admin/Documentary:show }
+
+dw.admin_edit_documentary:
+   path: /admin/documentary/edit/{slug}
+   defaults: { _controller: DocumentaryBundle:Admin/Documentary:edit }
+
+dw.browse_documentaries:
+   path: /browse
+   defaults: { _controller: DocumentaryBundle:Publc/Documentary:browse }
+
+dw.list_documentaries:
+   path: /list
+   defaults: { _controller: DocumentaryBundle:Publc/Documentary:list }
+
+dw.show_documentary:
+   path: /{slug}
+   defaults: { _controller: DocumentaryBundle:Publc/Documentary:show }
+

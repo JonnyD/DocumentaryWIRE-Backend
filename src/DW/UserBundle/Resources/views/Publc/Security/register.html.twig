@@ -1,0 +1,31 @@
+{% extends 'BaseBundle:Layout:base.html.twig' %}
+
+{% block content %}
+
+<div id="signup_form" class="standard-form">
+    <h2>Sign Up</h2>
+
+    {% set flashMessages = app.session.flashbag.get('registered') %}
+
+    {% for flashMessage in flashMessages %}
+        <div class="flash-notice">
+            {{ flashMessage }}
+        </div>
+    {% endfor %}
+
+
+    {% if flashMessages|length == 0 %}
+        <p>Registering for this site is easy, just fill in the fields below or simply connect via your Facebook profile</p>
+
+        <div class="register-section" id="basic-details-section">
+            {{ form_start(form, {'attr': {'id': 'registration'}}) }}
+            {{ form_errors(form) }}
+            {{ form_row(form.username) }}
+            {{ form_row(form.email) }}
+            {{ form_row(form.password) }}
+            {{ form_end(form) }}
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+<div class="widget clearfix">
+    <h4>Members</h4>
+    <a id="tab-1" href="#one" data-toggle="tab">Active</a> |
+    <a href="#two" id="tab-2" data-toggle="tab">Newest</a>
+
+    <div class="tab-content">
+        <div class="tab-pane active" id="one">
+            {% for user in recentlyActiveMembers(25) %}
+                <div class="avatar-block">
+                    <div class="item-avatar">
+                        <a href=""
+                           title="{{ user.username }}" rel="nofollow">
+                            <img src="{{ avatar(user, 'avatar50') }}"
+                                 style="float:left; margin:3px"
+                                 width="50" height="50" alt="Profile picture of {{ user.username }}" />
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="tab-pane" id="two">
+            {% for user in latestMembers(25) %}
+                <div class="avatar-block">
+                    <div class="item-avatar">
+                        <a href=""
+                           title="{{ user.username }}" rel="nofollow">
+                            <img src="{{ avatar(user, 'avatar50') }}"
+                                 style="float:left; margin:3px"
+                                 width="50" height="50" alt="Profile picture of {{ user.username }}" />
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% if app.user == null %}
+<div class="widget">
+    Connect with: <img src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png" width="30" height="30"/>
+</div>
+{% endif %}

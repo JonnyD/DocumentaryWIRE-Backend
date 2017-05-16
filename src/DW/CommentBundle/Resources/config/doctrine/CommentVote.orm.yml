@@ -1,0 +1,44 @@
+DW\CommentBundle\Entity\CommentVote:
+  type: entity
+  repositoryClass: DW\CommentBundle\Repository\CommentVoteRepository
+  table: comment_vote
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    value:
+      type: integer
+    createdAt:
+      type: datetime
+      gedmo:
+        timestampable:
+          on: create
+    updatedAt:
+      type: datetime
+      gedmo:
+        timestampable:
+          on: update
+  manyToOne:
+    comment:
+      targetEntity: DW\CommentBundle\Entity\Comment
+      inversedBy: votes
+      cascade: ["persist"]
+      joinColumn:
+        name: vote_id
+        referencedColumnName: id
+    voter:
+      targetEntity: DW\UserBundle\Entity\User
+      inversedBy: commentVoteGiven
+      cascade: ["persist"]
+      joinColumn:
+        name: voter_id
+        referencedColumnName: id
+    votee:
+      targetEntity: DW\UserBundle\Entity\User
+      inversedBy: commentVoteReceived
+      cascade: ["persist"]
+      joinColumn:
+        name: votee_id
+        referencedColumnName: id

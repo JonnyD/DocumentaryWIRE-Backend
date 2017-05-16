@@ -1,0 +1,59 @@
+<a href="{{ path('admin_edit_documentary', { 'slug': documentary.slug }) }}">Edit</a>
+
+<table>
+    <tr>
+        <td>id</td>
+        <td>{{ documentary.id }}</td>
+    </tr>
+    <tr>
+        <td>title</td>
+        <td>{{ documentary.title }}</td>
+    </tr>
+    <tr>
+        <td>slug</td>
+        <td>{{ documentary.slug }}</td>
+    </tr>
+    <tr>
+        <td>summary</td>
+        <td>{{ documentary.summary }}</td>
+    </tr>
+    <tr>
+        <td>storyline</td>
+        <td>{{ documentary.storyline }}</td>
+    </tr>
+    <tr>
+        <td>category</td>
+        <td>{{ documentary.category.name }}</td>
+    </tr>
+    <tr>
+        <td>year</td>
+        <td>{{ documentary.year }}</td>
+    </tr>
+    <tr>
+        <td>length</td>
+        <td>{{ documentary.length }}</td>
+    </tr>
+    <tr>
+        <td>views</td>
+        <td>{{ documentary.views }}</td>
+    </tr>
+    <tr>
+        <td>shortUrl</td>
+        <td>{{ documentary.shortUrl }}</td>
+    </tr>
+    <tr>
+        <td>videoSource</td>
+        <td>{{ documentary.videoSource }}</td>
+    </tr>
+    <tr>
+        <td>videoId</td>
+        <td>{{ documentary.videoId }}</td>
+    </tr>
+</table>
+
+Comments {{ documentary.commentCount }} <br />
+{% for comment in documentary.comments %}
+    {{ comment.comment }} <br />
+    {{ comment.status }} <br />
+    {{ comment.createdAt|date("F jS \\a\\t g:ia") }} <br />
+{% endfor %}

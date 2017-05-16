@@ -1,0 +1,28 @@
+DW\UserBundle\Entity\Facebook:
+  type: entity
+  repositoryClass: DW\UserBundle\Repository\FacebookRepository
+  table: facebook
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    facebookId:
+      type: string
+    accessToken:
+      type: string
+      nullable: true
+    avatarFull:
+      type: string
+      nullable: true
+    avatarThumb:
+      type: string
+      nullable: true
+  oneToOne:
+    user:
+      targetEntity: DW\UserBundle\Entity\User
+      inversedBy: facebook
+      joinColumn:
+        name: user_id
+        referencedColumnName: id

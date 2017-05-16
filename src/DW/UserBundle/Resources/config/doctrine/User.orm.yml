@@ -1,0 +1,94 @@
+DW\UserBundle\Entity\User:
+  type: entity
+  repositoryClass: DW\UserBundle\Repository\UserRepository
+  table: user
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    username:
+      type: string
+      unique: true
+    password:
+      type: string
+    salt:
+      type: string
+      nullable: true
+    email:
+      type: string
+      unique: true
+    avatar:
+      type: string
+      nullable: true
+    resetKey:
+      type: string
+      nullable: true
+    resetRequestAt:
+      type: datetime
+      nullable: true
+    lastResetAt:
+      type: datetime
+      nullable: true
+    activatedAt:
+      type: datetime
+      nullable: true
+    activationKey:
+      type: string
+      nullable: true
+    lastActiveAt:
+      type: datetime
+      nullable: true
+    status:
+      type: integer
+    createdAt:
+      type: datetime
+      gedmo:
+        timestampable:
+          on: create
+    updatedAt:
+      type: datetime
+      nullable: true
+      gedmo:
+        timestampable:
+          on: update
+  oneToOne:
+    facebook:
+      targetEntity: DW\UserBundle\Entity\Facebook
+      mappedBy: user
+      fetch: EAGER
+      cascade: ["persist"]
+  oneToMany:
+    comments:
+      targetEntity: DW\CommentBundle\Entity\Comment
+      mappedBy: user
+      cascade: ["persist"]
+    activity:
+      targetEntity: DW\ActivityBundle\Entity\Activity
+      mappedBy: user
+      cascade: ["persist"]
+    watchlisted:
+      targetEntity: DW\WatchlistBundle\Entity\Watchlist
+      mappedBy: user
+      cascade: ["persist"]
+    commentVoteGiven:
+      targetEntity: DW\CommentBundle\Entity\CommentVote
+      mappedBy: voter
+      cascade: ["persist"]
+    commentVoteReceived:
+      targetEntity: DW\CommentBundle\Entity\CommentVote
+      mappedBy: votee
+      cascade: ["persist"]
+  manyToMany:
+    roles:
+      targetEntity: DW\UserBundle\Entity\Role
+      inversedBy: users
+      joinTable:
+        name: user_role
+        joinColumns:
+          user_id:
+            referencedColumnName: id
+        inverseJoinColumns:
+          role_id:
+            referencedColumnName: id

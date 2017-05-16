@@ -1,0 +1,13 @@
+<table>
+    {% for documentary in documentaries.currentPageResults %}
+        <tr>
+            <td>
+                <a href="{{ path('admin_show_documentary', { 'slug': documentary.slug }) }}">
+                    {{ documentary.title }}
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+
+{{ pagerfanta(documentaries) }}

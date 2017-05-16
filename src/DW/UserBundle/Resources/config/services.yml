@@ -1,0 +1,135 @@
+parameters:
+    # repositories
+    user_repository.class: DW\UserBundle\Repository\UserRepository
+    user_repository.factory_argument: 'UserBundle:User'
+
+    role_repository.class: DW\UserBundle\Repository\UserRepository
+    role_repository.factory_argument: 'UserBundle:Role'
+
+    facebook_repository.class: DW\UserBundle\Repository\FacebookRepository
+    facebook_repository.factory_argument: 'UserBundle:Facebook'
+
+    # services
+    user_service.class: DW\UserBundle\Service\UserService
+    role_service.class: DW\UserBundle\Service\RoleService
+    facebook_service.class: DW\UserBundle\Service\FacebookService
+    security_service.class: DW\UserBundle\Service\SecurityService
+
+    # extensions
+    latest_members_extension.class: DW\UserBundle\Twig\LatestMembersExtension
+    recently_active_members_extension.class: DW\UserBundle\Twig\RecentlyActiveMembersExtension
+    chat_extension.class: DW\UserBundle\Twig\ChatExtension
+    avatar_extension.class: DW\UserBundle\Twig\AvatarExtension
+    comment_avatar_extension.class: DW\UserBundle\Twig\CommentAvatarExtension
+
+    # listeners
+    send_activation_email_listener.class: DW\UserBundle\EventListener\SendActivationEmailListener
+
+    # providers
+    oauth_user_provider.class: DW\UserBundle\Provider\OAuthUserProvider
+
+services:
+    # services
+    dw.user_service:
+        class: %user_service.class%
+        arguments:
+          - '@dw.user_repository'
+          - '@event_dispatcher'
+
+    dw.security_service:
+        class: %security_service.class%
+        arguments:
+          - '@security.token_storage'
+          - '@security.authorization_checker'
+
+    dw.role_service:
+        class: %role_service.class%
+        arguments:
+          - '@dw.role_repository'
+
+    dw.facebook_service:
+        class: %facebook_service.class%
+        arguments:
+          - '@dw.facebook_repository'
+
+    # repositories
+    dw.user_repository:
+        class: %user_repository.class%
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments:
+         - %user_repository.factory_argument%
+
+    dw.role_repository:
+        class: %role_repository.class%
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments:
+         - %role_repository.factory_argument%
+
+    dw.facebook_repository:
+        class: %facebook_repository.class%
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments:
+         - %facebook_repository.factory_argument%
+
+    # extensions
+    dw.latest_members_extension:
+        class: %latest_members_extension.class%
+        public: false
+        arguments:
+          - '@dw.user_service'
+        tags:
+          - { name: twig.extension }
+
+    dw.recently_active_members_extension:
+        class: %recently_active_members_extension.class%
+        public: false
+        arguments:
+          - '@dw.user_service'
+        tags:
+          - { name: twig.extension }
+
+    dw.chat_extension:
+        class: %chat_extension.class%
+        public: false
+        arguments:
+          - '@dw.security_service'
+          - '%ifly_chat_app_id%'
+          - '%ifly_chat_api_key%'
+        tags:
+          - { name: twig.extension }
+
+    dw.avatar_extension:
+        class: %avatar_extension.class%
+        arguments:
+            - '@dw.user_service'
+            - '@liip_imagine.cache.manager'
+        tags:
+         - { name: twig.extension }
+
+    dw.comment_avatar_extension:
+        class: %comment_avatar_extension.class%
+        arguments:
+            - '@dw.user_service'
+            - '@liip_imagine.cache.manager'
+        tags:
+         - { name: twig.extension }
+
+    # listeners
+    dw.send_activation_email_listener:
+        class: %send_activation_email_listener.class%
+        arguments:
+            - '@router'
+            - '@mailer'
+        tags:
+            - { name: kernel.event_listener, event: user.joined, method: sendActiv }
+
+    # providers
+    dw.oauth_user_provider:
+        class: %oauth_user_provider.class%
+        arguments:
+            - '@dw.user_service'
+            - '@dw.role_service'
+            - '@dw.facebook_service'
+            - '@liip_imagine.data.manager'
+            - '@liip_imagine.filter.manager'
+            - '@security.encoder_factory'

@@ -1,0 +1,3 @@
+dw.show_category:
+   path: /category/{slug}
+   defaults: { _controller: CategoryBundle:Publc/Category:show }

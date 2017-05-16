@@ -1,0 +1,29 @@
+{% extends 'BaseBundle:Layout:base.html.twig' %}
+
+{% block content %}
+
+    <h1>{{ category.name }} Documentaries</h1>
+
+    <div class="grid-large">
+        <div class="nag">
+            {% for documentary in documentaries.currentPageResults %}
+                {{ include('DocumentaryBundle:Publc:documentaryPost.html.twig', { 'documentary': documentary }) }}
+            {% endfor %}
+        </div>
+    </div>
+
+    {{ pagerfanta(documentaries, 'twitter_bootstrap3') }}
+
+{% endblock %}
+
+{% block sidebar %}
+
+    {{ include('BaseBundle:Publc/Widget:adSidebarTop.html.twig') }}
+
+    {{ include('BaseBundle:Publc/Widget:subscribe.html.twig') }}
+
+    {{ include('CategoryBundle:Publc/Widget:categories.html.twig') }}
+
+    {{ include('BaseBundle:Publc/Widget:adSidebarMiddle.html.twig') }}
+
+{% endblock %}

@@ -1,0 +1,3 @@
+dw.community:
+   path: /community
+   defaults: { _controller: ActivityBundle:Publc/Activity:list }

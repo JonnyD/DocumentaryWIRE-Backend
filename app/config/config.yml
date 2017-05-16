@@ -1,0 +1,183 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+    - { resource: services.yml }
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: en
+    posters_directory: '%kernel.root_dir%/../web/uploads/posters'
+    ifly_chat_app_id: 8442b67e-10dd-4d45-b92b-f7e657cf2076
+    ifly_chat_api_key: LUKj7K7krK4oL2r0hxd95gILduKNkOphOW7aczQQ5l4W47977
+
+framework:
+    #esi:             ~
+    #translator:      { fallbacks: ["%locale%"] }
+    secret:          "%secret%"
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: ~
+    form:            ~
+    csrf_protection: ~
+    validation:      { enable_annotations: true }
+    #serializer:      { enable_annotations: true }
+    templating:
+        engines: ['twig']
+    default_locale:  "%locale%"
+    trusted_hosts:   ~
+    trusted_proxies: ~
+    session:
+        # http://symfony.com/doc/current/reference/configuration/framework.html#handler-id
+        handler_id:  session.handler.native_file
+        save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
+    fragments:       ~
+    http_method_override: true
+    assets: ~
+    php_errors:
+        log: true
+
+# Twig Configuration
+twig:
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver:   pdo_mysql
+        host:     "%database_host%"
+        port:     "%database_port%"
+        dbname:   "%database_name%"
+        user:     "%database_user%"
+        password: "%database_password%"
+        charset:  UTF8
+        # if using pdo_sqlite as your database driver:
+        #   1. add the path in parameters.yml
+        #     e.g. database_path: "%kernel.root_dir%/../var/data/data.sqlite"
+        #   2. Uncomment database_path in parameters.yml.dist
+        #   3. Uncomment next line:
+        #path:     "%database_path%"
+
+    orm:
+        auto_generate_proxy_classes: "%kernel.debug%"
+        entity_managers:
+            default:
+                naming_strategy: doctrine.orm.naming_strategy.underscore
+                auto_mapping: true
+                dql:
+                    numeric_functions:
+                        rand: DoctrineExtensions\Query\Mysql\Rand
+                metadata_cache_driver:
+                    type: memcached
+                result_cache_driver:
+                    type: memcached
+                query_cache_driver:
+                    type: memcached
+                second_level_cache:
+                    region_cache_driver:
+                        type:           memcached
+                    enabled:              true
+                    log_enabled:          true
+                    regions:
+                        my_region:
+                            cache_driver:  memcached
+                            lifetime:   3600
+
+# Swiftmailer Configuration
+swiftmailer:
+    transport: "%mailer_transport%"
+    host:      "%mailer_host%"
+    username:  "%mailer_user%"
+    password:  "%mailer_password%"
+    spool:     { type: memory }
+
+stof_doctrine_extensions:
+    default_locale: en_US
+    orm:
+        default:
+            timestampable: true
+            sluggable: true
+
+eko_feed:
+    feeds:
+        documentary:
+            title:       'DocumentaryWIRE'
+            description: 'Watch Free Documentaries Online'
+            link:        'http://documentarywire.com'
+            encoding:    'utf-8'
+            author:      'DocumentaryWIRE' # Only required for Atom feeds
+
+liip_imagine:
+    resolvers:
+       default:
+          web_path:
+            web_root: %kernel.root_dir%/../web
+            cache_prefix: media/cache
+
+    filter_sets:
+        cache: ~
+        avatar50:
+            quality: 75
+            filters:
+                thumbnail: { size: [50, 50], mode: inset }
+        avatar30:
+            quality: 75
+            filters:
+                thumbnail: { size: [30, 30], mode: inset }
+        avatar200:
+            quality: 90
+            filters:
+                thumbnail: { size: [200, 200], mode: inset }
+        cover160x200:
+            quality: 100
+            filters:
+                thumbnail: { size: [160, 200], mode: inset }
+        cover50x70:
+            quality: 75
+            filters:
+                thumbnail: { size: [50, 70], mode: inset }
+
+ewz_recaptcha:
+    public_key:  6LdQGBYUAAAAAEj_UPcmDHQnuCj8L_nUVmdPTSLu
+    private_key: 6LdQGBYUAAAAAFYkFULmkC3E9KL7MRCJNv0s7E0M
+    # Not needed as "%kernel.default_locale%" is the default value for the locale key
+    locale_key:  %kernel.default_locale%
+
+hwi_oauth:
+    # name of the firewall in which this bundle is active, this setting MUST be set
+    firewall_names: [main]
+    connect:
+        account_connector: dw.oauth_user_provider
+        confirmation: false
+    http_client:
+        verify_peer: false
+
+    # an optional setting to configure a query string parameter which can be used to redirect
+    # the user after authentication, e.g. /connect/facebook?_destination=/my/destination will
+    # redirect the user to /my/destination after facebook authenticates them.  If this is not
+    # set then the user will be redirected to the original resource that they requested, or
+    # the base address if no resource was requested.  This is similar to the behaviour of
+    # [target_path_parameter for form login](http://symfony.com/doc/2.0/cookbook/security/form_login.html).
+    # target_path_parameter: _destination
+
+    # an optional setting to use the HTTP REFERER header to be used in case no
+    # previous URL was stored in the session (i.e. no resource was requested).
+    # This is similar to the behaviour of
+    # [using the referring URL for form login](http://symfony.com/doc/2.0/cookbook/security/form_login.html#using-the-referring-url).
+    # use_referer: true
+
+    # here you will add one (or more) configurations for resource owners
+    # and other settings you want to adjust in this bundle, just checkout the list below!
+    resource_owners:
+        facebook:
+            type:                facebook
+            client_id:           xxxx
+            client_secret:       xxxx
+            scope:         "email"
+            infos_url:     "https://graph.facebook.com/me?fields=name,email,picture.type(large)"
+            paths:
+                email:          email
+                profilepicture: picture.data.url
+            options:
+                auth_type: rerequest

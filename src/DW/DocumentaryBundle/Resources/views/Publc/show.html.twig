@@ -1,0 +1,106 @@
+{% extends 'BaseBundle:Layout:base.html.twig' %}
+
+{% block content %}
+    <div class="video new-video">
+        {{ embedCode|raw }}
+    </div>
+    <h1>{{ documentary.title }}</h1>
+    <div class="documentary-section">
+        <span style="margin-right: 20px">{{ documentary.year }}</span>
+        <span style="margin-right: 20px">
+            <a href='{{ path('dw.home') }}'>Home</a>
+            >> <a href='{{ path('dw.show_category', {'slug': documentary.category.slug } ) }}'>{{ documentary.category.name }}</a>
+        </span>
+        <span style="margin-right: 20px">{{ documentary.views|views }} views</span>
+        <span style="margin-right: 20px">{{ documentary.commentCount }} comments</span>
+        <span style="float: right" class="like-documentary">
+            <a class="like" href="#" data-id="{{ documentary.id }}" data-action="like">Add to Favorites</a>
+        </span>
+    </div>
+    <div class="documentary-section"><div class="addthis_sharing_toolbox"></div></div>
+    <div class="documentary-section">
+        <h4>Storyline</h4>
+        {{ documentary.storyline|raw }}
+    </div>
+    <div class="documentary-section">
+        <h4>You may also like</h4>
+        <div class="grid-mini">
+            <div class="nag">
+                {% for randomDocumentary in randomDocumentaries %}
+                    {{ include('DocumentaryBundle:Publc:documentaryPost.html.twig', { 'documentary': randomDocumentary }) }}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="comments">
+            <h4>{{ documentary.commentCount }} Comments / User Reviews</h4>
+
+                {{ form_start(form, { 'attr': {'id': 'commentform'} }) }}
+                <div class="text-danger">{{ form_errors(form) }}</div>
+                {% if app.user == null %}
+                To post a comment please <a href='{{ path('login') }}' rel='external nofollow' class='url'>login</a> or <a href='{{ path('register') }}' rel='external nofollow' class='url'>sign up</a>
+                {% endif %}
+                <p class="comment-form-comment">
+                    {{ form_row(form.comment, { 'id': 'comment', 'attr': {'cols': 45, 'rows': 8,
+                        'aria-required': true, 'placeholder': 'Share your thoughts'}}) }}
+                </p>
+                {{ form_end(form) }}
+            <hr />
+            <ul class="comment-list">
+            {% for comment in comments %}
+                <li class="comment byuser comment-author even thread-even depth-1 cf" id="comment-{{ comment.id }}">
+                    <div id="comment-div-{{ comment.id }}" class="comment-div cf">
+                        <div class="comment-inner">
+                            <div class="comment-avatar">
+                                <img alt='' src='{{ commentAvatar(comment, 'avatar50') }}' class='avatar avatar-48 photo'
+                                     height='48' width='48' />
+                            </div>
+                            <div class="comment-meta">
+                                <span class="comment-author">
+                                <cite class="fn">
+                                    {% set user = comment.user %}
+                                    {% if user is defined and user is not null %}
+                                        <a href='{{ path('dw.show_user', {'username': user.username }) }}'
+                                           rel='external nofollow' class='url'>
+                                            {{ user.username }}
+                                        </a>
+                                    {% else %}
+                                        {% set author = comment.author %}
+                                        {% if author is defined and author is not null %}
+                                            {{ author }}
+                                        {% else %}
+                                            Guest
+                                        {% endif %}
+                                    {% endif %}
+                                </cite>
+                            </span>
+                            </div>
+                            <div class="comment-content">
+                                <p>{{ comment.comment|nl2br }}</p>
+                            </div>
+                        </div>
+                    </div><!-- end .comment-div -->
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block sidebar %}
+
+    {{ include('BaseBundle:Publc/Widget:adSidebarTop.html.twig') }}
+
+    {{ include('BaseBundle:Publc/Widget:subscribe.html.twig') }}
+
+    {{ include('UserBundle:Publc/Widget:members.html.twig') }}
+
+    {{ include('BaseBundle:Publc/Widget:adSidebarMiddle.html.twig') }}
+
+    {{ include('CategoryBundle:Publc/Widget:categories.html.twig') }}
+
+    {{ include('ActivityBundle:Publc/Widget:recentActivity.html.twig') }}
+
+    {{ include('SiteBundle:Publc/Widget:social.html.twig') }}
+
+{% endblock %}

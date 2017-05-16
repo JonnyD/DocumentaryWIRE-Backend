@@ -1,0 +1,37 @@
+DW\WatchlistBundle\Entity\Watchlist:
+  type: entity
+  repositoryClass: DW\WatchlistBundle\Repository\WatchlistRepository
+  table: watchlist
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    createdAt:
+      type: datetime
+      nullable: true
+      gedmo:
+        timestampable:
+          on: create
+    updatedAt:
+      type: datetime
+      nullable: true
+      gedmo:
+        timestampable:
+          on: update
+  manyToOne:
+    user:
+      targetEntity: DW\UserBundle\Entity\User
+      inversedBy: watchlisted
+      cascade: ["persist"]
+      joinColumn:
+        name: user_id
+        referencedColumnName: id
+    documentary:
+      targetEntity: DW\DocumentaryBundle\Entity\Documentary
+      inversedBy: watchlisted
+      cascade: ["persist"]
+      joinColumn:
+        name: documentary_id
+        referencedColumnName: id

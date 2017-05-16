@@ -1,0 +1,64 @@
+parameters:
+    # repositories
+    activity_repository.class: DW\ActivityBundle\Repository\ActivityRepository
+    activity_repository.factory_argument: 'ActivityBundle:Activity'
+
+    # services
+    activity_service.class: DW\ActivityBundle\Service\ActivityService
+
+    # extensions
+    recent_activity_all_extension.class: DW\ActivityBundle\Twig\RecentActivityAllExtension
+    recent_activity_comments_extension.class: DW\ActivityBundle\Twig\RecentActivityCommentsExtension
+    recent_activity_watchlisted_extension.class: DW\ActivityBundle\Twig\RecentActivityWatchlistedExtension
+
+    # listeners
+    dw.add_activity_listener.class: DW\ActivityBundle\EventListener\AddActivityListener
+
+services:
+    # services
+    dw.activity_service:
+        class: %activity_service.class%
+        arguments:
+          - '@dw.activity_repository'
+
+    # repositories
+    dw.activity_repository:
+        class: %activity_repository.class%
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments:
+          - %activity_repository.factory_argument%
+
+    # extensions
+    dw.recent_activity_all_extension:
+        class: %recent_activity_all_extension.class%
+        public: false
+        arguments:
+          - '@dw.activity_service'
+        tags:
+            - { name: twig.extension }
+
+    dw.recent_activity_comments_extension:
+        class: %recent_activity_comments_extension.class%
+        public: false
+        arguments:
+          - '@dw.activity_service'
+        tags:
+            - { name: twig.extension }
+
+    dw.recent_activity_watchlisted_extension:
+        class: %recent_activity_watchlisted_extension.class%
+        public: false
+        arguments:
+          - '@dw.activity_service'
+        tags:
+            - { name: twig.extension }
+
+    # listeners
+    dw.add_activity_listener:
+        class: %dw.add_activity_listener.class%
+        arguments:
+            - '@dw.activity_service'
+        tags:
+            - { name: kernel.event_listener, event: watchlist.watchlisted, method: onDocumentaryLiked }
+            - { name: kernel.event_listener, event: user.confirmed, method: onUserConfirmed }
+            - { name: kernel.event_listener, event: comment.added, method: onCommentAdded }

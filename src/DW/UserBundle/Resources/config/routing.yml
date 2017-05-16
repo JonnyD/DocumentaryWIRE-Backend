@@ -1,0 +1,21 @@
+login:
+    path: /user/login
+    defaults: { _controller: UserBundle:Publc/Security:login }
+
+login_check:
+   path:     /user/login_check
+
+logout:
+   path:     /user/logout
+
+register:
+    path: /user/register
+    defaults: { _controller: UserBundle:Publc/Security:register }
+
+dw.activate:
+    path: /user/activate
+    defaults: { _controller: UserBundle:Publc/Security:activate }
+
+dw.show_user:
+    path: /user/{username}
+    defaults: { _controller: UserBundle:Publc/User:profile }

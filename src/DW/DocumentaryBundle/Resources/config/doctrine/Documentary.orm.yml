@@ -1,0 +1,82 @@
+DW\DocumentaryBundle\Entity\Documentary:
+  type: entity
+  repositoryClass: DW\DocumentaryBundle\Repository\DocumentaryRepository
+  table: documentary
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    slug:
+      type: string
+      length: 128
+      gedmo:
+        slug:
+          fields:
+            - title
+    title:
+      type: string
+    storyline:
+      type: text
+    summary:
+      type: string
+      nullable: true
+    year:
+      type: integer
+      nullable: true
+    length:
+      type: integer
+      nullable: true
+    status:
+      type: string
+    views:
+      type: integer
+    shortUrl:
+      type: string
+      nullable: true
+    poster:
+      type: string
+    videoSource:
+      type: string
+      nullable: true
+    videoId:
+      type: text
+      nullable: true
+    featured:
+      type: boolean
+      nullable: true
+    featuredImage:
+      type: string
+      nullable: true
+    commentCount:
+      type: integer
+    watchlistCount:
+      type: integer
+    createdAt:
+      type: datetime
+      gedmo:
+        timestampable:
+          on: create
+    updatedAt:
+      type: datetime
+      gedmo:
+        timestampable:
+          on: update
+  manyToOne:
+    category:
+      targetEntity: DW\CategoryBundle\Entity\Category
+      inversedBy: documentaries
+      cascade: ["persist"]
+      joinColumn:
+        name: category_id
+        referencedColumnName: id
+  oneToMany:
+    comments:
+      targetEntity: DW\CommentBundle\Entity\Comment
+      mappedBy: documentary
+      cascade: ["persist"]
+    watchlisted:
+      targetEntity: DW\WatchlistBundle\Entity\Watchlist
+      mappedBy: documentary
+      cascade: ["persist"]

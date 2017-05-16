@@ -1,0 +1,93 @@
+parameters:
+    # repositories
+    documentary_repository.class: DW\DocumentaryBundle\Repository\DocumentaryRepository
+    documentary_repository.factory_argument: 'DocumentaryBundle:Documentary'
+
+    # services
+    documentary_service.class: DW\DocumentaryBundle\Service\DocumentaryService
+
+    # extensions
+    featured_documentaries_extension.class: DW\DocumentaryBundle\Twig\FeaturedDocumentariesExtension
+    random_documentaries_in_category_extension.class: DW\DocumentaryBundle\Twig\RandomDocumentariesInCategoryExtension
+    latest_documentaries_extension.class: DW\DocumentaryBundle\Twig\LatestDocumentariesExtension
+    most_popular_documentaries_extension.class: DW\DocumentaryBundle\Twig\MostPopularDocumentariesExtension
+    most_discussed_documentaries_extension.class: DW\DocumentaryBundle\Twig\MostDiscussedDocumentariesExtension
+    most_watchlisted_documentaries_extension.class: DW\DocumentaryBundle\Twig\MostWatchlistedDocumentariesExtension
+    views_extension.class: DW\DocumentaryBundle\Twig\ViewsExtension
+
+    # uploader
+    poster_uploader.class: DW\DocumentaryBundle\Uploader\PosterUploader
+
+services:
+    # services
+    dw.documentary_service:
+        class: %documentary_service.class%
+        arguments:
+          - '@dw.documentary_repository'
+
+    # repositories
+    dw.documentary_repository:
+        class: %documentary_repository.class%
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments:
+          - %documentary_repository.factory_argument%
+
+    # extensions
+    dw.featured_documentaries_extension:
+        class: %featured_documentaries_extension.class%
+        public: false
+        arguments:
+          - '@dw.documentary_service'
+        tags:
+            - { name: twig.extension }
+
+    dw.latest_documentaries_extension:
+        class: %latest_documentaries_extension.class%
+        public: false
+        arguments:
+          - '@dw.documentary_service'
+        tags:
+            - { name: twig.extension }
+
+    dw.most_popular_documentaries_extension:
+        class: %most_popular_documentaries_extension.class%
+        public: false
+        arguments:
+          - '@dw.documentary_service'
+        tags:
+            - { name: twig.extension }
+
+    dw.most_discussed_documentaries_extension:
+        class: %most_discussed_documentaries_extension.class%
+        public: false
+        arguments:
+          - '@dw.documentary_service'
+        tags:
+            - { name: twig.extension }
+
+    dw.most_watchlisted_documentaries_extension:
+        class: %most_watchlisted_documentaries_extension.class%
+        public: false
+        arguments:
+          - '@dw.documentary_service'
+        tags:
+            - { name: twig.extension }
+
+    dw.random_documentaries_in_category_extension:
+        class: %random_documentaries_in_category_extension.class%
+        public: false
+        arguments:
+          - '@dw.documentary_service'
+        tags:
+            - { name: twig.extension }
+
+    dw.views_extension:
+        class: %views_extension.class%
+        public: false
+        tags:
+            - { name: twig.extension }
+
+    # uploader
+    dw.poster_uploader:
+        class: %poster_uploader.class%
+        arguments: ['%posters_directory%']

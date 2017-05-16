@@ -1,0 +1,33 @@
+parameters:
+    # repositories
+    comment_repository.class: DW\CommentBundle\Repository\CommentRepository
+    comment_repository.factory_argument: 'CommentBundle:Comment'
+
+    # services
+    comment_service.class: DW\CommentBundle\Service\CommentService
+
+    # listeners
+    dw.map_comments_to_user_listener.class: DW\CommentBundle\EventListener\MapCommentsToUserListener
+
+services:
+    # services
+    dw.comment_service:
+        class: %comment_service.class%
+        arguments:
+          - '@dw.comment_repository'
+          - '@event_dispatcher'
+
+    # repositories
+    dw.comment_repository:
+        class: %comment_repository.class%
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments:
+          - %comment_repository.factory_argument%
+
+    # listeners
+    dw.map_comments_to_user_listener:
+        class: %dw.map_comments_to_user_listener.class%
+        arguments:
+            - '@dw.comment_service'
+        tags:
+            - { name: kernel.event_listener, event: user.confirmed, method: onUserConfirmed }

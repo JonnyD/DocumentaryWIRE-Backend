@@ -1,0 +1,33 @@
+parameters:
+    # repositories
+    category_repository.class: DW\CategoryBundle\Repository\CategoryRepository
+    category_repository.factory_argument: 'CategoryBundle:Category'
+
+    # services
+    category_service.class: DW\CategoryBundle\Service\CategoryService
+
+    # extensions
+    categories_extension.class: DW\CategoryBundle\Twig\CategoriesExtension
+
+services:
+    # services
+    dw.category_service:
+        class: %category_service.class%
+        arguments:
+          - '@dw.category_repository'
+
+    # repositories
+    dw.category_repository:
+        class: %category_repository.class%
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments:
+          - %category_repository.factory_argument%
+
+    # extensions
+    dw.categories_extension:
+        class: %categories_extension.class%
+        public: false
+        arguments:
+          - '@dw.category_service'
+        tags:
+          - { name: twig.extension }

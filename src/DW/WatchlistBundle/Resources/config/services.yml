@@ -1,0 +1,22 @@
+parameters:
+    # repositories
+    watchlist_repository.class: DW\WatchlistBundle\Repository\WatchlistRepository
+    watchlist_repository.factory_argument: 'WatchlistBundle:Watchlist'
+
+    # services
+    watchlist_service.class: DW\WatchlistBundle\Service\WatchlistService
+
+services:
+    # services
+    dw.watchlist_service:
+        class: %watchlist_service.class%
+        arguments:
+          - '@dw.watchlist_repository'
+          - '@event_dispatcher'
+
+    # repositories
+    dw.watchlist_repository:
+        class: %watchlist_repository.class%
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments:
+         - %watchlist_repository.factory_argument%

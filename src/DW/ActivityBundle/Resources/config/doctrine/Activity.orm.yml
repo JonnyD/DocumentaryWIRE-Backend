@@ -1,0 +1,40 @@
+DW\ActivityBundle\Entity\Activity:
+  type: entity
+  repositoryClass: DW\ActivityBundle\Repository\ActivityRepository
+  table: activity
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    type:
+      type: string
+    component:
+      type: string
+    objectId:
+      type: integer
+    data:
+      type: text
+    groupNumber:
+      type: integer
+    createdAt:
+      type: datetime
+      nullable: true
+      gedmo:
+        timestampable:
+          on: create
+    updatedAt:
+      type: datetime
+      nullable: true
+      gedmo:
+        timestampable:
+          on: update
+  manyToOne:
+    user:
+      targetEntity: DW\UserBundle\Entity\User
+      inversedBy: activity
+      cascade: ["persist"]
+      joinColumn:
+        name: user_id
+        referencedColumnName: id

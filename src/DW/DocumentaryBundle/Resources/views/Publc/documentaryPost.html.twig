@@ -1,0 +1,36 @@
+<div id="post-{{ documentary.id }}"
+     class="item">
+
+    <div class="thumb">
+        <a class="clip-link" data-id="{{ documentary.id }}"
+           href="{{ url('dw.show_documentary', {'slug': documentary.slug }) }}">
+
+                <span class="clip">
+                    <img src="{{ asset(documentary.poster) }}" width="100" height="100"
+                         alt="Watch {{ documentary.title }}" title="Watch {{ documentary.title }} Documentary"/>
+                    <span class="vertical-align">
+                    </span>
+                </span>
+
+            <span class="overlay"></span>
+        </a>
+    </div>
+    <div class="data">
+        <h2 class="entry-title">
+            <a href="{{ url('dw.show_documentary', {'slug': documentary.slug }) }}"
+               rel="bookmark" title="Watch {{ documentary.title }}">{{ documentary.title }}</a>
+        </h2>
+
+        <p class="stats">
+            <span class="views">
+                <i class="count">{{ documentary.views|views }}</i>
+            </span>
+            <span class="comments">
+                <i class="count">{{ documentary.commentCount }}</i>
+            </span>
+            <span class="dp-post-likes likes " data-did="1316">
+                <i class="count">{{ documentary.watchlistCount }}</i>
+            </span>
+        </p>
+    </div>
+</div>

@@ -1,0 +1,93 @@
+{% extends 'BaseBundle:Layout:base.html.twig' %}
+
+{% block content %}
+        <div class="section-box">
+            <h1>Watch Free Documentaries Online</h1>
+            Discover thousands of eye-opening, paradigm shifting, and mind-blowing top documentary films.
+        </div>
+
+        <div class="section-box">
+            <div id="myCarousel" class="carousel slide">
+                <div class="carousel-inner">
+                    {% for documentary in featuredDocumentaries() %}
+                    <div class="{% if loop.index == 1 %}active{% endif %} item" align="center">
+                        <a href="{{ url('dw.show_documentary', {'slug': documentary.slug }) }}">
+                            <img src="{{ asset(documentary.featuredImage) }}" class="img-responsive"
+                                 alt="{{ documentary.title }}"></a>
+                        <div class="carousel-caption">
+                            <h3>{{ documentary.title }}</h3>
+                            <p>{{ documentary.summary }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <a class="left carousel-control" href="#myCarousel" data-slide="prev">‹</a>
+                <a class="right carousel-control" href="#myCarousel" data-slide="next">›</a>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h4>Recently Added</h4>
+            <div class="grid-large">
+                <div class="nag">
+                    {% for documentary in latestDocumentaries(9) %}
+                        {{ include('DocumentaryBundle:Publc:documentaryPost.html.twig', { 'documentary': documentary }) }}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h4>Most Popular Documentaries</h4>
+
+            <div class="grid-mini">
+                <div class="nag">
+                    {% for documentary in mostPopularDocumentaries(8) %}
+                        {{ include('DocumentaryBundle:Publc:documentaryPost.html.twig', { 'documentary': documentary }) }}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h4>Most Discussed Documentaries</h4>
+
+            <div class="grid-mini">
+                <div class="nag">
+                    {% for documentary in mostDiscussedDocumentaries(8) %}
+                        {{ include('DocumentaryBundle:Publc:documentaryPost.html.twig', { 'documentary': documentary }) }}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h4>Most Watchlisted Documentaries</h4>
+
+            <div class="grid-mini">
+                <div class="nag">
+                    {% for documentary in mostWatchListedDocumentaries(8) %}
+                        {{ include('DocumentaryBundle:Publc:documentaryPost.html.twig', { 'documentary': documentary }) }}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block sidebar %}
+
+    {{ include('BaseBundle:Publc/Widget:adSidebarTop.html.twig') }}
+
+    {{ include('BaseBundle:Publc/Widget:subscribe.html.twig') }}
+
+    {{ include('UserBundle:Publc/Widget:members.html.twig') }}
+
+    {{ include('BaseBundle:Publc/Widget:adSidebarMiddle.html.twig') }}
+
+    {{ include('CategoryBundle:Publc/Widget:categories.html.twig') }}
+
+    {{ include('ActivityBundle:Publc/Widget:recentActivity.html.twig') }}
+
+    {{ include('SiteBundle:Publc/Widget:social.html.twig') }}
+
+{% endblock %}

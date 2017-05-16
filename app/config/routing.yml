@@ -1,0 +1,49 @@
+_liip_imagine:
+    resource: "@LiipImagineBundle/Resources/config/routing.xml"
+
+hwi_oauth_login:
+    resource: "@HWIOAuthBundle/Resources/config/routing/login.xml"
+    prefix:   /social/login/
+
+hwi_oauth_redirect:
+    resource: "@HWIOAuthBundle/Resources/config/routing/redirect.xml"
+    prefix:   /connect
+
+hwi_oauth_connect_facebook:
+    path: /connect/facebook
+    defaults: { _controller: UserBundle:Connect:connectService }
+
+hwi_oauth_connect_service:
+    path: /connect/service/{service}
+    defaults: { _controller: UserBundle:Connect:connectService }
+
+hwi_oauth_connect:
+    resource: "@HWIOAuthBundle/Resources/config/routing/connect.xml"
+    prefix:   /connect
+
+facebook_login:
+    path: /login/check-facebook
+
+dw.user_bundle:
+    resource: "@UserBundle/Resources/config/routing.yml"
+    prefix:   /
+
+dw.base_bundle:
+    resource: "@BaseBundle/Resources/config/routing.yml"
+    prefix:   /
+
+dw.site_bundle:
+    resource: "@SiteBundle/Resources/config/routing.yml"
+    prefix:   /
+
+dw.activity_bundle:
+    resource: "@ActivityBundle/Resources/config/routing.yml"
+    prefix:   /
+
+dw.category_bundle:
+    resource: "@CategoryBundle/Resources/config/routing.yml"
+    prefix:   /
+
+dw.documentary_bundle:
+    resource: "@DocumentaryBundle/Resources/config/routing.yml"
+    prefix:   /

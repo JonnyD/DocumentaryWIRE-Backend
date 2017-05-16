@@ -1,0 +1,27 @@
+{% extends 'BaseBundle:Layout:base.html.twig' %}
+
+{% block content %}
+
+    <h1>Documentary List</h1>
+
+    <div class="grid-large">
+        <div class="nag">
+            {% for documentary in documentaries %}
+                {{ include('DocumentaryBundle:Publc:documentaryPost.html.twig', { 'documentary': documentary }) }}
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block sidebar %}
+
+    {{ include('BaseBundle:Publc/Widget:adSidebarTop.html.twig') }}
+
+    {{ include('BaseBundle:Publc/Widget:subscribe.html.twig') }}
+
+    {{ include('CategoryBundle:Publc/Widget:categories.html.twig') }}
+
+    {{ include('BaseBundle:Publc/Widget:adSidebarMiddle.html.twig') }}
+
+{% endblock %}

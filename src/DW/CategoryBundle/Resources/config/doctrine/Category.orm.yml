@@ -1,0 +1,38 @@
+DW\CategoryBundle\Entity\Category:
+  type: entity
+  repositoryClass: DW\CategoryBundle\Repository\CategoryRepository
+  table: category
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    name:
+      type: string
+    slug:
+      type: string
+      length: 128
+      gedmo:
+        slug:
+          fields:
+            - name
+    count:
+      type: integer
+    createdAt:
+      type: datetime
+      nullable: true
+      gedmo:
+        timestampable:
+          on: create
+    updatedAt:
+      type: datetime
+      nullable: true
+      gedmo:
+        timestampable:
+          on: update
+  oneToMany:
+    documentaries:
+      targetEntity: DW\DocumentaryBundle\Entity\Documentary
+      mappedBy: category
+      cascade: ["persist"]

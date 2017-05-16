@@ -1,0 +1,45 @@
+{% extends 'BaseBundle:Layout:base.html.twig' %}
+
+{% block content %}
+    <img src="{{ avatar(user, 'avatar200') }}" />
+    <h4>{{ user.username }}</h4>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active">
+            <a href="#home" aria-controls="home" role="tab" data-toggle="tab">Comments</a>
+        </li>
+        <li role="presentation">
+            <a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Watchlisted</a>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="home">
+            {% for comment in comments %}
+                <div style="margin-bottom: 10px; border-bottom: 1px solid #e1e1e1">
+                {{ user.username }} commented on <a href="{{ url('dw.show_documentary', {'slug': comment.documentary.slug }) }}">{{ comment.documentary.title }}</a> <br />
+                {{ comment.comment }}
+                </div>
+            {% endfor %}
+        </div>
+        <div role="tabpanel" class="tab-pane" id="profile">
+            {% for watchlist in watchlisted %}
+                <div class="grid-mini">
+                    <div class="nag">
+                    {{ include('DocumentaryBundle:Publc:documentaryPost.html.twig', { 'documentary': watchlist.documentary }) }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block sidebar %}
+
+    {{ include('UserBundle:Publc/Widget:members.html.twig') }}
+
+    {{ include('ActivityBundle:Publc/Widget:recentActivity.html.twig') }}
+
+{% endblock %}

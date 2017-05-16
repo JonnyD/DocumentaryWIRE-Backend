@@ -1,0 +1,54 @@
+DW\CommentBundle\Entity\Comment:
+  type: entity
+  repositoryClass: DW\CommentBundle\Repository\CommentRepository
+  table: comment
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    comment:
+      type: text
+    status:
+      type: string
+    author:
+      type: string
+      nullable: true
+    email:
+      type: string
+      nullable: true
+    points:
+      type: integer
+      nullable: true
+    createdAt:
+      type: datetime
+      gedmo:
+        timestampable:
+          on: create
+    updatedAt:
+      type: datetime
+      nullable: true
+      gedmo:
+        timestampable:
+          on: update
+  manyToOne:
+    user:
+      targetEntity: DW\UserBundle\Entity\User
+      inversedBy: comments
+      cascade: ["persist"]
+      joinColumn:
+        name: user_id
+        referencedColumnName: id
+    documentary:
+      targetEntity: DW\DocumentaryBundle\Entity\Documentary
+      inversedBy: comments
+      cascade: ["persist"]
+      joinColumn:
+        name: documentary_id
+        referencedColumnName: id
+  oneToMany:
+    votes:
+      targetEntity: DW\CommentBundle\Entity\CommentVote
+      mappedBy: comment
+      cascade: ["persist"]
