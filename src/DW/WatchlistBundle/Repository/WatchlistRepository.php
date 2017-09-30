@@ -10,10 +10,64 @@ use DW\WatchlistBundle\Entity\Watchlist;
 class WatchlistRepository extends EntityRepository
 {
     /**
+     * @param Watchlist $watchlist
+     * @param bool $sync
+     */
+    public function save(Watchlist $watchlist, bool $sync = true)
+    {
+        $this->getEntityManager()->persist($watchlist);
+        if ($sync) {
+            $this->flush();
+        }
+    }
+
+    /**
+     * @param Watchlist $watchlist
+     */
+    public function remove(Watchlist $watchlist)
+    {
+        $this->getEntityManager()->remove($watchlist);
+    }
+
+    public function flush()
+    {
+        $this->getEntityManager()->flush();
+    }
+
+    /**
      * @param WatchlistCriteria $criteria
      * @return ArrayCollection|Watchlist[]
      */
     public function findAllByCriteria(WatchlistCriteria $criteria)
+    {
+        $qb = $this->findByCriteriaQueryBuilder($criteria);
+
+        $query = $qb->getQuery();
+        $result = $query->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param WatchlistCriteria $criteria
+     * @return Watchlist
+     */
+    public function findByCriteria(WatchlistCriteria $criteria)
+    {
+        $qb = $this->findByCriteriaQueryBuilder($criteria);
+        $qb->setMaxResults(1);
+
+        $query = $qb->getQuery();
+        $result = $query->getOneOrNullResult();
+
+        return $result;
+    }
+
+    /**
+     * @param WatchlistCriteria $criteria
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function findByCriteriaQueryBuilder(WatchlistCriteria $criteria)
     {
         $em = $this->getEntityManager();
         $qb = $em->createQueryBuilder();
@@ -26,9 +80,11 @@ class WatchlistRepository extends EntityRepository
                 ->setParameter('user', $criteria->getUser());
         }
 
-        $query = $qb->getQuery();
-        $result = $query->getResult();
+        if ($criteria->getDocumentary()) {
+            $qb->andWhere('watchlist.documentary = :documentary')
+                ->setParameter('documentary', $criteria->getDocumentary());
+        }
 
-        return $result;
+        return $qb;
     }
 }

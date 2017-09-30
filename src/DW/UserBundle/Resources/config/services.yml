@@ -121,7 +121,7 @@ services:
             - '@router'
             - '@mailer'
         tags:
-            - { name: kernel.event_listener, event: user.joined, method: sendActiv }
+            - { name: kernel.event_listener, event: user.joined, method: sendActivationEmail }
 
     # providers
     dw.oauth_user_provider:

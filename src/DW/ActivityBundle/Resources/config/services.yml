@@ -59,6 +59,7 @@ services:
         arguments:
             - '@dw.activity_service'
         tags:
-            - { name: kernel.event_listener, event: watchlist.watchlisted, method: onDocumentaryLiked }
+            - { name: kernel.event_listener, event: watchlist.watchlisted, method: onDocumentaryWatchlisted }
+            - { name: kernel.event_listener, event: watchlist.unwatchlisted, method: onDocumentaryUnwatchlisted }
             - { name: kernel.event_listener, event: user.confirmed, method: onUserConfirmed }
             - { name: kernel.event_listener, event: comment.added, method: onCommentAdded }

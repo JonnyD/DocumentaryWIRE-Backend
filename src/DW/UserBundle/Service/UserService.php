@@ -71,6 +71,15 @@ class UserService
     }
 
     /**
+     * @param UserCriteria $criteria
+     * @return ArrayCollection|User[]
+     */
+    public function getUsersByCritria(UserCriteria $criteria)
+    {
+        return $this->userRepository->findAllByCriteria($criteria);
+    }
+
+    /**
      * @param string $username
      * @return User
      */

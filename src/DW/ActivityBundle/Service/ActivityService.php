@@ -38,7 +38,7 @@ class ActivityService
      * @param array $data
      * @param int $groupNumber
      */
-    public function addActivity(User $user, int $objectId, string $type, string $component, array $data, int $groupNumber)
+    public function addActivity(User $user, int $objectId, string $type, string $component, array $data, int $groupNumber, \DateTime $createdAt = null)
     {
         $activity = new Activity();
         $activity->setUser($user);
@@ -47,8 +47,19 @@ class ActivityService
         $activity->setComponent($component);
         $activity->setData(serialize($data));
         $activity->setGroupNumber($groupNumber);
+        if ($createdAt != null) {
+            $activity->setCreatedAt($createdAt);
+        }
 
         $this->activityRepository->save($activity);
+    }
+
+    /**
+     * @param Activity $activity
+     */
+    public function removeActivity(Activity $activity)
+    {
+        $this->activityRepository->remove($activity);
     }
 
     /**
@@ -119,46 +130,51 @@ class ActivityService
     /**
      * @param User $user
      */
-    public function addJoinedActivity(User $user)
+    public function addJoinedActivity(User $user, \DateTime $createdAt)
     {
         $latestActivity = $this->getLatestActivity();
-        $groupNumber = $latestActivity->getGroupNumber();
+        if ($latestActivity) {
+            $groupNumber = $latestActivity->getGroupNumber();
 
-        if ($latestActivity->getType() != ActivityType::JOINED) {
-            $groupNumber++;
-        } else {
-            $activityGroupNumber = $this->getActivityByGroupNumber($groupNumber);
-            if (count($activityGroupNumber) >= 20) {
+            if ($latestActivity->getType() != ActivityType::JOINED) {
                 $groupNumber++;
+            } else {
+                $activityGroupNumber = $this->getActivityByGroupNumber($groupNumber);
+                if (count($activityGroupNumber) >= 20) {
+                    $groupNumber++;
+                }
             }
+        } else {
+            $groupNumber = 1;
         }
 
-        $this->addActivity($user, $user->getId(), ActivityType::JOINED, ComponentType::USER, [], $groupNumber);
+        $this->addActivity($user, $user->getId(), ActivityType::JOINED, ComponentType::USER, [], $groupNumber, $createdAt);
     }
 
     /**
      * @param Comment $comment
      */
-    public function addCommentActivity(Comment $comment)
+    public function addCommentActivity(Comment $comment, \DateTime $createdAt)
     {
         $documentary = $comment->getDocumentary();
         $user = $comment->getUser();
 
-        $data = [
-            "documentaryId" => $documentary->getId(),
-            "documentaryTitle" => $documentary->getTitle(),
-            "documentaryThumbnail" => $documentary->getPoster(),
-            "documentarySlug" => $documentary->getSlug(),
-            "comment" => $comment->getComment()
-        ];
+        if ($user) {
+            $data = [
+                "documentaryId" => $documentary->getId(),
+                "documentaryTitle" => $documentary->getTitle(),
+                "documentaryThumbnail" => $documentary->getPoster(),
+                "documentarySlug" => $documentary->getSlug(),
+                "comment" => $comment->getComment()
+            ];
 
-        $latestActivity = $this->getLatestActivity();
-        $groupNumber = $latestActivity->getGroupNumber();
-        $groupNumber++;
+            $latestActivity = $this->getLatestActivity();
+            $groupNumber = $latestActivity->getGroupNumber();
+            $groupNumber++;
 
-        $this->addActivity($user, $comment->getId(), ActivityType::COMMENT, ComponentType::DOCUMENTARY, $data, $groupNumber);
+            $this->addActivity($user, $comment->getId(), ActivityType::COMMENT, ComponentType::DOCUMENTARY, $data, $groupNumber, $createdAt);
+        }
     }
-
     /**
      * @param Comment $comment
      */

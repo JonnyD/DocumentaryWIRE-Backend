@@ -50,11 +50,13 @@ class ChatExtension extends \Twig_Extension
         $iflyChat = new iFlyChat($this->appId, $this->apiKey);
 
         $loggedInUser = $this->securityService->getLoggedInUser();
-        $user = [
-            'user_name' => $loggedInUser->getUsername(),
-            'user_id' => (string) $loggedInUser->getId()
-        ];
-        $iflyChat->setUser($user);
+        if ($loggedInUser != null && !is_string($loggedInUser)) {
+            $user = [
+                'user_name' => $loggedInUser->getUsername(),
+                'user_id' => (string) $loggedInUser->getId()
+            ];
+            $iflyChat->setUser($user);
+        }
 
         echo $iflyChat->getHtmlCode();
     }

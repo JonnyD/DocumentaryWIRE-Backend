@@ -1,0 +1,11 @@
+<table>
+    {% for comment in comments %}
+        <tr>
+            <td>
+                {{ comment.comment }}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+
+{{ pagerfanta(documentaries) }}

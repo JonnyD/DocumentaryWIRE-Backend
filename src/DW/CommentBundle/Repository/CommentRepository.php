@@ -84,4 +84,12 @@ class CommentRepository extends EntityRepository
     {
         $this->getEntityManager()->flush();
     }
+
+    /**
+     * @param Comment $comment
+     */
+    public function remove(Comment $comment)
+    {
+        $this->getEntityManager()->remove($comment);
+    }
 }

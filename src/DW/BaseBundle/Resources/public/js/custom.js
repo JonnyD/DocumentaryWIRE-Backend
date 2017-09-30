@@ -1,10 +1,5 @@
-
-console.log("Hello1");
-
-
 $(document).ready(function(){
     $(document).on('click', '.like-documentary .like, .like-documentary .liked', function (e) {
-        console.log("Hello2");
         var el = $(this);
         el.prop('disabled', true);
 
@@ -12,12 +7,14 @@ $(document).ready(function(){
 
         var data = {
             actionType: actionType,
-            documentaryId: el.attr("data-did")
+            documentaryId: el.attr("data-id")
         };
+
+        console.log(data);
 
         $.ajax({
             type: 'POST',
-            url: 'http://localhost/DocumentaryWIRE3/web/suarez_app_dev.php/ajax/like/documentary',
+            url: '/ajax/like/documentary',
             data: data,
             dataType: 'json',
             error: function () {

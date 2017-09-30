@@ -40,6 +40,14 @@ class CommentService
     }
 
     /**
+     * @return Comment[]|ArrayCollection
+     */
+    public function getAllComments()
+    {
+        return $this->commentRepository->findAll();
+    }
+
+    /**
      * @param CommentCriteria $criteria
      * @return ArrayCollection|Comment[]
      */

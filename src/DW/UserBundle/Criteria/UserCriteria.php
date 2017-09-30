@@ -27,7 +27,7 @@ class UserCriteria
     /**
      * @return \DateTime
      */
-    public function getActivatedAt() : \DateTime
+    public function getActivatedAt()
     {
         return $this->activatedAt;
     }
@@ -43,7 +43,7 @@ class UserCriteria
     /**
      * @return boolean
      */
-    public function isActivated() : bool
+    public function isActivated()
     {
         return $this->isActivated;
     }
@@ -59,7 +59,7 @@ class UserCriteria
     /**
      * @return array
      */
-    public function getSort() : array
+    public function getSort()
     {
         return $this->sort;
     }
@@ -75,7 +75,7 @@ class UserCriteria
     /**
      * @return int
      */
-    public function getLimit() : int
+    public function getLimit()
     {
         return $this->limit;
     }

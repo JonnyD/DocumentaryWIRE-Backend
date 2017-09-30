@@ -1,5 +1,38 @@
 {% extends 'BaseBundle:Layout:base.html.twig' %}
 
+{% block head %}
+    {% set pageUrl = url('dw.show_documentary', app.request.attributes.get('_route_params')) %}
+
+    <link rel="canonical" href="{{ pageUrl }}" />
+    <link rel="shortlink" href="{% if documentary.shortUrl is not null %}{{ documentary.shortUrl }}{% endif %}" />
+
+
+    {% block title %}<title>{{ documentary.title }} | Watch Free Documentary Online</title>{% endblock %}
+    {% block description %}<meta name="description" content="{{ documentary.summary }}"/>{% endblock %}
+
+    {% set facebookThumbnail = documentary.poster %}
+    {% if documentary.featuredImage is not null %}
+        {% set facebookThumbnail = documentary.featuredImage %}
+    {% endif %}
+    <meta property="fb:app_id" content="516432235033685" />
+    <meta property="og:type" content="video.movie" />
+    <meta property="og:title" content="{{ documentary.title }}" />
+    <meta property="og:url" content="{{ pageUrl }}" />
+    <meta property="og:image" content="{{ app.request.getSchemeAndHttpHost() ~ asset(facebookThumbnail) }}" />
+    <meta property="og:site_name" content="DocumentaryWIRE" />
+    <meta property="fb:admins" content="1341326380" />
+    <meta property="og:description" content="{{ documentary.summary }}"/>
+
+    <script type="text/javascript">
+        var addthis_share =
+            {
+                templates: {
+                    twitter: 'Watch {{ documentary.title }} {% if documentary.shortUrl is not null %}{{ documentary.shortUrl }}{% else %}{{ pageUrl }}{% endif %} via @documentaries'
+                }
+            }
+    </script>
+{% endblock %}
+
 {% block content %}
     <div class="video new-video">
         {{ embedCode|raw }}

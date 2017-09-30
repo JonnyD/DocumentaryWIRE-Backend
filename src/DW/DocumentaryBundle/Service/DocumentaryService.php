@@ -233,6 +233,15 @@ class DocumentaryService
     }
 
     /**
+     * @param int $id
+     * @return null|Documentary
+     */
+    public function getDocumentaryById(int $id)
+    {
+        return $this->documentaryRepository->find($id);
+    }
+
+    /**
      * @param string $slug
      * @return Documentary
      */

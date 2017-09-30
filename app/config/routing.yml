@@ -47,3 +47,7 @@ dw.category_bundle:
 dw.documentary_bundle:
     resource: "@DocumentaryBundle/Resources/config/routing.yml"
     prefix:   /
+
+dw.watchlist_bundle:
+    resource: "@WatchlistBundle/Resources/config/routing.yml"
+    prefix:   /
