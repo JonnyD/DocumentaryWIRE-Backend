@@ -7,9 +7,10 @@ use DW\BaseBundle\Traits\Sluggable;
 use DW\CategoryBundle\Entity\Category;
 use DW\CommentBundle\Entity\Comment;
 use DW\WatchlistBundle\Entity\Watchlist;
+use Eko\FeedBundle\Item\Writer\RoutedItemInterface;
 use Gedmo\Timestampable\Traits\Timestampable;
 
-class Documentary
+class Documentary implements RoutedItemInterface
 {
     use Timestampable;
     use Sluggable;
@@ -472,5 +473,35 @@ class Documentary
     public function setWatchlistCount($watchlistCount)
     {
         $this->watchlistCount = $watchlistCount;
+    }
+
+    public function getFeedItemTitle()
+    {
+        return $this->title;
+    }
+
+    public function getFeedItemDescription()
+    {
+        return $this->getSummary();
+    }
+
+    public function getFeedItemPubDate()
+    {
+        return $this->createdAt;
+    }
+
+    public function getFeedItemRouteName()
+    {
+        return 'dw.show_documentary';
+    }
+
+    public function getFeedItemRouteParameters()
+    {
+        return array("slug" => $this->slug);
+    }
+
+    public function getFeedItemUrlAnchor()
+    {
+        return "";
     }
 }

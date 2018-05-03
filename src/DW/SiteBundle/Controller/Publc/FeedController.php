@@ -14,7 +14,7 @@ class FeedController extends Controller
     public function feedAction()
     {
         $documentaryService = $this->getDocumentaryService();
-        $documentaries = $documentaryService->getLatestDocumentaries(10);
+        $documentaries = $documentaryService->getLatestDocumentaries(20);
 
         $feed = $this->getFeedManager()->get('documentary');
         $feed->addFromArray($documentaries);

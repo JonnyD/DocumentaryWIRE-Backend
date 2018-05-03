@@ -21,3 +21,7 @@ documentary_wire.sitemap_category:
 documentary_wire.sitemap_page:
     path:  /sitemap-page.xml
     defaults: { _controller: SiteBundle:Publc/Sitemap:page }
+
+dw.rss_feed:
+    path: /feed/
+    defaults: { _controller: SiteBundle:Publc/Feed:feed }
