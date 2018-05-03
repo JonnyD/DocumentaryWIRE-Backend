@@ -78,7 +78,7 @@ class DocumentaryController extends Controller
 
         $form = $this->createForm(DocumentaryType::class, $documentary);
         $form->get('poster')->setData(
-            new File($this->getParameter('posters_directory').'/'.$documentary->getPoster())
+            new File($documentary->getPoster())
         );
         $form->handleRequest($request);
 
