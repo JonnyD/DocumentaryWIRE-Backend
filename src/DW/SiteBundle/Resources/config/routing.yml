@@ -6,6 +6,10 @@ documentary_wire.sitemap:
     path:  /sitemap.xml
     defaults: { _controller: SiteBundle:Publc/Sitemap:index }
 
+documentary_wire.sitemapxsl:
+    path:  /sitemap.xsl
+    defaults: { _controller: SiteBundle:Publc/Sitemap:sitemapXSL }
+
 documentary_wire.sitemap_documentary:
     path:  /sitemap-documentary.xml
     defaults: { _controller: SiteBundle:Publc/Sitemap:documentary }
