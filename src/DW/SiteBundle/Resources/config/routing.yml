@@ -1,3 +1,19 @@
 dw.home:
    path: /
    defaults: { _controller: SiteBundle:Publc/Home:index }
+
+documentary_wire.sitemap:
+    path:  /sitemap.xml
+    defaults: { _controller: SiteBundle:Publc/Sitemap:index }
+
+documentary_wire.sitemap_documentary:
+    path:  /sitemap-documentary.xml
+    defaults: { _controller: SiteBundle:Publc/Sitemap:documentary }
+
+documentary_wire.sitemap_category:
+    path:  /sitemap-category.xml
+    defaults: { _controller: SiteBundle:Publc/Sitemap:category }
+
+documentary_wire.sitemap_page:
+    path:  /sitemap-page.xml
+    defaults: { _controller: SiteBundle:Publc/Sitemap:page }
