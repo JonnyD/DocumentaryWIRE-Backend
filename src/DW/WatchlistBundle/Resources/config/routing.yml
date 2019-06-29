@@ -1,3 +1,0 @@
-dw.like_documentary:
-    path: /ajax/like/documentary
-    defaults: { _controller: WatchlistBundle:Publc/Watchlist:like }
