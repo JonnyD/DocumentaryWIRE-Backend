@@ -60,9 +60,15 @@ class User implements UserInterface
      */
     private $comments;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Watchlist", mappedBy="user")
+     */
+    private $watchlists;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->watchlists = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -192,6 +198,37 @@ class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($comment->getUser() === $this) {
                 $comment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Watchlist[]
+     */
+    public function getWatchlists(): Collection
+    {
+        return $this->watchlists;
+    }
+
+    public function addWatchlist(Watchlist $watchlist): self
+    {
+        if (!$this->watchlists->contains($watchlist)) {
+            $this->watchlists[] = $watchlist;
+            $watchlist->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWatchlist(Watchlist $watchlist): self
+    {
+        if ($this->watchlists->contains($watchlist)) {
+            $this->watchlists->removeElement($watchlist);
+            // set the owning side to null (unless already changed)
+            if ($watchlist->getUser() === $this) {
+                $watchlist->setUser(null);
             }
         }
 

@@ -107,9 +107,15 @@ class Documentary
      */
     private $comments;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Watchlist", mappedBy="documentary")
+     */
+    private $watchlists;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->watchlists = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -310,6 +316,37 @@ class Documentary
             // set the owning side to null (unless already changed)
             if ($comment->getDocumentary() === $this) {
                 $comment->setDocumentary(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Watchlist[]
+     */
+    public function getWatchlists(): Collection
+    {
+        return $this->watchlists;
+    }
+
+    public function addWatchlist(Watchlist $watchlist): self
+    {
+        if (!$this->watchlists->contains($watchlist)) {
+            $this->watchlists[] = $watchlist;
+            $watchlist->setDocumentary($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWatchlist(Watchlist $watchlist): self
+    {
+        if ($this->watchlists->contains($watchlist)) {
+            $this->watchlists->removeElement($watchlist);
+            // set the owning side to null (unless already changed)
+            if ($watchlist->getDocumentary() === $this) {
+                $watchlist->setDocumentary(null);
             }
         }
 
