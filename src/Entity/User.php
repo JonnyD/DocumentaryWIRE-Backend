@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\UserStatus;
 use App\Traits\Timestampable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -23,7 +24,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *  }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @UniqueEntity(fields={"email", "username"})
+ * @UniqueEntity(fields={"email"})
+ * @UniqueEntity(fields={"username"})
  * @Gedmo\Loggable
  */
 class User implements UserInterface
@@ -71,7 +73,7 @@ class User implements UserInterface
     private $lastName;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     private $username;
 
@@ -135,6 +137,7 @@ class User implements UserInterface
         $this->comments = new ArrayCollection();
         $this->watchlists = new ArrayCollection();
         $this->activities = new ArrayCollection();
+        $this->status = UserStatus::INACTIVE;
     }
 
     public function getId(): ?int

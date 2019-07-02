@@ -47,4 +47,22 @@ class UserRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param User $user
+     * @param bool $sync
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function save(User $user, $sync = true)
+    {
+        $this->getEntityManager()->persist($user);
+        if ($sync) {
+            $this->flush();
+        }
+    }
+
+    public function flush()
+    {
+        $this->getEntityManager()->flush();
+    }
 }

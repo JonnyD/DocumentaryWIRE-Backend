@@ -54,7 +54,7 @@ class CommentRepository extends ServiceEntityRepository
      */
     public function findCommentsByEmail(string $email)
     {
-        return $this->getEntityManager()->findBy([
+        return $this->findBy([
             'email' => $email
         ]);
     }
