@@ -151,7 +151,7 @@ class ActivityService
     /**
      * @param Comment $comment
      */
-    public function addCommentActivity(Comment $comment, \DateTime $createdAt)
+    public function addCommentActivity(Comment $comment)
     {
         $documentary = $comment->getDocumentary();
         $user = $comment->getUser();
@@ -169,7 +169,7 @@ class ActivityService
             $groupNumber = $latestActivity->getGroupNumber();
             $groupNumber++;
 
-            $this->addActivity($user, $comment->getId(), ActivityType::COMMENT, ComponentType::DOCUMENTARY, $data, $groupNumber, $createdAt);
+            $this->addActivity($user, $comment->getId(), ActivityType::COMMENT, ComponentType::DOCUMENTARY, $data, $groupNumber);
         }
     }
     /**

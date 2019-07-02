@@ -3,14 +3,14 @@
 namespace App\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
-use App\Entity\User;
+use App\Entity\Comment;
 use App\Service\ActivityService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-final class UserJoinedSubscriber implements EventSubscriberInterface
+final class CommentAddedSubscriber implements EventSubscriberInterface
 {
     /**
      * @var ActivityService
@@ -28,19 +28,19 @@ final class UserJoinedSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::VIEW => ['addUserJoinedActivity', EventPriorities::POST_WRITE],
+            KernelEvents::VIEW => ['addCommentAddedActivity', EventPriorities::POST_WRITE],
         ];
     }
 
-    public function addUserJoinedActivity(ViewEvent $event)
+    public function addCommentAddedActivity(ViewEvent $event)
     {
-        $user = $event->getControllerResult();
+        $comment = $event->getControllerResult();
         $method = $event->getRequest()->getMethod();
 
-        if (!$user instanceof User || Request::METHOD_POST !== $method) {
+        if (!$comment instanceof Comment || Request::METHOD_POST !== $method) {
             return;
         }
 
-        $this->activityService->addJoinedActivity($user);
+        $this->activityService->addCommentActivity($comment);
     }
 }
