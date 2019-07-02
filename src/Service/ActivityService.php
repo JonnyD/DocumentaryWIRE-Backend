@@ -8,7 +8,7 @@ use App\Criteria\ActivityCriteria;
 use App\Entity\Activity;
 use App\Enum\ActivityType;
 use App\Enum\ComponentType;
-use App\Enum\OrderBy;
+use App\Enum\ActivityOrderBy;
 use App\Repository\ActivityRepository;
 use App\Enum\Order;
 use App\Entity\Comment;

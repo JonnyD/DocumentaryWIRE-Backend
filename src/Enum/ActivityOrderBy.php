@@ -2,7 +2,7 @@
 
 namespace App\Enum;
 
-class OrderBy
+class ActivityOrderBy
 {
     const CREATED_AT = "createdAt";
     const GROUP_NUMBER = "groupNumber";
