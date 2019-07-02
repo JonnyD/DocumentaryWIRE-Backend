@@ -10,6 +10,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Gedmo\Blameable\Traits\Blameable;
+use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
+use App\Traits\Sluggable;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ApiResource(
@@ -19,11 +23,15 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *  }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @UniqueEntity(fields={"email"})
+ * @UniqueEntity(fields={"email", "slug"})
+ * @Gedmo\Loggable
  */
 class User implements UserInterface
 {
     use Timestampable;
+    use Blameable;
+    use Sluggable;
+    use SoftDeleteable;
 
     /**
      * @ORM\Id()
@@ -34,27 +42,32 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Gedmo\Versioned
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
+     * @Gedmo\Versioned
      */
     private $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Gedmo\Versioned
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Gedmo\Versioned
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Gedmo\Versioned
      */
     private $lastName;
 

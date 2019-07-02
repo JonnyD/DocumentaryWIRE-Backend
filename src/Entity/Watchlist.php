@@ -5,14 +5,20 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Traits\Timestampable;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Blameable\Traits\Blameable;
+use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\WatchlistRepository")
+ * @Gedmo\Loggable
  */
 class Watchlist
 {
     use Timestampable;
+    use Blameable;
+    use SoftDeleteable;
 
     /**
      * @ORM\Id()
@@ -24,12 +30,14 @@ class Watchlist
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="watchlists")
      * @ORM\JoinColumn(nullable=false)
+     * @Gedmo\Versioned
      */
     private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Documentary", inversedBy="watchlists")
      * @ORM\JoinColumn(nullable=false)
+     * @Gedmo\Versioned
      */
     private $documentary;
 

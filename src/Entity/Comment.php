@@ -5,14 +5,22 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Traits\Timestampable;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Blameable\Traits\Blameable;
+use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
+use App\Traits\Sluggable;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\CommentRepository")
+ * @Gedmo\Loggable
  */
 class Comment
 {
     use Timestampable;
+    use Blameable;
+    use Sluggable;
+    use SoftDeleteable;
 
     /**
      * @ORM\Id()
@@ -23,32 +31,38 @@ class Comment
 
     /**
      * @ORM\Column(type="text")
+     * @Gedmo\Versioned
      */
     private $comment;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Gedmo\Versioned
      */
     private $status;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Gedmo\Versioned
      */
     private $author;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Gedmo\Versioned
      */
     private $email;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="comments")
+     * @Gedmo\Versioned
      */
     private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Documentary", inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
+     * @Gedmo\Versioned
      */
     private $documentary;
 

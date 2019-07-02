@@ -3,18 +3,26 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Traits\Sluggable;
 use App\Traits\Timestampable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Blameable\Traits\Blameable;
+use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\CategoryRepository")
+ * @Gedmo\Loggable
  */
 class Category
 {
     use Timestampable;
+    use Blameable;
+    use Sluggable;
+    use SoftDeleteable;
 
     /**
      * @ORM\Id()
@@ -25,11 +33,13 @@ class Category
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Gedmo\Versioned
      */
     private $name;
 
     /**
      * @ORM\Column(type="integer")
+     * @Gedmo\Versioned
      */
     private $count;
 

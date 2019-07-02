@@ -8,6 +8,10 @@ use App\Traits\Timestampable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Blameable\Traits\Blameable;
+use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
+use App\Traits\Sluggable;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ApiResource(
@@ -22,10 +26,14 @@ use Doctrine\ORM\Mapping as ORM;
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\DocumentaryRepository")
+ * @Gedmo\Loggable
  */
 class Documentary
 {
     use Timestampable;
+    use Blameable;
+    use Sluggable;
+    use SoftDeleteable;
 
     /**
      * @ORM\Id()
@@ -36,72 +44,86 @@ class Documentary
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Gedmo\Versioned
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
+     * @Gedmo\Versioned
      */
     private $storyline;
 
     /**
      * @ORM\Column(type="text")
+     * @Gedmo\Versioned
      */
     private $summary;
 
     /**
      * @ORM\Column(type="integer")
+     * @Gedmo\Versioned
      */
     private $year;
 
     /**
      * @ORM\Column(type="integer")
+     * @Gedmo\Versioned
      */
     private $length;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Gedmo\Versioned
      */
     private $status;
 
     /**
      * @ORM\Column(type="integer")
+     * @Gedmo\Versioned
      */
     private $views;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Gedmo\Versioned
      */
     private $shortUrl;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Gedmo\Versioned
      */
     private $poster;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Gedmo\Versioned
      */
     private $videoId;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Gedmo\Versioned
      */
     private $featured;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Gedmo\Versioned
      */
     private $wideImage;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Gedmo\Versioned
      */
     private $slug;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="documentary")
      * @ORM\JoinColumn(nullable=false)
+     * @Gedmo\Versioned
      */
     private $category;
 
