@@ -25,6 +25,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     *       },
  *          "post"={"access_control"="is_granted('ROLE_ADMIN')"}
  *     },
+ *     itemOperations={
+ *          "get",
+ *          "put"={"access_control"="is_granted('ROLE_ADMIN')"},
+ *          "delete"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
  *     normalizationContext={"groups"={"category:read"}, "swagger_definition_name"="Read"},
  *     denormalizationContext={"groups"={"category:write", "swagger_definition_name"="Write"}},
  * )
@@ -119,7 +124,7 @@ class Category
      *
      * @return int|null
      */
-    public function getCount(): ?int
+    public function getDocumentaryCount(): ?int
     {
         return $this->documentaries->count();
     }
