@@ -12,6 +12,8 @@ use Gedmo\Blameable\Traits\Blameable;
 use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
 use App\Traits\Sluggable;
 use Gedmo\Mapping\Annotation as Gedmo;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 
 /**
  * @ApiResource(
@@ -25,6 +27,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *          "delete"
  *     }
  * )
+ * @ApiFilter(BooleanFilter::class, properties={"featured"})
  * @ORM\Entity(repositoryClass="App\Repository\DocumentaryRepository")
  * @Gedmo\Loggable
  */

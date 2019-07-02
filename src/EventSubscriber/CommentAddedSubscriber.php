@@ -32,7 +32,7 @@ final class CommentAddedSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function cmmentAddedActivity(ViewEvent $event)
+    public function commentAddedActivity(ViewEvent $event)
     {
         $comment = $event->getControllerResult();
         $method = $event->getRequest()->getMethod();
