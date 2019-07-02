@@ -23,14 +23,13 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *  }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @UniqueEntity(fields={"email", "slug"})
+ * @UniqueEntity(fields={"email", "username"})
  * @Gedmo\Loggable
  */
 class User implements UserInterface
 {
     use Timestampable;
     use Blameable;
-    use Sluggable;
     use SoftDeleteable;
 
     /**
@@ -70,6 +69,51 @@ class User implements UserInterface
      * @Gedmo\Versioned
      */
     private $lastName;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $username;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $avatar;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $resetKey;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $resetRequestAt;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastResetAt;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $activatedAt;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $activationKey;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastActiveAt;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $status;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="user")
@@ -117,7 +161,7 @@ class User implements UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->email;
+        return (string) $this->username;
     }
 
     /**
@@ -284,6 +328,109 @@ class User implements UserInterface
                 $activity->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?string $avatar): self
+    {
+        $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    public function getResetKey(): ?string
+    {
+        return $this->resetKey;
+    }
+
+    public function setResetKey(?string $resetKey): self
+    {
+        $this->resetKey = $resetKey;
+
+        return $this;
+    }
+
+    public function getResetRequestAt(): ?\DateTimeInterface
+    {
+        return $this->resetRequestAt;
+    }
+
+    public function setResetRequestAt(?\DateTimeInterface $resetRequestAt): self
+    {
+        $this->resetRequestAt = $resetRequestAt;
+
+        return $this;
+    }
+
+    public function getLastResetAt(): ?\DateTimeInterface
+    {
+        return $this->lastResetAt;
+    }
+
+    public function setLastResetAt(?\DateTimeInterface $lastResetAt): self
+    {
+        $this->lastResetAt = $lastResetAt;
+
+        return $this;
+    }
+
+    public function getActivatedAt(): ?\DateTimeInterface
+    {
+        return $this->activatedAt;
+    }
+
+    public function setActivatedAt(?\DateTimeInterface $activatedAt): self
+    {
+        $this->activatedAt = $activatedAt;
+
+        return $this;
+    }
+
+    public function getActivationKey(): ?string
+    {
+        return $this->activationKey;
+    }
+
+    public function setActivationKey(?string $activationKey): self
+    {
+        $this->activationKey = $activationKey;
+
+        return $this;
+    }
+
+    public function getLastActiveAt(): ?\DateTimeInterface
+    {
+        return $this->lastActiveAt;
+    }
+
+    public function setLastActiveAt(?\DateTimeInterface $lastActiveAt): self
+    {
+        $this->lastActiveAt = $lastActiveAt;
+
+        return $this;
+    }
+
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(int $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }

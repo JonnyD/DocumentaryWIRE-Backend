@@ -32,7 +32,6 @@ class Documentary
 {
     use Timestampable;
     use Blameable;
-    use Sluggable;
     use SoftDeleteable;
 
     /**
@@ -47,6 +46,14 @@ class Documentary
      * @Gedmo\Versioned
      */
     private $title;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string", unique=true)
+     * @Gedmo\Slug(fields={"title"})
+     */
+    private $slug;
 
     /**
      * @ORM\Column(type="text")
@@ -98,6 +105,11 @@ class Documentary
 
     /**
      * @ORM\Column(type="string", length=255)
+     */
+    private $videoSource;
+
+    /**
+     * @ORM\Column(type="string", length=255)
      * @Gedmo\Versioned
      */
     private $videoId;
@@ -113,12 +125,6 @@ class Documentary
      * @Gedmo\Versioned
      */
     private $wideImage;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Gedmo\Versioned
-     */
-    private $slug;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="documentary")
@@ -141,6 +147,7 @@ class Documentary
     {
         $this->comments = new ArrayCollection();
         $this->watchlists = new ArrayCollection();
+        $this->featured = false;
     }
 
     public function getId(): ?int
@@ -158,6 +165,22 @@ class Documentary
         $this->title = $title;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSlug()
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param string $slug
+     */
+    public function setSlug(string $slug)
+    {
+        $this->slug = $slug;
     }
 
     public function getStoryline(): ?string
@@ -292,18 +315,6 @@ class Documentary
         return $this;
     }
 
-    public function getSlug(): ?string
-    {
-        return $this->slug;
-    }
-
-    public function setSlug(string $slug): self
-    {
-        $this->slug = $slug;
-
-        return $this;
-    }
-
     public function getCategory(): ?Category
     {
         return $this->category;
@@ -377,4 +388,22 @@ class Documentary
 
         return $this;
     }
+
+    public function getVideoSource(): ?string
+    {
+        return $this->videoSource;
+    }
+
+    public function setVideoSource(string $videoSource): self
+    {
+        $this->videoSource = $videoSource;
+
+        return $this;
+    }
+
+    public function getCommentCount(): ?int
+    {
+        return $this->comments->count();
+    }
+
 }

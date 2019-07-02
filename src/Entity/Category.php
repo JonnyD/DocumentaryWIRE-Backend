@@ -38,12 +38,6 @@ class Category
     private $name;
 
     /**
-     * @ORM\Column(type="integer")
-     * @Gedmo\Versioned
-     */
-    private $count;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="category")
      */
     private $documentaries;
@@ -72,14 +66,7 @@ class Category
 
     public function getCount(): ?int
     {
-        return $this->count;
-    }
-
-    public function setCount(int $count): self
-    {
-        $this->count = $count;
-
-        return $this;
+        return $this->documentaries->count();
     }
 
     /**
