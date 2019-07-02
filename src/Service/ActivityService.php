@@ -45,11 +45,8 @@ class ActivityService
         $activity->setObjectId($objectId);
         $activity->setType($type);
         $activity->setComponent($component);
-        $activity->setData(serialize($data));
+        $activity->setData($data);
         $activity->setGroupNumber($groupNumber);
-        if ($createdAt != null) {
-            $activity->setCreatedAt($createdAt);
-        }
 
         $this->activityRepository->save($activity);
     }
@@ -130,7 +127,7 @@ class ActivityService
     /**
      * @param User $user
      */
-    public function addJoinedActivity(User $user, \DateTime $createdAt)
+    public function addJoinedActivity(User $user)
     {
         $latestActivity = $this->getLatestActivity();
         if ($latestActivity) {
@@ -148,7 +145,7 @@ class ActivityService
             $groupNumber = 1;
         }
 
-        $this->addActivity($user, $user->getId(), ActivityType::JOINED, ComponentType::USER, [], $groupNumber, $createdAt);
+        $this->addActivity($user, $user->getId(), ActivityType::JOINED, ComponentType::USER, [], $groupNumber);
     }
 
     /**
@@ -198,7 +195,7 @@ class ActivityService
         $criteria = new ActivityCriteria();
         $criteria->setLimit(1);
         $criteria->setSort([
-            OrderBy::CREATED_AT => Order::DESC
+            ActivityOrderBy::CREATED_AT => Order::DESC
         ]);
 
         return $this->getActivityByCriteria($criteria);
@@ -213,7 +210,7 @@ class ActivityService
         $criteria = new ActivityCriteria();
         $criteria->setUser($user);
         $criteria->setSort([
-            OrderBy::CREATED_AT => Order::DESC
+            ActivityOrderBy::CREATED_AT => Order::DESC
         ]);
 
         return $this->getAllActivityByCriteria($criteria);
@@ -228,7 +225,7 @@ class ActivityService
         $criteria = new ActivityCriteria();
         $criteria->setGroupNumber($groupNumber);
         $criteria->setSort([
-            OrderBy::CREATED_AT => Order::DESC
+            ActivityOrderBy::CREATED_AT => Order::DESC
         ]);
 
         return $this->activityRepository->findAllByCriteria($criteria);
@@ -269,8 +266,8 @@ class ActivityService
         $criteria = new ActivityCriteria();
         $criteria->setLimit(110);
         $criteria->setSort([
-            OrderBy::GROUP_NUMBER => Order::DESC,
-            OrderBy::CREATED_AT => Order::DESC
+            ActivityOrderBy::GROUP_NUMBER => Order::DESC,
+            ActivityOrderBy::CREATED_AT => Order::DESC
         ]);
 
         $activity = $this->activityRepository->findAllByCriteria($criteria);
@@ -288,7 +285,7 @@ class ActivityService
         $criteria->setType(ActivityType::COMMENT);
         $criteria->setLimit(20);
         $criteria->setSort([
-            OrderBy::CREATED_AT => Order::DESC
+            ActivityOrderBy::CREATED_AT => Order::DESC
         ]);
 
         $activity = $this->activityRepository->findAllByCriteria($criteria);
@@ -306,7 +303,7 @@ class ActivityService
         $criteria->setType(ActivityType::LIKE);
         $criteria->setLimit(20);
         $criteria->setSort([
-            OrderBy::CREATED_AT => Order::DESC
+            ActivityOrderBy::CREATED_AT => Order::DESC
         ]);
 
         $activity = $this->activityRepository->findAllByCriteria($criteria);

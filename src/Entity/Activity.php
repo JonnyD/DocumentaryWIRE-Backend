@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\ActivityRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Activity
 {

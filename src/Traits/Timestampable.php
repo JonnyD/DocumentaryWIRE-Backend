@@ -29,7 +29,6 @@ trait Timestampable
      *
      * @var \DateTime
      *
-     * @ORM\Column(type="datetime", nullable=true)
      * @return $this
      */
     public function setCreatedAt(\DateTime $createdAt)

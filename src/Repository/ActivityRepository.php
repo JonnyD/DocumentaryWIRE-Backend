@@ -34,7 +34,7 @@ class ActivityRepository extends ServiceEntityRepository
         $qb = $em->createQueryBuilder();
 
         $qb->select('activity')
-            ->from('DW\ActivityBundle\Entity\Activity', 'activity')
+            ->from('App\Entity\Activity', 'activity')
             ->leftJoin('activity.user', 'user');
 
         if ($criteria->getUser()) {
