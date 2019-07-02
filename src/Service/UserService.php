@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserService
 {
@@ -12,9 +13,32 @@ class UserService
      */
     private $userRepository;
 
-    public function __construct(UserRepository $userRepository)
+    /**
+     * @var UserPasswordEncoderInterface
+     */
+    private $encoder;
+
+    /**
+     * @param UserRepository $userRepository
+     * @param UserPasswordEncoderInterface $encoder
+     */
+    public function __construct(
+        UserRepository $userRepository,
+        UserPasswordEncoderInterface $encoder)
     {
         $this->userRepository = $userRepository;
+        $this->encoder = $encoder;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function encodePassword(User $user)
+    {
+        $encodedPass = $this->encoder->encodePassword($user, $user->getPassword());
+        $user->setPassword($encodedPass);
+
+        $this->userRepository->save($user);
     }
 
     /**
@@ -30,5 +54,20 @@ class UserService
         $this->userRepository->save($user);
 
         return $generatedKey;
+    }
+
+    /**
+     * @param User $user
+     * @param bool $sync
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function save(User $user, $sync = true)
+    {
+        $this->userRepository->save($user, $sync);
+    }
+
+    public function flush()
+    {
+        $this->userRepository->flush();
     }
 }

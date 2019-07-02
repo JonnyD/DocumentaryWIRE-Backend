@@ -15,13 +15,19 @@ use Gedmo\Blameable\Traits\Blameable;
 use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
 use App\Traits\Sluggable;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
  *     collectionOperations={
- *      "get","post",
+ *      "get"={
+ *              "normalization_context"={"groups"={"user:read", "user:item:get"}}
+ *          },
+ *      "post",
  *      "collName_api_me"={"route_name"="api_me"}
- *  }
+ *     },
+ *     normalizationContext={"groups"={"user:read"}, "swagger_definition_name"="Read"},
+ *     denormalizationContext={"groups"={"user:write", "swagger_definition_name"="Write"}},
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"})
@@ -43,12 +49,14 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Groups({"user:write"})
      * @Gedmo\Versioned
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
+     * @Groups({"user:read"})
      * @Gedmo\Versioned
      */
     private $roles = [];
@@ -56,29 +64,34 @@ class User implements UserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Groups({"user:write"})
      * @Gedmo\Versioned
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"user:read", "user:write"})
      * @Gedmo\Versioned
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"user:read", "user:write"})
      * @Gedmo\Versioned
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Groups({"user:read", "user:write"})
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"user:read", "user:write"})
      */
     private $avatar;
 
@@ -109,6 +122,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"user:read"})
      */
     private $lastActiveAt;
 
