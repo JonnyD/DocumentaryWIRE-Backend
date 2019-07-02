@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-final class CommentAddedSubscriber implements EventSubscriberInterface
+final class CommentDeletedSubscriber implements EventSubscriberInterface
 {
     /**
      * @var ActivityService
@@ -28,19 +28,19 @@ final class CommentAddedSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::VIEW => ['commentAddedActivity', EventPriorities::POST_WRITE],
+            KernelEvents::VIEW => ['commentDeletedActivity', EventPriorities::POST_WRITE],
         ];
     }
 
-    public function cmmentAddedActivity(ViewEvent $event)
+    public function commentDeletedActivity(ViewEvent $event)
     {
         $comment = $event->getControllerResult();
         $method = $event->getRequest()->getMethod();
 
-        if (!$comment instanceof Comment || Request::METHOD_POST !== $method) {
+        if (!$comment instanceof Comment || Request::METHOD_DELETE !== $method) {
             return;
         }
 
-        $this->activityService->addCommentActivity($comment);
+        $this->activityService->removeCommentActivity($comment);
     }
 }
