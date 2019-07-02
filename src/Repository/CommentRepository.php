@@ -47,4 +47,44 @@ class CommentRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param string $email
+     * @return Comment[]
+     */
+    public function findCommentsByEmail(string $email)
+    {
+        return $this->getEntityManager()->findBy([
+            'email' => $email
+        ]);
+    }
+
+    /**
+     * @param Comment $comment
+     * @param bool $sync
+     */
+    public function save(Comment $comment, bool $sync = true)
+    {
+        $this->getEntityManager()->persist($comment);
+        if ($sync) {
+            $this->flush();
+        }
+    }
+
+    /**
+     * @param Comment $comment
+     * @param bool $sync
+     */
+    public function remove(Comment $comment, bool $sync = true)
+    {
+        $this->getEntityManager()->remove($comment);
+        if ($sync) {
+            $this->flush();
+        }
+    }
+
+    public function flush()
+    {
+        $this->getEntityManager()->flush();
+    }
 }

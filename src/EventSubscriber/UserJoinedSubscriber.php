@@ -5,6 +5,7 @@ namespace App\EventSubscriber;
 use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Entity\User;
 use App\Service\ActivityService;
+use App\Service\CommentService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -18,11 +19,20 @@ final class UserJoinedSubscriber implements EventSubscriberInterface
     private $activityService;
 
     /**
-     * @param ActivityService $activityService
+     * @var CommentService
      */
-    public function __construct(ActivityService $activityService)
+    private $commentService;
+
+    /**
+     * @param ActivityService $activityService
+     * @param CommentService $commentService
+     */
+    public function __construct(
+        ActivityService $activityService,
+        CommentService $commentService)
     {
         $this->activityService = $activityService;
+        $this->commentService = $commentService;
     }
 
     public static function getSubscribedEvents()
@@ -42,5 +52,6 @@ final class UserJoinedSubscriber implements EventSubscriberInterface
         }
 
         $this->activityService->addJoinedActivity($user);
+        $this->commentService->mapCommentsToUser($user);
     }
 }
