@@ -12,8 +12,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ApiResource(
  *     collectionOperations={
  *      "get","post",
- *      "collName_api_me"={"route_name"="api_me"},
- *      "auth"={"route_name"="auth"},
+ *      "collName_api_me"={"route_name"="api_me"}
  *  }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
