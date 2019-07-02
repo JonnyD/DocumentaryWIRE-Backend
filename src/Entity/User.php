@@ -31,7 +31,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"})
- * @UniqueEntity(fields={"username"})
  * @Gedmo\Loggable
  */
 class User implements UserInterface
@@ -100,19 +99,6 @@ class User implements UserInterface
      * @Gedmo\Versioned
      */
     private $lastName;
-
-    /**
-     * @ORM\Column(type="string", length=255, unique=true)
-     * @Groups({"user:read", "user:write"})
-     * @Assert\NotBlank()
-     * @Assert\Length(
-     *     min=2,
-     *     max=50,
-     *     maxMessage="Your username must not be longer than 50 characters"
-     * )
-     * @Gedmo\Versioned
-     */
-    private $username;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -204,7 +190,7 @@ class User implements UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->username;
+        return (string) $this->email;
     }
 
     /**
@@ -371,13 +357,6 @@ class User implements UserInterface
                 $activity->setUser(null);
             }
         }
-
-        return $this;
-    }
-
-    public function setUsername(string $username): self
-    {
-        $this->username = $username;
 
         return $this;
     }

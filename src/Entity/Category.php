@@ -11,17 +11,21 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\Blameable;
 use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
 use Gedmo\Mapping\Annotation as Gedmo;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ApiResource()
+ * @ApiFilter(SearchFilter::class, properties={"slug": "exact"})
  * @ORM\Entity(repositoryClass="App\Repository\CategoryRepository")
+ * @UniqueEntity(fields={"slug"})
  * @Gedmo\Loggable
  */
 class Category
 {
     use Timestampable;
     use Blameable;
-    use Sluggable;
     use SoftDeleteable;
 
     /**
@@ -36,6 +40,15 @@ class Category
      * @Gedmo\Versioned
      */
     private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string", unique=true)
+     * @Gedmo\Slug(fields={"name"})
+     * @Gedmo\Versioned
+     */
+    private $slug;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="category")
@@ -62,6 +75,22 @@ class Category
         $this->name = $name;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSlug()
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param string $slug
+     */
+    public function setSlug(string $slug)
+    {
+        $this->slug = $slug;
     }
 
     public function getCount(): ?int
