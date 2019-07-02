@@ -50,6 +50,7 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Groups({"user:write"})
+     * @Assert\NotBlank()
      * @Gedmo\Versioned
      */
     private $email;
@@ -65,6 +66,11 @@ class User implements UserInterface
      * @var string The hashed password
      * @ORM\Column(type="string")
      * @Groups({"user:write"})
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     min=5,
+     *     minMessage="Your password must be longer than 5 characters"
+     * )
      * @Gedmo\Versioned
      */
     private $password;
@@ -72,6 +78,12 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"user:read", "user:write"})
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     min=2,
+     *     max=50,
+     *     maxMessage="Your first name must not be longer than 50 characters"
+     * )
      * @Gedmo\Versioned
      */
     private $firstName;
@@ -79,6 +91,12 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"user:read", "user:write"})
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     min=2,
+     *     max=50,
+     *     maxMessage="Your last name must not be longer than 50 characters"
+     * )
      * @Gedmo\Versioned
      */
     private $lastName;
@@ -86,6 +104,13 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Groups({"user:read", "user:write"})
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     min=2,
+     *     max=50,
+     *     maxMessage="Your username must not be longer than 50 characters"
+     * )
+     * @Gedmo\Versioned
      */
     private $username;
 
@@ -128,6 +153,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank()
      */
     private $status;
 
