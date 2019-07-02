@@ -42,6 +42,16 @@ class ActivityCriteria
     private $limit;
 
     /**
+     * @var string
+     */
+    private $author;
+
+    /**
+     * @var string
+     */
+    private $email;
+
+    /**
      * @return User
      */
     public function getUser()
@@ -151,5 +161,37 @@ class ActivityCriteria
     public function setLimit(int $limit)
     {
         $this->limit = $limit;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getAuthor(): ?string
+    {
+        return $this->author;
+    }
+
+    /**
+     * @param string $author
+     */
+    public function setAuthor(string $author)
+    {
+        $this->author = $author;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string $email
+     */
+    public function setEmail(string $email)
+    {
+        $this->email = $email;
     }
 }

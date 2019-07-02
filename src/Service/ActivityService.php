@@ -387,6 +387,33 @@ class ActivityService
     }
 
     /**
+     * @param string $email
+     * @return Activity[]|ArrayCollection
+     */
+    public function getActivityByEmail(string $email)
+    {
+        $criteria = new ActivityCriteria();
+        $criteria->setEmail($email);
+
+        return $this->activityRepository->findAllByCriteria($criteria);
+    }
+
+    /**
+     * @param User $user
+     */
+    public function mapActivityToUser(User $user)
+    {
+        $activity = $this->getActivityByEmail($user->getEmail());
+
+        foreach ($activity as $activityItem) {
+            $activityItem->setUser($user);
+            $this->activityRepository->save($activityItem, false);
+        }
+
+        $this->activityRepository->flush();
+    }
+
+    /**
      * @param Activity $activity
      * @param bool $sync
      */

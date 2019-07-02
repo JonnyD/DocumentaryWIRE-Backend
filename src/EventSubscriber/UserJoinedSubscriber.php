@@ -53,5 +53,6 @@ final class UserJoinedSubscriber implements EventSubscriberInterface
 
         $this->activityService->addJoinedActivity($user);
         $this->commentService->mapCommentsToUser($user);
+        $this->activityService->mapActivityToUser($user);
     }
 }

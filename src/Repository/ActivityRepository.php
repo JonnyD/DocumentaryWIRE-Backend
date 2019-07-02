@@ -57,6 +57,16 @@ class ActivityRepository extends ServiceEntityRepository
                 ->setParameter('component', $criteria->getComponent());
         }
 
+        if ($criteria->getAuthor()) {
+            $qb->andWhere('activity.author = :author')
+                ->setParameter('author', $criteria->getAuthor());
+        }
+
+        if ($criteria->getEmail()) {
+            $qb->andWhere('activity.email = :email')
+                ->setParameter('email', $criteria->getEmail());
+        }
+
         if ($criteria->getSort()) {
             foreach ($criteria->getSort() as $column => $direction) {
                 if (strpos($column, '.') === false) {
