@@ -21,8 +21,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *     collectionOperations={
  *      "get"={
- *              "normalization_context"={"groups"={"user:read", "user:item:get"}}
- *          },
+*           "normalization_context"={"groups"={"user:read", "user:item:get"}}
+ *      },
  *      "post",
  *      "collName_api_me"={"route_name"="api_me"}
  *     },

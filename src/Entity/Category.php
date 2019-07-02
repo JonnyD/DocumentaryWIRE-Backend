@@ -14,9 +14,20 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     collectionOperations={
+     *     "get"={
+     *          "normalization_context"={"groups"={"category:read", "category:item:get"}}
+    *       },
+ *          "post"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
+ *     normalizationContext={"groups"={"category:read"}, "swagger_definition_name"="Read"},
+ *     denormalizationContext={"groups"={"category:write", "swagger_definition_name"="Write"}},
+ * )
  * @ApiFilter(SearchFilter::class, properties={"slug": "exact"})
  * @ORM\Entity(repositoryClass="App\Repository\CategoryRepository")
  * @UniqueEntity(fields={"slug"})
@@ -32,11 +43,19 @@ class Category
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"category:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     min=5,
+     *     max="50",
+     *     minMessage="Your password must be longer than 5 characters"
+     * )
+     * @Groups({"category:write", "category:read"})
      * @Gedmo\Versioned
      */
     private $name;
@@ -46,6 +65,8 @@ class Category
      *
      * @ORM\Column(type="string", unique=true)
      * @Gedmo\Slug(fields={"name"})
+     * @Assert\NotBlank()
+     * @Groups({"category:read"})
      * @Gedmo\Versioned
      */
     private $slug;
@@ -93,6 +114,11 @@ class Category
         $this->slug = $slug;
     }
 
+    /**
+     * @Groups({"category:read"})
+     *
+     * @return int|null
+     */
     public function getCount(): ?int
     {
         return $this->documentaries->count();
