@@ -31,6 +31,15 @@ class UserService
     }
 
     /**
+     * @param int $id
+     * @return User|null
+     */
+    public function getUserById(int $id)
+    {
+        return $this->userRepository->find($id);
+    }
+
+    /**
      * @param User $user
      */
     public function encodePassword(User $user)
@@ -48,12 +57,12 @@ class UserService
      */
     public function generateActivationCode(User $user)
     {
-        $generatedKey = sha1(mt_rand(10000,99999).time().$user->getEmail());
-        $user->setActivationKey($generatedKey);
+        $activationKey = sha1(mt_rand(10000,99999).time().$user->getEmail());
+        $user->setActivationKey($activationKey);
 
         $this->userRepository->save($user);
 
-        return $generatedKey;
+        return $activationKey;
     }
 
     /**

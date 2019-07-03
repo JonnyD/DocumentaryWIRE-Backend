@@ -24,7 +24,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 *           "normalization_context"={"groups"={"user:read", "user:item:get"}}
  *      },
  *      "post",
- *      "collName_api_me"={"route_name"="api_me"}
+ *     },
+ *     itemOperations={
+ *         "get",
+ *          "collName_api_me"={"route_name"="api_me"},
+*          "activate"={"route_name"="api_user_activate"},
  *     },
  *     normalizationContext={"groups"={"user:read"}, "swagger_definition_name"="Read"},
  *     denormalizationContext={"groups"={"user:write", "swagger_definition_name"="Write"}},
@@ -123,6 +127,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"user:read"})
      */
     private $activatedAt;
 
