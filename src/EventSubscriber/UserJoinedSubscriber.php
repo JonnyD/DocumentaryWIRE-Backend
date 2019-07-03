@@ -84,7 +84,7 @@ final class UserJoinedSubscriber implements EventSubscriberInterface
         $this->commentService->mapCommentsToUser($user);
         $this->activityService->mapActivityToUser($user);
 
-        $activationKey = $this->userService->generateActivationCode($user);
+        $activationKey = $this->userService->generateActivationKey($user);
 
         $url = "api/user/activate"; //@TODO
 

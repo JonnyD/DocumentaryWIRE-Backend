@@ -55,7 +55,7 @@ class UserService
      * @return string
      * @throws \Doctrine\ORM\ORMException
      */
-    public function generateActivationCode(User $user)
+    public function generateActivationKey(User $user)
     {
         $activationKey = sha1(mt_rand(10000,99999).time().$user->getEmail());
         $user->setActivationKey($activationKey);
@@ -63,6 +63,31 @@ class UserService
         $this->userRepository->save($user);
 
         return $activationKey;
+    }
+
+    /**
+     * @param User $user
+     * @return string
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function generatePasswordResetKey(User $user)
+    {
+        $resetKey = sha1(mt_rand(10000,99999).time().$user->getEmail());
+        $user->setResetKey($resetKey);
+        $user->setResetRequestAt(new \DateTime());
+
+        $this->userRepository->save($user);
+
+        return $resetKey;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function resetPassword(User $user)
+    {
+        $this->encodePassword($user);
+        $user->setLastResetAt(new \DateTime());
     }
 
     /**
