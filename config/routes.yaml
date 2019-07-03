@@ -16,12 +16,3 @@ api_me:
     _controller: '\App\Controller\UserController::me'
     _api_resource_class: 'App\Entity\User'
     _api_collection_operation_name: 'collName_api_me'
-
-
-show_category:
-  path: '/api/categories/{slug}'
-  methods: ['GET']
-  defaults:
-    _controller: '\App\Controller\CategoryController::show'
-    _api_resource_class: 'App\Entity\Category'
-    _api_collection_operation_name: 'show_category'

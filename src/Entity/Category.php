@@ -16,6 +16,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Annotation\ApiProperty;
 
 /**
  * @ApiResource(
@@ -26,9 +27,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "post"={"access_control"="is_granted('ROLE_ADMIN')"}
  *     },
  *     itemOperations={
- *          "get",
  *          "put"={"access_control"="is_granted('ROLE_ADMIN')"},
- *          "delete"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *          "delete"={"access_control"="is_granted('ROLE_ADMIN')"},
+     *      "get",
  *     },
  *     normalizationContext={"groups"={"category:read"}, "swagger_definition_name"="Read"},
  *     denormalizationContext={"groups"={"category:write", "swagger_definition_name"="Write"}},
