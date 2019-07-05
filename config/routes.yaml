@@ -25,18 +25,16 @@ api_user_activate:
     _api_resource_class: 'App\Entity\User'
     _api_item_operation_name: 'activate'
 
-api_user_reset_password_request:
-  path:     '/api/users/{id}/reset-password-request'
-  methods:  ['GET']
+api_forgot_password_request:
+  path:     '/api/forgot-password-request'
+  methods:  ['POST']
   defaults:
-    _controller: '\App\Controller\UserController::resetPasswordRequest'
-    _api_resource_class: 'App\Entity\User'
-    _api_item_operation_name: 'reset-password-request'
+    _controller: '\App\Controller\UserController::forgotPasswordRequest'
+    _api_item_operation_name: 'forgot_password_request'
 
-api_user_reset_password:
-  path:     '/api/users/{id}/reset-password'
+api_reset_password:
+  path:     '/api/reset-password'
   methods:  ['POST']
   defaults:
     _controller: '\App\Controller\UserController::resetPassword'
-    _api_resource_class: 'App\Entity\User'
-    _api_item_operation_name: 'reset-passwordt'
+    _api_item_operation_name: 'reset_password'

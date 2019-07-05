@@ -66,12 +66,14 @@ class UserService
     }
 
     /**
-     * @param User $user
+     * @param string $email
      * @return string
      * @throws \Doctrine\ORM\ORMException
      */
-    public function generatePasswordResetKey(User $user)
+    public function generatePasswordResetKey(string $email)
     {
+        $user = $this->userRepository->findOneByEmail($email);
+
         $resetKey = sha1(mt_rand(10000,99999).time().$user->getEmail());
         $user->setResetKey($resetKey);
         $user->setResetRequestAt(new \DateTime());

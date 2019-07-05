@@ -16,6 +16,7 @@ use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
 use App\Traits\Sluggable;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
+use App\Dto\PasswordInput;
 
 /**
  * @ApiResource(
@@ -29,8 +30,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         "get",
  *          "collName_api_me"={"route_name"="api_me", "access_control"="is_granted('ROLE_ADMIN')"},
 *           "activate"={"route_name"="api_user_activate"},
- *          "resetPasswordRequest"={"route_name"="api_user_reset_password_request"},
- *          "resetPassword"={"route_name"="api_user_reset_password"},
+ *          "forgot_password_request"={"route_name"="api_forgot_password_request"},
+ *          "reset_password"={"route_name"="api_reset_password"},
+ *          "put"
  *     },
  *     normalizationContext={"groups"={"user:read"}, "swagger_definition_name"="Read"},
  *     denormalizationContext={"groups"={"user:write", "swagger_definition_name"="Write"}},

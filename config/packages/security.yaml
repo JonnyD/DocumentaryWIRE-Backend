@@ -53,10 +53,12 @@ security:
             # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/api/token/refresh, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/me, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET, POST] }
         - { path: ^/api/users, roles: IS_AUTHENTICATED_FULLY, methods: [PUT, DELETE] }
         - { path: ^/api/activities, roles: ROLE_ADMIN, methods: [POST, PUT, DELETE] }
         - { path: ^/api/categories, roles: ROLE_ADMIN, methods: [POST, PUT, DELETE] }
-        - { path: ^/api/me, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/forgot-password-request, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/reset-password, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api,       roles: IS_AUTHENTICATED_ANONYMOUSLY }
