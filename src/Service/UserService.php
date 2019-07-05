@@ -88,8 +88,8 @@ class UserService
      */
     public function resetPassword(User $user)
     {
-        $this->encodePassword($user);
         $user->setLastResetAt(new \DateTime());
+        $this->encodePassword($user);
     }
 
     /**
