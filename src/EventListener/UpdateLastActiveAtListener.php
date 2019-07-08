@@ -2,34 +2,55 @@
 
 namespace App\EventListener;
 
+use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
-use App\Entity\User;
+use FOS\OAuthServerBundle\Event\OAuthEvent;
 
 class UpdateLastActiveAtListener
 {
     /**
-     * @var EntityManagerInterface
+     * @var UserService
      */
-    private $em;
+    private $userService;
 
     /**
-     * LoginListener constructor.
-     * @param EntityManagerInterface $em
+     * @param UserService $userService
      */
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(UserService $userService)
     {
-        $this->em = $em;
+        $this->userService = $userService;
     }
 
-    public function onSecurityInteractiveLogin(InteractiveLoginEvent $event)
+    public function onPreAuthorizationProcess(OAuthEvent $event)
     {
-        /** @var User $user */
-        $user = $event->getAuthenticationToken()->getUser();
+        if ($user = $this->getUser($event)) {
+            $event->setAuthorizedClient(
+                $user->isAuthorizedClient($event->getClient())
+            );
+        }
+    }
 
-        $user->setLastActiveAt(new \DateTime());
+    public function onPostAuthorizationProcess(OAuthEvent $event)
+    {
+        if ($event->isAuthorizedClient()) {
+            if (null !== $client = $event->getClient()) {
+                $user = $this->getUser($event);
+                $user->addClient($client);
+                $user->save();
 
-        $this->em->persist($user);
-        $this->em->flush();
+                $username = $event->getUser()->getUsername();
+                var_dump($username); die();
+                $user = $this->userService->getUserByUsername($username);
+                $user->setLastLogin(new \DateTime());
+                $this->userService->save($user);
+            }
+        }
+    }
+
+    protected function getUser(OAuthEvent $event)
+    {
+        return UserQuery::create()
+            ->filterByUsername($event->getUser()->getUsername())
+            ->findOne();
     }
 }

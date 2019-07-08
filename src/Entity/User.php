@@ -16,80 +16,82 @@ use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
 use App\Traits\Sluggable;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\Dto\PasswordInput;
+use FOS\UserBundle\Model\User as BaseUser;
 
 /**
- * @ApiResource(
- *     collectionOperations={
- *      "get"={
-*           "normalization_context"={"groups"={"user:read", "user:item:get"}}
- *      },
- *      "post",
- *     },
- *     itemOperations={
- *         "get",
- *          "collName_api_me"={"route_name"="api_me", "access_control"="is_granted('ROLE_ADMIN')"},
-*           "activate"={"route_name"="api_user_activate"},
- *          "forgot_password_request"={"route_name"="api_forgot_password_request"},
- *          "reset_password"={"route_name"="api_reset_password"},
- *          "put"
- *     },
- *     normalizationContext={"groups"={"user:read"}, "swagger_definition_name"="Read"},
- *     denormalizationContext={"groups"={"user:write", "swagger_definition_name"="Write"}},
- * )
+ * @ORM\Table(name="user", indexes={
+ *     @ORM\Index(name="search_idx_username", columns={"username"}),
+ *     @ORM\Index(name="search_idx_email", columns={"email"}),
+ * })
+ *
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @UniqueEntity(fields={"email"})
+ *
+ * @ORM\HasLifecycleCallbacks
+ *
+ * @UniqueEntity(fields={"username"}, message="USERNAME_IS_ALREADY_IN_USE")
+ * @UniqueEntity(fields={"email"}, message="EMAIL_IS_ALREADY_IN_USE")
+ *
  * @Gedmo\Loggable
  */
-class User implements UserInterface
+class User extends BaseUser
 {
     use Timestampable;
     use Blameable;
     use SoftDeleteable;
+
+    const ROLE_ADMIN = "ROLE_ADMIN";
+    const ROLE_USER = "ROLE_USER";
+
+    /**
+     * To validate supported roles
+     *
+     * @var array
+     */
+    static public $ROLES_SUPPORTED = [
+        self::ROLE_ADMIN => self::ROLE_ADMIN,
+        self::ROLE_USER => self::ROLE_USER,
+    ];
 
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
-     * @ORM\Column(type="string", length=180, unique=true)
+     * @var string
+     *
+     * @Assert\NotBlank(message="FIELD_CAN_NOT_BE_EMPTY")
      * @Groups({"user:write"})
-     * @Assert\NotBlank()
-     * @Gedmo\Versioned
+     * @Assert\Email(
+     *     message = "INCORRECT_EMAIL_ADDRESS",
+     *     checkMX = true
+     * )
      */
-    private $email;
+    protected $email;
 
     /**
-     * @ORM\Column(type="json")
-     * @Groups({"user:read"})
-     * @Gedmo\Versioned
-     */
-    private $roles = [];
-
-    /**
-     * @var string The hashed password
-     * @ORM\Column(type="string")
-     * @Groups({"user:write"})
-     * @Assert\NotBlank()
+     * @Groups({"user:read", "user:write"})
      * @Assert\Length(
-     *     min=5,
-     *     minMessage="Your password must be longer than 5 characters"
+     *      min = 1,
+     *      max = 100,
+     *      minMessage = "FIELD_LENGTH_TOO_SHORT",
+     *      maxMessage = "FIELD_LENGTH_TOO_LONG"
      * )
      * @Gedmo\Versioned
      */
-    private $password;
+    protected $username;
+
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"user:read", "user:write"})
-     * @Assert\NotBlank()
      * @Assert\Length(
-     *     min=2,
-     *     max=50,
-     *     maxMessage="Your first name must not be longer than 50 characters"
+     *      min = 1,
+     *      max = 100,
+     *      minMessage = "FIELD_LENGTH_TOO_SHORT",
+     *      maxMessage = "FIELD_LENGTH_TOO_LONG"
      * )
      * @Gedmo\Versioned
      */
@@ -98,11 +100,11 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"user:read", "user:write"})
-     * @Assert\NotBlank()
      * @Assert\Length(
-     *     min=2,
-     *     max=50,
-     *     maxMessage="Your last name must not be longer than 50 characters"
+     *      min = 1,
+     *      max = 100,
+     *      minMessage = "FIELD_LENGTH_TOO_SHORT",
+     *      maxMessage = "FIELD_LENGTH_TOO_LONG"
      * )
      * @Gedmo\Versioned
      */
@@ -121,36 +123,9 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $resetRequestAt;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $lastResetAt;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
      * @Groups({"user:read"})
      */
     private $activatedAt;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $activationKey;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"user:read"})
-     */
-    private $lastActiveAt;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Assert\NotBlank()
-     */
-    private $status;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="user")
@@ -180,28 +155,6 @@ class User implements UserInterface
         return $this->id;
     }
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): self
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUsername(): string
-    {
-        return (string) $this->email;
-    }
-
     /**
      * @see UserInterface
      */
@@ -217,21 +170,6 @@ class User implements UserInterface
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
-
-        return $this;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getPassword(): string
-    {
-        return (string) $this->password;
-    }
-
-    public function setPassword(string $password): self
-    {
-        $this->password = $password;
 
         return $this;
     }
@@ -394,30 +332,6 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getResetRequestAt(): ?\DateTimeInterface
-    {
-        return $this->resetRequestAt;
-    }
-
-    public function setResetRequestAt(?\DateTimeInterface $resetRequestAt): self
-    {
-        $this->resetRequestAt = $resetRequestAt;
-
-        return $this;
-    }
-
-    public function getLastResetAt(): ?\DateTimeInterface
-    {
-        return $this->lastResetAt;
-    }
-
-    public function setLastResetAt(?\DateTimeInterface $lastResetAt): self
-    {
-        $this->lastResetAt = $lastResetAt;
-
-        return $this;
-    }
-
     public function getActivatedAt(): ?\DateTimeInterface
     {
         return $this->activatedAt;
@@ -430,39 +344,11 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getActivationKey(): ?string
+    /**
+     * @return bool
+     */
+    public function isActivated()
     {
-        return $this->activationKey;
-    }
-
-    public function setActivationKey(?string $activationKey): self
-    {
-        $this->activationKey = $activationKey;
-
-        return $this;
-    }
-
-    public function getLastActiveAt(): ?\DateTimeInterface
-    {
-        return $this->lastActiveAt;
-    }
-
-    public function setLastActiveAt(?\DateTimeInterface $lastActiveAt): self
-    {
-        $this->lastActiveAt = $lastActiveAt;
-
-        return $this;
-    }
-
-    public function getStatus(): ?int
-    {
-        return $this->status;
-    }
-
-    public function setStatus(int $status): self
-    {
-        $this->status = $status;
-
-        return $this;
+        return ($this->getConfirmationToken() !== null);
     }
 }

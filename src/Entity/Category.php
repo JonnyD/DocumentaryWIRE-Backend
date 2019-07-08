@@ -19,22 +19,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiProperty;
 
 /**
- * @ApiResource(
- *     collectionOperations={
-     *     "get"={
-     *          "normalization_context"={"groups"={"category:read", "category:item:get"}}
-    *       },
- *          "post"={"access_control"="is_granted('ROLE_ADMIN')"}
- *     },
- *     itemOperations={
- *          "put"={"access_control"="is_granted('ROLE_ADMIN')"},
- *          "delete"={"access_control"="is_granted('ROLE_ADMIN')"},
-     *      "get",
- *     },
- *     normalizationContext={"groups"={"category:read"}, "swagger_definition_name"="Read"},
- *     denormalizationContext={"groups"={"category:write", "swagger_definition_name"="Write"}},
- * )
- * @ApiFilter(SearchFilter::class, properties={"slug": "exact"})
  * @ORM\Entity(repositoryClass="App\Repository\CategoryRepository")
  * @UniqueEntity(fields={"slug"})
  * @Gedmo\Loggable

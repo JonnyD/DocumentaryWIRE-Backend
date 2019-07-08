@@ -17,19 +17,6 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
- * @ApiResource(
- *     collectionOperations={
- *         "get",
- *         "post"
- *     },
- *     itemOperations={
- *          "get",
- *          "put",
- *          "delete"
- *     }
- * )
- * @ApiFilter(BooleanFilter::class, properties={"featured"})
- * @ApiFilter(SearchFilter::class, properties={"slug": "exact"})
  * @ORM\Entity(repositoryClass="App\Repository\DocumentaryRepository")
  * @Gedmo\Loggable
  */

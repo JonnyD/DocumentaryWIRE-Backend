@@ -10,7 +10,6 @@ use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\WatchlistRepository")
  * @Gedmo\Loggable
  */

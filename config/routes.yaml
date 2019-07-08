@@ -2,39 +2,13 @@
 #    path: /
 #    controller: App\Controller\DefaultController::index
 
-api_login_check:
-  path: /api/login_check
+fos_oauth_server_token:
+  resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"
 
-gesdinet_jwt_refresh_token:
-  path:       /api/token/refresh
-  controller: gesdinet.jwtrefreshtoken::refresh
+fos_oauth_server_authorize:
+  resource: "@FOSOAuthServerBundle/Resources/config/routing/authorize.xml"
 
-api_me:
-  path: '/api/me'
-  methods: ['GET']
-  defaults:
-    _controller: '\App\Controller\UserController::me'
-    _api_resource_class: 'App\Entity\User'
-    _api_collection_operation_name: 'collName_api_me'
-
-api_user_activate:
-  path:     '/api/users/{id}/activate'
-  methods:  ['GET']
-  defaults:
-    _controller: '\App\Controller\UserController::activate'
-    _api_resource_class: 'App\Entity\User'
-    _api_item_operation_name: 'activate'
-
-api_forgot_password_request:
-  path:     '/api/forgot-password-request'
-  methods:  ['POST']
-  defaults:
-    _controller: '\App\Controller\UserController::forgotPasswordRequest'
-    _api_item_operation_name: 'forgot_password_request'
-
-api_reset_password:
-  path:     '/api/reset-password'
-  methods:  ['POST']
-  defaults:
-    _controller: '\App\Controller\UserController::resetPassword'
-    _api_item_operation_name: 'reset_password'
+api_users:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\UserController

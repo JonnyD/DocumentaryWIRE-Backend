@@ -11,7 +11,6 @@ use App\Traits\Sluggable;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\CommentRepository")
  * @Gedmo\Loggable
  */

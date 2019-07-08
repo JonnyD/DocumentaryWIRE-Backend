@@ -24,9 +24,9 @@ class CommentFixtures extends Fixture implements DependentFixtureInterface
         $documentary2 = $this->getDocumentary('Documentary 2');
         $documentary3 = $this->getDocumentary('Documentary 3');
 
-        $user1 = $this->getUser('user1@email.com');
-        $user2 = $this->getUser('user2@email.com');
-        $user3 = $this->getUser('user3@email.com');
+        $user1 = $this->getUser('user1');
+        $user2 = $this->getUser('user2');
+        $user3 = $this->getUser('user3');
 
         $comment1 = $this->createComment($documentary1, $user1, 'This is a comment 1');
         $comment2 = $this->createComment($documentary1, $user2, 'This is a comment 2');

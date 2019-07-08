@@ -4,80 +4,145 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Service\UserService;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use FOS\RestBundle\Routing\ClassResourceInterface;
+use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use FOS\RestBundle\Controller\Annotations\RouteResource;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use FOS\RestBundle\Controller\Annotations as FOSRest;
 
-class UserController extends AbstractController
+class UserController extends AbstractFOSRestController implements ClassResourceInterface
 {
     /**
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage;
+
+    /**
+     * @var UserService
+     */
+    private $userService;
+
+    /**
      * @param TokenStorageInterface $tokenStorage
+     * @param UserService $userService
+     */
+    public function __construct(
+        TokenStorageInterface $tokenStorage,
+        UserService $userService)
+    {
+        $this->tokenStorage = $tokenStorage;
+        $this->userService = $userService;
+    }
+
+    /**
+     * @FOSRest\Get("/user/me")
+     *
      * @return User|string
      */
-    public function me(TokenStorageInterface $tokenStorage)
+    public function getMeAction()
     {
-        return $tokenStorage->getToken()->getUser();
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        /** @var User $loggedInUser */
+        $loggedInUser = $this->tokenStorage->getToken()->getUser();
+
+        $data = [
+            'username' => $loggedInUser->getUsername(),
+            'first_name' => $loggedInUser->getFirstName(),
+            'last_name' => $loggedInUser->getLastName(),
+            'avatar' => $loggedInUser->getAvatar(),
+            'last_login' => $loggedInUser->getLastLogin(),
+            'activated_at' => $loggedInUser->getActivatedAt(),
+            'enabled' => $loggedInUser->isEnabled()
+        ];
+
+        return new JsonResponse($data, 200);
     }
 
     /**
-     * @param $data
+     * @FOSRest\Get("/user/activate")
+     *
      * @param Request $request
-     * @param UserService $userService
-     * @return User|null
-     * @throws \Doctrine\ORM\ORMException
+     * @return JsonResponse
      */
-    public function activate($data, Request $request, UserService $userService)
+    public function getActivateAction(Request $request)
     {
         /** @var User $data */
-        $userId = $data->getId();
-        $activationKey = $request->query->get('activation_key');
+        $username = $request->query->et('username');
+        $confirmationToken = $request->query->get('confirmation_token');
 
-        $userInDatabase = $userService->getUserById($userId);
-
-        if ($activationKey === $userInDatabase->getActivationKey()) {
-            $userInDatabase->setActivatedAt(new \DateTime());
-            $userService->save($userInDatabase);
+        $userInDatabase = $this->userService->getUserByUsername($username);
+        if ($userInDatabase === null) {
+            //@TODO
         }
 
-        return $userInDatabase;
+        if ($confirmationToken === $userInDatabase->getConfirmationToken()) {
+            $userInDatabase->setActivatedAt(new \DateTime());
+            $userInDatabase->setEnabled(true);
+            $this->userService->save($userInDatabase);
+
+            $data = [
+                'username' => $userInDatabase->getUsername(),
+                'first_name' => $userInDatabase->getFirstName(),
+                'last_name' => $userInDatabase->getLastName(),
+                'avatar' => $userInDatabase->getAvatar(),
+                'last_login' => $userInDatabase->getLastLogin(),
+                'activated_at' => $userInDatabase->getActivatedAt(),
+                'enabled' => $userInDatabase->isEnabled()
+            ];
+
+            return new JsonResponse($data, 200);
+        }
+
+        return new JsonResponse('TODO', 200);
     }
 
     /**
+     * @FOSRest\Post("/user/forgot-password", name="post_user_forgot-password", options={ "method_prefix" = false })
+     *
      * @param Request $request
-     * @param UserService $userService
-     * @param TokenStorageInterface $tokenStorage
+     * @return JsonResponse
      * @throws \Doctrine\ORM\ORMException
      */
-    public function forgotPasswordRequest(Request $request, UserService $userService, TokenStorageInterface $tokenStorage)
+    public function postForgotpasswordAction(Request $request)
     {
-        $email = $request->query->get('email');
+        $username = $request->request->get('username');
 
-        $userService->generatePasswordResetKey($email);
+        $this->userService->generatePasswordResetKey($username);
 
         return new JsonResponse("sent", 200);
         //@TODO Create Event and send email
     }
 
     /**
+     * @FOSRest\Post("/user/reset-password", name="post_user_reset-password", options={ "method_prefix" = false })
+     *
      * @param $data
      * @param Request $request
      * @param UserService $userService
      */
-    public function resetPassword(Request $request, UserService $userService)
+    public function postResetpasswordAction(Request $request)
     {
         $resetKey = $request->query->get('reset_key');
         if ($resetKey === null) {
             //@TODO
         }
 
-        $userId = $request->query->get('user_id');
-        if ($userId === null) {
+        $username = $request->query->get('username');
+        if ($username === null) {
             //@TODO
         }
 
-        $userFromDatabase = $userService->getUserById($userId);
+        $userFromDatabase = $this->userService->getUserByUsername($username);
         if ($userFromDatabase === null) {
             //@TODO
         }
@@ -87,16 +152,17 @@ class UserController extends AbstractController
         }
 
         $now = new \DateTime();
-        $isGreaterThan24Hours = $userFromDatabase->getResetRequestAt()
+        $isGreaterThan24Hours = $userFromDatabase->getPasswordRequestedAt()
                 ->diff($now)->format('H') > 24;
 
         if ($isGreaterThan24Hours) {
             //@TODO
         }
 
-        $newPassword = $request->query->get('password');
+        $newPassword = $request->request->get('password');
+        $userFromDatabase->setPlainPassword($newPassword);
         $userFromDatabase->setPassword($newPassword);
 
-        $userService->resetPassword($userFromDatabase);
+        $this->userService->resetPassword($userFromDatabase);
     }
 }

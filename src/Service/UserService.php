@@ -40,6 +40,17 @@ class UserService
     }
 
     /**
+     * @param string $username
+     * @return User|null
+     */
+    public function getUserByUsername(string $username)
+    {
+        return $this->userRepository->findOneBy([
+            'username' => $username
+        ]);
+    }
+
+    /**
      * @param User $user
      */
     public function encodePassword(User $user)
@@ -57,26 +68,26 @@ class UserService
      */
     public function generateActivationKey(User $user)
     {
-        $activationKey = sha1(mt_rand(10000,99999).time().$user->getEmail());
-        $user->setActivationKey($activationKey);
+        $confirmationToken = sha1(mt_rand(10000,99999).time().$user->getEmail());
+        $user->setConfirmationToken($confirmationToken);
 
         $this->userRepository->save($user);
 
-        return $activationKey;
+        return $confirmationToken;
     }
 
     /**
-     * @param string $email
+     * @param string $username
      * @return string
      * @throws \Doctrine\ORM\ORMException
      */
-    public function generatePasswordResetKey(string $email)
+    public function generatePasswordResetKey(string $username)
     {
-        $user = $this->userRepository->findOneByEmail($email);
+        $user = $this->getUserByUsername($username);
 
         $resetKey = sha1(mt_rand(10000,99999).time().$user->getEmail());
         $user->setResetKey($resetKey);
-        $user->setResetRequestAt(new \DateTime());
+        $user->setPasswordRequestedAt(new \DateTime());
 
         $this->userRepository->save($user);
 
@@ -88,8 +99,7 @@ class UserService
      */
     public function resetPassword(User $user)
     {
-        $user->setLastResetAt(new \DateTime());
-        $this->encodePassword($user);
+        $this->userRepository->save($user);
     }
 
     /**
