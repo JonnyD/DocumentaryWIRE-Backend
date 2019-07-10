@@ -410,6 +410,7 @@ class Documentary implements \JsonSerializable
 
     public function jsonSerialize() {
         return [
+            'id' => $this->getId(),
             'title' => $this->getTitle(),
             'slug' => $this->getSlug(),
             'storyline' => $this->getStoryline(),

@@ -43,7 +43,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @FOSRest\Get("/documentary", name="post_documentary_admin_list", options={ "method_prefix" = false })
+     * @FOSRest\Get("/documentary", name="get_documentary_admin_list", options={ "method_prefix" = false })
      *
      * @param Request $request
      * @throws \Doctrine\ORM\ORMException
@@ -82,5 +82,18 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         ];
 
         return new JsonResponse($data);
+    }
+
+    /**
+     * @FOSRest\Get("/documentary/{slug}", name="get_documentary", options={ "method_prefix" = false })
+     *
+     * @param string $slug
+     * @return Documentary|null
+     */
+    public function getDocumentaryAction(string $slug)
+    {
+        $documentary = $this->documentaryService->getDocumentaryBySlug($slug);
+
+        return new JsonResponse($documentary);
     }
 }
