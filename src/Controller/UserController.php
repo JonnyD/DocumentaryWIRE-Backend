@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\RegisterForm;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -41,6 +42,26 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     {
         $this->tokenStorage = $tokenStorage;
         $this->userService = $userService;
+    }
+
+    /**
+     * @FOSRest\Post("/user/register")
+     *
+     * @param Request $request
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function postRegisterAction(Request $request)
+    {
+        $user = new User();
+        $form = $this->createForm(RegisterForm::class, $user);
+
+        $form->submit($request->request->all());
+
+        if ($form->isValid()){
+            $this->userService->save($user);
+        }
+
+        return new JsonResponse($user);
     }
 
     /**

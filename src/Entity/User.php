@@ -147,7 +147,7 @@ class User extends BaseUser
         $this->comments = new ArrayCollection();
         $this->watchlists = new ArrayCollection();
         $this->activities = new ArrayCollection();
-        $this->status = UserStatus::INACTIVE;
+        $this->enabled = false;
     }
 
     public function getId(): ?int

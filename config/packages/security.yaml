@@ -21,8 +21,8 @@ security:
             pattern:    ^/oauth/v2/token
             security:   false
 
-        api:
-            pattern:    ^/api/v1
+        api_user:
+            pattern:    ^/api/v1/change-password
             fos_oauth:  true
             stateless:  false
 
@@ -47,5 +47,6 @@ security:
             security: false
 
     access_control:
-        - { path: ^/api/me, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/v1/me, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/v1/user/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api,       roles: IS_AUTHENTICATED_ANONYMOUSLY }
