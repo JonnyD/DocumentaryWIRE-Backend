@@ -186,4 +186,19 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
         $this->userService->resetPassword($userFromDatabase);
     }
+
+    public function forgotUsername(Request $request)
+    {
+        $email = $request->request->get('email');
+        if ($email === null) {
+            //@TODO
+        }
+
+        $user = $this->userService->getUserByEmail($email);
+        if ($user === null) {
+            //@TODO
+        }
+
+        //@TODO Send email with $user->getUsername();
+    }
 }

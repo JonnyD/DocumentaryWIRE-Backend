@@ -51,6 +51,17 @@ class UserService
     }
 
     /**
+     * @param string $email
+     * @return User|null
+     */
+    public function getUserByEmail(string $email)
+    {
+        return $this->userRepository->findOneBy([
+            'email' => $email
+        ]);
+    }
+
+    /**
      * @param User $user
      */
     public function encodePassword(User $user)
