@@ -15,12 +15,14 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\DocumentaryRepository")
+ *
  * @Gedmo\Loggable
  */
-class Documentary
+class Documentary implements \JsonSerializable
 {
     use Timestampable;
     use Blameable;
@@ -35,6 +37,7 @@ class Documentary
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"documentary:write", "documentary:read"})
      * @Gedmo\Versioned
      */
     private $title;
@@ -398,4 +401,30 @@ class Documentary
         return $this->comments->count();
     }
 
+    public function serialize()
+    {
+        return serialize(array(
+            $this->title
+        ));
+    }
+
+    public function jsonSerialize() {
+        return [
+            'title' => $this->getTitle(),
+            'slug' => $this->getSlug(),
+            'storyline' => $this->getStoryline(),
+            'summary' => $this->getSummary(),
+            'year' => $this->getYear(),
+            'length' => $this->getLength(),
+            'status' => $this->getStatus(),
+            'views' => $this->getViews(),
+            'short_url' => $this->getShortUrl(),
+            'poster' => $this->getPoster(),
+            'wideImage' => $this->getWideImage(),
+            'video_source' => $this->getVideoSource(),
+            'video_id' => $this->getVideoId(),
+            'featured' => $this->getFeatured(),
+            'category' => $this->getCategory()->getName()
+        ];
+    }
 }

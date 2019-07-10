@@ -57,10 +57,13 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
         $form->submit($request->request->all());
 
+        //return new JsonResponse((string) $form->getErrors(true, false));
+
         if ($form->isValid()){
             $this->userService->save($user);
         }
 
+        //@TODO send activation code email
         return new JsonResponse($user);
     }
 
@@ -83,7 +86,8 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             'avatar' => $loggedInUser->getAvatar(),
             'last_login' => $loggedInUser->getLastLogin(),
             'activated_at' => $loggedInUser->getActivatedAt(),
-            'enabled' => $loggedInUser->isEnabled()
+            'enabled' => $loggedInUser->isEnabled(),
+            'roles' => $loggedInUser->getRoles()
         ];
 
         return new JsonResponse($data, 200);

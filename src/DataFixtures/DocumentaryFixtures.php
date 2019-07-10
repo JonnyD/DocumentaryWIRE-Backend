@@ -58,6 +58,50 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
             $category3, 'Documentary 9', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
             false, 10, 90, 2015);
+        $documentary10 = $this->createDocumentary(
+            $category3, 'Documentary 10', 'This is a storyline', 'Storyline',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            false, 10, 90, 2015);
+        $documentary11 = $this->createDocumentary(
+            $category3, 'Documentary 11', 'This is a storyline', 'Storyline',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            false, 10, 90, 2015);
+        $documentary12 = $this->createDocumentary(
+            $category3, 'Documentary 12', 'This is a storyline', 'Storyline',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            false, 10, 90, 2015);
+        $documentary13 = $this->createDocumentary(
+            $category3, 'Documentary 13', 'This is a storyline', 'Storyline',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            false, 10, 90, 2015);
+        $documentary14 = $this->createDocumentary(
+            $category3, 'Documentary 14', 'This is a storyline', 'Storyline',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            false, 10, 90, 2015);
+        $documentary15 = $this->createDocumentary(
+            $category3, 'Documentary 15', 'This is a storyline', 'Storyline',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            false, 10, 90, 2015);
+        $documentary16 = $this->createDocumentary(
+            $category3, 'Documentary 16', 'This is a storyline', 'Storyline',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            false, 10, 90, 2015);
+        $documentary17 = $this->createDocumentary(
+            $category3, 'Documentary 17', 'This is a storyline', 'Storyline',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            false, 10, 90, 2015);
+        $documentary18 = $this->createDocumentary(
+            $category3, 'Documentary 18', 'This is a storyline', 'Storyline',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            false, 10, 90, 2015);
+        $documentary19 = $this->createDocumentary(
+            $category3, 'Documentary 19', 'This is a storyline', 'Storyline',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            false, 10, 90, 2015);
+        $documentary20 = $this->createDocumentary(
+            $category3, 'Documentary 20', 'This is a storyline', 'Storyline',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            false, 10, 90, 2015);
 
         $manager->persist($documentary1);
         $manager->persist($documentary2);
@@ -68,6 +112,17 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         $manager->persist($documentary7);
         $manager->persist($documentary8);
         $manager->persist($documentary9);
+        $manager->persist($documentary10);
+        $manager->persist($documentary11);
+        $manager->persist($documentary12);
+        $manager->persist($documentary13);
+        $manager->persist($documentary14);
+        $manager->persist($documentary15);
+        $manager->persist($documentary16);
+        $manager->persist($documentary17);
+        $manager->persist($documentary18);
+        $manager->persist($documentary19);
+        $manager->persist($documentary20);
         $manager->flush();
 
         $this->createReference($documentary1);
@@ -78,7 +133,17 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         $this->createReference($documentary6);
         $this->createReference($documentary7);
         $this->createReference($documentary8);
-        $this->createReference($documentary9);
+        $this->createReference($documentary10);
+        $this->createReference($documentary11);
+        $this->createReference($documentary12);
+        $this->createReference($documentary13);
+        $this->createReference($documentary14);
+        $this->createReference($documentary15);
+        $this->createReference($documentary16);
+        $this->createReference($documentary17);
+        $this->createReference($documentary18);
+        $this->createReference($documentary19);
+        $this->createReference($documentary20);
     }
 
     /**
