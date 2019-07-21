@@ -17,3 +17,8 @@ api_documentaries:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\DocumentaryController
+
+api_poster:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\PosterController

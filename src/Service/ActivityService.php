@@ -83,7 +83,7 @@ class ActivityService
                 "documentaryId" => $documentary->getId(),
                 "documentaryTitle" => $documentary->getTitle(),
                 "documentaryExcerpt" => $documentary->getSummary(),
-                "documentaryThumbnail" => $documentary->getPoster(),
+                //"documentaryThumbnail" => $documentary->getPoster(),
                 "documentarySlug" => $documentary->getSlug()
             ];
 
@@ -160,7 +160,7 @@ class ActivityService
             $data = [
                 "documentaryId" => $documentary->getId(),
                 "documentaryTitle" => $documentary->getTitle(),
-                "documentaryThumbnail" => $documentary->getPoster(),
+                //"documentaryThumbnail" => $documentary->getPoster(),
                 "documentarySlug" => $documentary->getSlug(),
                 "comment" => $comment->getComment()
             ];

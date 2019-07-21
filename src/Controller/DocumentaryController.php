@@ -7,10 +7,12 @@ use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\Order;
+use App\Form\UpdateDocumentaryForm;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
@@ -81,7 +83,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'paginate'          => $pagerfanta->haveToPaginate(),
         ];
 
-        return new JsonResponse($data);
+        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
     }
 
     /**
@@ -94,6 +96,31 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     {
         $documentary = $this->documentaryService->getDocumentaryBySlug($slug);
 
-        return new JsonResponse($documentary);
+        return new JsonResponse($documentary, 200, array('Access-Control-Allow-Origin'=> '*'));
+    }
+
+    /**
+     * @FOSRest\Patch("/documentary/{slug}", name="update_documentary", options={ "method_prefix" = false })
+     *
+     * @param string $slug
+     * @return Documentary|null
+     */
+    public function patchDocumentaryAction(string $slug, Request $request)
+    {
+        $documentary = $this->documentaryService->getDocumentaryBySlug($slug);
+
+        if ($documentary === null) {
+            return new AccessDeniedException();
+        }
+
+        $editDocumentaryForm = $this->createForm(UpdateDocumentaryForm::class, $documentary);
+
+        $editDocumentaryForm->submit($request->request->all(), false);
+
+        if ($editDocumentaryForm->isValid()) {
+            $this->documentaryService->save($documentary);
+        }
+
+        return new JsonResponse($documentary,200);
     }
 }
