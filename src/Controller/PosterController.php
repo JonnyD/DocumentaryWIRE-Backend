@@ -7,11 +7,13 @@ use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\Order;
-use App\Form\UpdateDocumentaryForm;
+use App\Form\EditDocumentaryForm;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
+use Gedmo\Sluggable\Util\Urlizer;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
@@ -29,8 +31,18 @@ class PosterController extends AbstractFOSRestController implements ClassResourc
      */
     public function uploadAction(Request $request)
     {
-        $poster = $request->files->get('poster');
+        /** @var UploadedFile $uploadedFile */
+        $uploadedFile = $request->files->get('poster');
 
+        $destination = $this->getParameter('kernel.project_dir')
+            .'/public/uploads/posters';
 
+        $originalFileName = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $newFileName = Urlizer::urlize($originalFileName).'-'.uniqid().'-'.$uploadedFile->guessExtension();
+
+        $uploadedFile->move(
+            $destination,
+            $newFileName
+        );
     }
 }

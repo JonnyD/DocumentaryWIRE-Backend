@@ -10,7 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class UpdateDocumentaryForm extends AbstractType
+class EditDocumentaryForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -22,7 +22,10 @@ class UpdateDocumentaryForm extends AbstractType
             ->add('year', IntegerType::class)
             ->add('length', IntegerType::class)
             ->add('status', TextType::class)
-            ->add('shortUrl', TextType::class);
+            ->add('shortUrl', TextType::class)
+            ->add('posterFile', FileType::class, [
+                'mapped' => false
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)

@@ -108,6 +108,12 @@ class Documentary implements \JsonSerializable
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
+    private $posterFileName;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Gedmo\Versioned
+     */
     private $wideImage;
 
     /**
@@ -126,11 +132,6 @@ class Documentary implements \JsonSerializable
      * @ORM\OneToMany(targetEntity="App\Entity\Watchlist", mappedBy="documentary")
      */
     private $watchlists;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Poster", mappedBy="documentary")
-     */
-    private $posters;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\VideoSource", inversedBy="documentary")
@@ -398,7 +399,7 @@ class Documentary implements \JsonSerializable
             'status' => $this->getStatus(),
             'views' => $this->getViews(),
             'short_url' => $this->getShortUrl(),
-           // 'poster' => $this->getPosters(),
+            'poster' => $this->getPosterFileName(),
             'wideImage' => $this->getWideImage(),
             'video_source' => $this->getVideoSource()->getName(),
             'video_id' => $this->getVideoId(),
@@ -408,34 +409,19 @@ class Documentary implements \JsonSerializable
     }
 
     /**
-     * @return Collection|Poster[]
+     * @return mixed
      */
-    public function getPosters(): Collection
+    public function getPosterFileName()
     {
-        return $this->posters;
+        return $this->posterFileName;
     }
 
-    public function addPoster(Poster $poster): self
+    /**
+     * @param string $posterFileName
+     */
+    public function setPosterFileName(string $posterFileName)
     {
-        if (!$this->posters->contains($poster)) {
-            $this->posters[] = $poster;
-            $poster->setDocumentary($this);
-        }
-
-        return $this;
-    }
-
-    public function removePoster(Poster $poster): self
-    {
-        if ($this->posters->contains($poster)) {
-            $this->posters->removeElement($poster);
-            // set the owning side to null (unless already changed)
-            if ($poster->getDocumentary() === $this) {
-                $poster->setDocumentary(null);
-            }
-        }
-
-        return $this;
+        $this->posterFileName = $posterFileName;
     }
 
     public function getVideoSource(): ?VideoSource

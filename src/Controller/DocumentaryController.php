@@ -7,18 +7,26 @@ use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\Order;
-use App\Form\UpdateDocumentaryForm;
+use App\Form\EditDocumentaryForm;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
+use App\Service\ImageService;
+use App\Utils\Base64FileExtractor;
+use App\Utils\UploadedBase64File;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
+use Gedmo\Sluggable\Util\Urlizer;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Serializer\Normalizer\DataUriNormalizer;
+use Hshn\Base64EncodedFile\HttpFoundation\File\Base64EncodedFile;
+use Symfony\Component\HttpFoundation\File\File;
 
 class DocumentaryController extends AbstractFOSRestController implements ClassResourceInterface
 {
@@ -33,15 +41,23 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     private $tokenStorage;
 
     /**
+     * @var ImageService
+     */
+    private $imageService;
+
+    /**
      * @param DocumentaryService $documentaryService
      * @param TokenStorageInterface $tokenStorage
+     * @param ImageService $imageService
      */
     public function __construct(
         DocumentaryService $documentaryService,
-        TokenStorageInterface $tokenStorage)
+        TokenStorageInterface $tokenStorage,
+        ImageService $imageService)
     {
         $this->documentaryService = $documentaryService;
         $this->tokenStorage = $tokenStorage;
+        $this->imageService = $imageService;
     }
 
     /**
@@ -83,7 +99,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'paginate'          => $pagerfanta->haveToPaginate(),
         ];
 
-        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
+        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'), array('Access-Control-Allow-Origin'=> '*'));
     }
 
     /**
@@ -103,9 +119,10 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      * @FOSRest\Patch("/documentary/{slug}", name="update_documentary", options={ "method_prefix" = false })
      *
      * @param string $slug
+     * @param Request $request
      * @return Documentary|null
      */
-    public function patchDocumentaryAction(string $slug, Request $request)
+    public function editDocumentaryAction(string $slug, Request $request)
     {
         $documentary = $this->documentaryService->getDocumentaryBySlug($slug);
 
@@ -113,14 +130,30 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             return new AccessDeniedException();
         }
 
-        $editDocumentaryForm = $this->createForm(UpdateDocumentaryForm::class, $documentary);
+        $editDocumentaryForm = $this->createForm(EditDocumentaryForm::class);
+        $editDocumentaryForm->handleRequest($request);
+        $editDocumentaryForm->submit($request->request->all());
 
-        $editDocumentaryForm->submit($request->request->all(), false);
+        $editedDocumentary = json_decode($request->getContent(), true)['resource'];
 
-        if ($editDocumentaryForm->isValid()) {
+        if ($editDocumentaryForm->isSubmitted() && $editDocumentaryForm->isValid()) {
+            $posterFile = $editedDocumentary['posterFile'];
+            $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
+            $path = 'uploads/posters/';
+            $posterFileName = $this->imageService->saveBase54Image($posterFile, $outputFileWithoutExtension, $path);
+            
+            $documentary->setPosterFileName($posterFileName);
             $this->documentaryService->save($documentary);
         }
 
-        return new JsonResponse($documentary,200);
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
+        return new JsonResponse($documentary, 200, $headers);
     }
+
+
 }

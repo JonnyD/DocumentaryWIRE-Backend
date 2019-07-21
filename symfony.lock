@@ -155,6 +155,9 @@
     "gedmo/doctrine-extensions": {
         "version": "v2.4.37"
     },
+    "hshn/base64-encoded-file": {
+        "version": "2.x-dev"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
