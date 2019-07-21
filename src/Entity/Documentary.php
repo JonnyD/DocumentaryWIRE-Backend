@@ -94,11 +94,6 @@ class Documentary implements \JsonSerializable
 
     /**
      * @ORM\Column(type="string", length=255)
-     */
-    private $videoSource;
-
-    /**
-     * @ORM\Column(type="string", length=255)
      * @Gedmo\Versioned
      */
     private $videoId;
@@ -136,6 +131,12 @@ class Documentary implements \JsonSerializable
      * @ORM\OneToMany(targetEntity="App\Entity\Poster", mappedBy="documentary")
      */
     private $posters;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\VideoSource", inversedBy="documentary")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $videoSource;
 
     public function __construct()
     {
@@ -373,18 +374,6 @@ class Documentary implements \JsonSerializable
         return $this;
     }
 
-    public function getVideoSource(): ?string
-    {
-        return $this->videoSource;
-    }
-
-    public function setVideoSource(string $videoSource): self
-    {
-        $this->videoSource = $videoSource;
-
-        return $this;
-    }
-
     public function getCommentCount(): ?int
     {
         return $this->comments->count();
@@ -411,7 +400,7 @@ class Documentary implements \JsonSerializable
             'short_url' => $this->getShortUrl(),
            // 'poster' => $this->getPosters(),
             'wideImage' => $this->getWideImage(),
-            'video_source' => $this->getVideoSource(),
+            'video_source' => $this->getVideoSource()->getName(),
             'video_id' => $this->getVideoId(),
             'featured' => $this->getFeatured(),
             'category' => $this->getCategory()->getName()
@@ -445,6 +434,18 @@ class Documentary implements \JsonSerializable
                 $poster->setDocumentary(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getVideoSource(): ?VideoSource
+    {
+        return $this->videoSource;
+    }
+
+    public function setVideoSource(?VideoSource $videoSource): self
+    {
+        $this->videoSource = $videoSource;
 
         return $this;
     }

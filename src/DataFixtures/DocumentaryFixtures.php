@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\VideoSource;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -22,85 +23,87 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         $category2 = $this->getCategory('Category 2');
         $category3 = $this->getCategory('Category 3');
 
+        $youtube = $this->getVideoSource('Youtube');
+
         $documentary1 = $this->createDocumentary(
             $category1, 'Documentary 1', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH, 'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH, 'poster.jpg', '234jkjkfs', $youtube,
             true, 10, 90, 2015);
         $documentary2 = $this->createDocumentary(
             $category2, 'Documentary 2', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH, 'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH, 'poster.jpg', '234jkjkfs', $youtube,
             true, 10, 90, 2015);
         $documentary3 = $this->createDocumentary(
             $category3, 'Documentary 3', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,'poster.jpg', '234jkjkfs', $youtube,
             true, 10, 90, 2015);
         $documentary4 = $this->createDocumentary(
             $category3, 'Documentary 4', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary5 = $this->createDocumentary(
             $category3, 'Documentary 5', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary6 = $this->createDocumentary(
             $category3, 'Documentary 6', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary7 = $this->createDocumentary(
             $category3, 'Documentary 7', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary8 = $this->createDocumentary(
             $category3, 'Documentary 8', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary9 = $this->createDocumentary(
             $category3, 'Documentary 9', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary10 = $this->createDocumentary(
             $category3, 'Documentary 10', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary11 = $this->createDocumentary(
             $category3, 'Documentary 11', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary12 = $this->createDocumentary(
             $category3, 'Documentary 12', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary13 = $this->createDocumentary(
             $category3, 'Documentary 13', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary14 = $this->createDocumentary(
             $category3, 'Documentary 14', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary15 = $this->createDocumentary(
             $category3, 'Documentary 15', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary16 = $this->createDocumentary(
             $category3, 'Documentary 16', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary17 = $this->createDocumentary(
             $category3, 'Documentary 17', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary18 = $this->createDocumentary(
             $category3, 'Documentary 18', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary19 = $this->createDocumentary(
             $category3, 'Documentary 19', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
         $documentary20 = $this->createDocumentary(
             $category3, 'Documentary 20', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', 'youtube',
+            DocumentaryStatus::PUBLISH,  'poster.jpg', '234jkjkfs', $youtube,
             false, 10, 90, 2015);
 
         $manager->persist($documentary1);
@@ -169,7 +172,7 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         string $status,
         string $poster,
         string $videoId,
-        string $videoSource,
+        VideoSource $videoSource,
         bool $featured,
         int $views,
         int $length,
@@ -182,7 +185,6 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         $documentary->setStoryLine($storyLine);
         $documentary->setSummary($summary);
         $documentary->setStatus($status);
-        $documentary->setPoster($poster);
         $documentary->setVideoId($videoId);
         $documentary->setVideoSource($videoSource);
         $documentary->setFeatured($featured);
@@ -202,11 +204,20 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
     }
 
     /**
+     * @param string $name
+     * @return VideoSource
+     */
+    private function getVideoSource(string $name)
+    {
+        return $this->getReference('video-source.'.$name);
+    }
+
+    /**
      * @param Documentary $documentary
      */
     private function createReference(Documentary $documentary)
     {
-        $this->addReference('documentary.'.$documentary->getTitle(), $documentary);
+        $this->addReference('documentary.'.$documentary->getSlug(), $documentary);
     }
 
     /**
@@ -215,7 +226,8 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
     public function getDependencies()
     {
         return [
-            CategoryFixtures::class
+            CategoryFixtures::class,
+            VideoSourceFixtures::class
         ];
     }
 }

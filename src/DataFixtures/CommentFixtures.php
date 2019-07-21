@@ -20,9 +20,9 @@ class CommentFixtures extends Fixture implements DependentFixtureInterface
      */
     public function load(ObjectManager $manager)
     {
-        $documentary1 = $this->getDocumentary('Documentary 1');
-        $documentary2 = $this->getDocumentary('Documentary 2');
-        $documentary3 = $this->getDocumentary('Documentary 3');
+        $documentary1 = $this->getDocumentary('documentary-1');
+        $documentary2 = $this->getDocumentary('documentary-2');
+        $documentary3 = $this->getDocumentary('documentary-3');
 
         $user1 = $this->getUser('user1');
         $user2 = $this->getUser('user2');
@@ -76,12 +76,12 @@ class CommentFixtures extends Fixture implements DependentFixtureInterface
     }
 
     /**
-     * @param string $title
+     * @param string $slug
      * @return Documentary
      */
-    private function getDocumentary(string $title)
+    private function getDocumentary(string $slug)
     {
-        return $this->getReference('documentary.'.$title);
+        return $this->getReference('documentary.'.$slug);
     }
 
     /**
