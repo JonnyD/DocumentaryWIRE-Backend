@@ -145,10 +145,10 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         $editedDocumentaryContent = json_decode($request->getContent(), true)['resource'];
 
         if ($editDocumentaryForm->isSubmitted() && $editDocumentaryForm->isValid()) {
-            if (isset($editedDocumentaryContent['posterFile'])) {
-                $posterFile = $editedDocumentaryContent['posterFile'];
+            if (isset($editedDocumentaryContent['poster'])) {
+                $posterFile = $editedDocumentaryContent['poster'];
                 $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
-                $path = 'uploads/posters/';
+                $path = 'uploads/documentary/posters/';
                 $posterFileName = $this->imageService->saveBase54Image($posterFile, $outputFileWithoutExtension, $path);
                 $documentary->setPosterFileName($posterFileName);
             }
