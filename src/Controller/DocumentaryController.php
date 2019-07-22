@@ -8,6 +8,7 @@ use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\Order;
 use App\Form\EditDocumentaryForm;
+use App\Service\CategoryService;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
 use App\Service\ImageService;
@@ -46,18 +47,26 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     private $imageService;
 
     /**
+     * @var CategoryService
+     */
+    private $categoryService;
+
+    /**
      * @param DocumentaryService $documentaryService
      * @param TokenStorageInterface $tokenStorage
      * @param ImageService $imageService
+     * @param CategoryService $categoryService
      */
     public function __construct(
         DocumentaryService $documentaryService,
         TokenStorageInterface $tokenStorage,
-        ImageService $imageService)
+        ImageService $imageService,
+        CategoryService $categoryService)
     {
         $this->documentaryService = $documentaryService;
         $this->tokenStorage = $tokenStorage;
         $this->imageService = $imageService;
+        $this->categoryService = $categoryService;
     }
 
     /**
@@ -130,19 +139,72 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             return new AccessDeniedException();
         }
 
-        $editDocumentaryForm = $this->createForm(EditDocumentaryForm::class);
+        $editDocumentaryForm = $this->createForm(EditDocumentaryForm::class, $documentary);
         $editDocumentaryForm->handleRequest($request);
-        $editDocumentaryForm->submit($request->request->all());
-
-        $editedDocumentary = json_decode($request->getContent(), true)['resource'];
+        $editDocumentaryForm->submit($request->request->all(), false);
+        $editedDocumentaryContent = json_decode($request->getContent(), true)['resource'];
 
         if ($editDocumentaryForm->isSubmitted() && $editDocumentaryForm->isValid()) {
-            $posterFile = $editedDocumentary['posterFile'];
-            $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
-            $path = 'uploads/posters/';
-            $posterFileName = $this->imageService->saveBase54Image($posterFile, $outputFileWithoutExtension, $path);
-            
-            $documentary->setPosterFileName($posterFileName);
+            if (isset($editedDocumentaryContent['posterFile'])) {
+                $posterFile = $editedDocumentaryContent['posterFile'];
+                $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
+                $path = 'uploads/posters/';
+                $posterFileName = $this->imageService->saveBase54Image($posterFile, $outputFileWithoutExtension, $path);
+                $documentary->setPosterFileName($posterFileName);
+            }
+
+            if (isset($editedDocumentaryContent['title'])) {
+                $documentary->setTitle($editedDocumentaryContent['title']);
+            }
+
+            if (isset($editedDocumentaryContent['slug'])) {
+                $documentary->setSlug($editedDocumentaryContent['slug']);
+            }
+
+            if (isset($editedDocumentaryContent['storyline'])) {
+                $documentary->setStoryline($editedDocumentaryContent['storyline']);
+            }
+
+            if (isset($editedDocumentaryContent['summary'])) {
+                $documentary->setSummary($editedDocumentaryContent['summary']);
+            }
+
+            if (isset($editedDocumentaryContent['year'])) {
+                $documentary->setYear($editedDocumentaryContent['year']);
+            }
+
+            if (isset($editedDocumentaryContent['length'])) {
+                $documentary->setLength($editedDocumentaryContent['length']);
+            }
+
+            if (isset($editedDocumentaryContent['short_url'])) {
+                $documentary->setShortUrl($editedDocumentaryContent['short_url']);
+            }
+
+            if (isset($editedDocumentaryContent['status'])) {
+                $documentary->setStatus($editedDocumentaryContent['status']);
+            }
+
+            if (isset($editedDocumentaryContent['wide_image'])) {
+                $documentary->setWideImage($editedDocumentaryContent['wide_image']);
+            }
+
+            if (isset($editedDocumentaryContent['video_source'])) {
+                $documentary->setVideoSource($editedDocumentaryContent['video_source']);
+            }
+
+            if (isset($editedDocumentaryContent['video_id'])) {
+                $documentary->setVideoId($editedDocumentaryContent['video_id']);
+            }
+
+            if (isset($editedDocumentaryContent['featured'])) {
+                $documentary->setFeatured($editedDocumentaryContent['featured']);
+            }
+
+            if (isset($editedDocumentaryContent['category_id'])) {
+                $documentary->setCategory($editedDocumentaryContent['category_id']);
+            }
+
             $this->documentaryService->save($documentary);
         }
 
