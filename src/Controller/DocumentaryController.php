@@ -133,12 +133,18 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      */
     public function editDocumentaryAction(string $slug, Request $request)
     {
+        /** @var Documentary $documentary */
         $documentary = $this->documentaryService->getDocumentaryBySlug($slug);
 
         if ($documentary === null) {
             return new AccessDeniedException();
         }
 
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
         $editDocumentaryForm = $this->createForm(EditDocumentaryForm::class, $documentary);
         $editDocumentaryForm->handleRequest($request);
         $editDocumentaryForm->submit($request->request->all(), false);
@@ -147,10 +153,12 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         if ($editDocumentaryForm->isSubmitted() && $editDocumentaryForm->isValid()) {
             if (isset($editedDocumentaryContent['poster'])) {
                 $posterFile = $editedDocumentaryContent['poster'];
-                $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
-                $path = 'uploads/documentary/posters/';
-                $posterFileName = $this->imageService->saveBase54Image($posterFile, $outputFileWithoutExtension, $path);
-                $documentary->setPosterFileName($posterFileName);
+                if ($this->imageService->isBase64($posterFile)) {
+                    $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
+                    $path = 'uploads/documentary/posters/';
+                    $posterFileName = $this->imageService->saveBase54Image($posterFile, $outputFileWithoutExtension, $path);
+                    $documentary->setPosterFileName($posterFileName);
+                }
             }
 
             if (isset($editedDocumentaryContent['title'])) {
@@ -185,10 +193,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 $documentary->setStatus($editedDocumentaryContent['status']);
             }
 
-            if (isset($editedDocumentaryContent['wide_image'])) {
-                $documentary->setWideImage($editedDocumentaryContent['wide_image']);
-            }
-
             if (isset($editedDocumentaryContent['video_source'])) {
                 $documentary->setVideoSource($editedDocumentaryContent['video_source']);
             }
@@ -208,11 +212,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $this->documentaryService->save($documentary);
         }
 
-
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
 
         return new JsonResponse($documentary, 200, $headers);
     }

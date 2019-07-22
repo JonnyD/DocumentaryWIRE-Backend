@@ -399,7 +399,7 @@ class Documentary implements \JsonSerializable
             'status' => $this->getStatus(),
             'views' => $this->getViews(),
             'short_url' => $this->getShortUrl(),
-            'poster' => $this->getImagePath(),
+            'poster' => $this->getPosterImagePath(),
             'wideImage' => $this->getWideImage(),
             'video_source' => $this->getVideoSource()->getName(),
             'video_id' => $this->getVideoId(),
@@ -427,9 +427,17 @@ class Documentary implements \JsonSerializable
     /**
      * @return string
      */
-    public function getImagePath()
+    public function getPosterImagePath()
     {
         return 'uploads/documentary/posters/'.$this->getPosterFileName();
+    }
+
+    /**
+     * @return string
+     */
+    public function getWideImagePath()
+    {
+        return 'uploads/documentary/wide/'.$this->getPosterFileName();
     }
 
     public function getVideoSource(): ?VideoSource

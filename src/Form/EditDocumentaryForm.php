@@ -22,8 +22,11 @@ class EditDocumentaryForm extends AbstractType
             ->add('year', IntegerType::class)
             ->add('length', IntegerType::class)
             ->add('status', TextType::class)
-            ->add('shortUrl', TextType::class)
-            ->add('posterFile', FileType::class, [
+            ->add('short_url', TextType::class)
+            ->add('poster', FileType::class, [
+                'mapped' => false
+            ])
+            ->add('wide_image', FileType::class, [
                 'mapped' => false
             ]);
     }

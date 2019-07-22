@@ -30,4 +30,17 @@ class ImageService
 
         return $outputFileWithoutExtension;
     }
+
+    /**
+     * @param string $string
+     * @return bool
+     */
+    function isBase64(string $string)
+    {
+        if (base64_decode($string, true) === false){
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
