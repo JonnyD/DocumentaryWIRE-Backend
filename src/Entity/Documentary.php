@@ -401,7 +401,7 @@ class Documentary implements \JsonSerializable
             'short_url' => $this->getShortUrl(),
             'poster' => $this->getPosterImagePath(),
             'wide_image' => $this->getWideImagePath(),
-            'video_source' => $this->getVideoSource()->getName(),
+            'video_source' => $this->getVideoSource()->getId(),
             'video_id' => $this->getVideoId(),
             'featured' => $this->getFeatured(),
             'category' => $this->getCategory()->getName()

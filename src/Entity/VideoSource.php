@@ -98,4 +98,12 @@ class VideoSource
 
         return $this;
     }
+
+    public function jsonSerialize() {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName()
+        ];
+    }
+
 }

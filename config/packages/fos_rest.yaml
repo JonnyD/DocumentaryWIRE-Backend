@@ -6,6 +6,8 @@ fos_rest:
       templating_formats:
         html: true
     disable_csrf_role: IS_AUTHENTICATED_ANONYMOUSLY
+    service:
+      serializer: fos_rest.serializer.symfony
 #    param_fetcher_listener:  true
 #    allowed_methods_listener:  true
 #    routing_loader: true
