@@ -37,10 +37,10 @@ class ImageService
      */
     function isBase64(string $string)
     {
-        if (base64_decode($string, true) === false){
+        $exploded = explode(',', $string);
+        if ($exploded[0] === 'data:image/png;base64') {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 }

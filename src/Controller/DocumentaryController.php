@@ -108,7 +108,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'paginate'          => $pagerfanta->haveToPaginate(),
         ];
 
-        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'), array('Access-Control-Allow-Origin'=> '*'));
+        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
     }
 
     /**
@@ -152,12 +152,24 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
 
         if ($editDocumentaryForm->isSubmitted() && $editDocumentaryForm->isValid()) {
             if (isset($editedDocumentaryContent['poster'])) {
-                $posterFile = $editedDocumentaryContent['poster'];
-                if ($this->imageService->isBase64($posterFile)) {
+                $poster = $editedDocumentaryContent['poster'];
+                $isBase64 = $this->imageService->isBase64($poster);
+                if ($isBase64) {
                     $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
                     $path = 'uploads/documentary/posters/';
-                    $posterFileName = $this->imageService->saveBase54Image($posterFile, $outputFileWithoutExtension, $path);
+                    $posterFileName = $this->imageService->saveBase54Image($poster, $outputFileWithoutExtension, $path);
                     $documentary->setPosterFileName($posterFileName);
+                }
+            }
+
+            if (isset($editedDocumentaryContent['wide_image'])) {
+                $wideImage = $editedDocumentaryContent['wide_image'];
+                $isBase64 = $this->imageService->isBase64($wideImage);
+                if ($isBase64) {
+                    $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
+                    $path = 'uploads/documentary/wide/';
+                    $wideImageFileName = $this->imageService->saveBase54Image($wideImage, $outputFileWithoutExtension, $path);
+                    $documentary->setWideImage($wideImageFileName);
                 }
             }
 
@@ -208,6 +220,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             if (isset($editedDocumentaryContent['category_id'])) {
                 $documentary->setCategory($editedDocumentaryContent['category_id']);
             }
+
+
 
             $this->documentaryService->save($documentary);
         }
