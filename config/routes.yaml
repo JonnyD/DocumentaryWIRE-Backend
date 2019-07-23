@@ -18,7 +18,7 @@ api_documentaries:
   prefix:   api/v1
   resource: App\Controller\DocumentaryController
 
-api_videos:
+api_video_sources:
   type:     rest
   prefix:   api/v1
-  resource: App\Controller\VideoController
+  resource: App\Controller\VideoSourceController

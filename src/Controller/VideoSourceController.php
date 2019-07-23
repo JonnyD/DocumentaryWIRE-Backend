@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Criteria\VideoSourceCriteria;
 use App\Entity\Documentary;
 use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
@@ -47,10 +48,29 @@ class VideoSourceController extends AbstractFOSRestController implements ClassRe
 
     /**
      * @FOSRest\Get("/video-source", name="get_video_sources", options={ "method_prefix" = false })
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function getVideoSourcesAction()
+    public function getVideoSourcesAction(Request $request)
     {
-        $videoSources = $this->videoService->getAllVideoSources();
+        $criteria = new VideoSourceCriteria();
+
+        $isRoleADmin = $this->isGranted('ROLE_ADMIN');
+        if (!$isRoleADmin) {
+            $criteria->setEnabled(true);
+        }
+
+        if ($isRoleADmin) {
+            if ($enabled = $request->query->get('enabled')) {
+                $criteria->setEnabled($enabled);
+            }
+
+            if ($embedAllowed = $request->query->get('embed_allowed')) {
+                $criteria->setEmbedAllowed($embedAllowed);
+            }
+        }
+
+        $videoSources = $this->videoService->getAllVideoSourcesByCriteria($criteria);
 
         $formatted = [];
         foreach ($videoSources as $videoSource) {

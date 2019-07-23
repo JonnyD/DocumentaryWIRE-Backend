@@ -29,6 +29,16 @@ class VideoSource
     private $embed;
 
     /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $embedCode;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $enabled;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="videoSource")
      */
     private $documentaries;
@@ -37,6 +47,7 @@ class VideoSource
     {
         $this->documentaries = new ArrayCollection();
         $this->embed = false;
+        $this->enabled = false;
     }
 
     public function getId(): ?int
@@ -66,6 +77,34 @@ class VideoSource
         $this->embed = $embed;
 
         return $this;
+    }
+
+    public function getEmbedCode(): ?string
+    {
+        return $this->embedCode;
+    }
+
+    public function setEmbedCode(string $embedCode = null): self
+    {
+        $this->embedCode = $embedCode;
+
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getEnabled(): ?bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param mixed $enabled
+     */
+    public function setEnabled($enabled): void
+    {
+        $this->enabled = $enabled;
     }
 
     /**
@@ -102,7 +141,10 @@ class VideoSource
     public function jsonSerialize() {
         return [
             'id' => $this->getId(),
-            'name' => $this->getName()
+            'name' => $this->getName(),
+            'embed' => $this->getEmbed(),
+            'embed_code' => $this->getEmbedCode(),
+            'enabled' => $this->getEnabled()
         ];
     }
 

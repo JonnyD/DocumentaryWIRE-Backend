@@ -185,6 +185,7 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         $documentary->setStoryLine($storyLine);
         $documentary->setSummary($summary);
         $documentary->setStatus($status);
+        $documentary->setPosterFileName($poster);
         $documentary->setVideoId($videoId);
         $documentary->setVideoSource($videoSource);
         $documentary->setFeatured($featured);
