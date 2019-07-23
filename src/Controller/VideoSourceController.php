@@ -30,7 +30,7 @@ use Symfony\Component\Serializer\Normalizer\DataUriNormalizer;
 use Hshn\Base64EncodedFile\HttpFoundation\File\Base64EncodedFile;
 use Symfony\Component\HttpFoundation\File\File;
 
-class VideoController extends AbstractFOSRestController implements ClassResourceInterface
+class VideoSourceController extends AbstractFOSRestController implements ClassResourceInterface
 {
     /**
      * @var VideoSourceService
