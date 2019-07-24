@@ -138,95 +138,97 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             return new AccessDeniedException();
         }
 
+        $editDocumentaryForm = $this->createForm(EditDocumentaryForm::class, $documentary);
+        $data = json_decode($request->getContent(), true)['resource'];
+        $editDocumentaryForm->submit($data, false);
+
+        if ($editDocumentaryForm->isSubmitted() && $editDocumentaryForm->isValid()) {
+            $documentary = $this->mapArrayToObject($data, $documentary);
+            $this->documentaryService->save($documentary);
+
+            $this->documentaryService->save($documentary);
+        }
 
         $headers = [
             'Content-Type' => 'application/json',
             'Access-Control-Allow-Origin' => '*'
         ];
-        $editDocumentaryForm = $this->createForm(EditDocumentaryForm::class, $documentary);
-        $editDocumentaryForm->handleRequest($request);
-        $editDocumentaryForm->submit($request->request->all(), false);
-        $editedDocumentaryContent = json_decode($request->getContent(), true)['resource'];
-
-        if ($editDocumentaryForm->isSubmitted() && $editDocumentaryForm->isValid()) {
-            if (isset($editedDocumentaryContent['poster'])) {
-                $poster = $editedDocumentaryContent['poster'];
-                $isBase64 = $this->imageService->isBase64($poster);
-                if ($isBase64) {
-                    $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
-                    $path = 'uploads/documentary/posters/';
-                    $posterFileName = $this->imageService->saveBase54Image($poster, $outputFileWithoutExtension, $path);
-                    $documentary->setPosterFileName($posterFileName);
-                }
-            }
-
-            if (isset($editedDocumentaryContent['wide_image'])) {
-                $wideImage = $editedDocumentaryContent['wide_image'];
-                $isBase64 = $this->imageService->isBase64($wideImage);
-                if ($isBase64) {
-                    $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
-                    $path = 'uploads/documentary/wide/';
-                    $wideImageFileName = $this->imageService->saveBase54Image($wideImage, $outputFileWithoutExtension, $path);
-                    $documentary->setWideImage($wideImageFileName);
-                }
-            }
-
-            if (isset($editedDocumentaryContent['title'])) {
-                $documentary->setTitle($editedDocumentaryContent['title']);
-            }
-
-            if (isset($editedDocumentaryContent['slug'])) {
-                $documentary->setSlug($editedDocumentaryContent['slug']);
-            }
-
-            if (isset($editedDocumentaryContent['storyline'])) {
-                $documentary->setStoryline($editedDocumentaryContent['storyline']);
-            }
-
-            if (isset($editedDocumentaryContent['summary'])) {
-                $documentary->setSummary($editedDocumentaryContent['summary']);
-            }
-
-            if (isset($editedDocumentaryContent['year'])) {
-                $documentary->setYear($editedDocumentaryContent['year']);
-            }
-
-            if (isset($editedDocumentaryContent['length'])) {
-                $documentary->setLength($editedDocumentaryContent['length']);
-            }
-
-            if (isset($editedDocumentaryContent['short_url'])) {
-                $documentary->setShortUrl($editedDocumentaryContent['short_url']);
-            }
-
-            if (isset($editedDocumentaryContent['status'])) {
-                $documentary->setStatus($editedDocumentaryContent['status']);
-            }
-
-            if (isset($editedDocumentaryContent['video_source'])) {
-                $documentary->setVideoSource($editedDocumentaryContent['video_source']);
-            }
-
-            if (isset($editedDocumentaryContent['video_id'])) {
-                $documentary->setVideoId($editedDocumentaryContent['video_id']);
-            }
-
-            if (isset($editedDocumentaryContent['featured'])) {
-                $documentary->setFeatured($editedDocumentaryContent['featured']);
-            }
-
-            if (isset($editedDocumentaryContent['category_id'])) {
-                $documentary->setCategory($editedDocumentaryContent['category_id']);
-            }
-
-
-
-            $this->documentaryService->save($documentary);
-        }
-
 
         return new JsonResponse($documentary, 200, $headers);
     }
 
+    public function mapArrayToObject(array $data, Documentary $documentary)
+    {
+        if (isset($data['poster'])) {
+            $poster = $data['poster'];
+            $isBase64 = $this->imageService->isBase64($poster);
+            if ($isBase64) {
+                $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
+                $path = 'uploads/documentary/posters/';
+                $posterFileName = $this->imageService->saveBase54Image($poster, $outputFileWithoutExtension, $path);
+                $documentary->setPosterFileName($posterFileName);
+            }
+        }
 
+        if (isset($data['wide_image'])) {
+            $wideImage = $data['wide_image'];
+            $isBase64 = $this->imageService->isBase64($wideImage);
+            if ($isBase64) {
+                $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
+                $path = 'uploads/documentary/wide/';
+                $wideImageFileName = $this->imageService->saveBase54Image($wideImage, $outputFileWithoutExtension, $path);
+                $documentary->setWideImage($wideImageFileName);
+            }
+        }
+
+        if (isset($data['title'])) {
+            $documentary->setTitle($data['title']);
+        }
+
+        if (isset($data['slug'])) {
+            $documentary->setSlug($data['slug']);
+        }
+
+        if (isset($data['storyline'])) {
+            $documentary->setStoryline($data['storyline']);
+        }
+
+        if (isset($data['summary'])) {
+            $documentary->setSummary($data['summary']);
+        }
+
+        if (isset($data['year'])) {
+            $documentary->setYear($data['year']);
+        }
+
+        if (isset($data['length'])) {
+            $documentary->setLength($data['length']);
+        }
+
+        if (isset($data['short_url'])) {
+            $documentary->setShortUrl($data['short_url']);
+        }
+
+        if (isset($data['status'])) {
+            $documentary->setStatus($data['status']);
+        }
+
+        if (isset($data['video_source'])) {
+            $documentary->setVideoSource($data['video_source']);
+        }
+
+        if (isset($data['video_id'])) {
+            $documentary->setVideoId($data['video_id']);
+        }
+
+        if (isset($data['featured'])) {
+            $documentary->setFeatured($data['featured']);
+        }
+
+        if (isset($data['category_id'])) {
+            $documentary->setCategory($data['category_id']);
+        }
+
+        return $documentary;
+    }
 }
