@@ -13,28 +13,28 @@ class VideoSourceFixtures extends Fixture
      */
     public function load(ObjectManager $manager)
     {
-        $fiftysix56 = $this->createVideoSource("56", false, false);
-        $blip = $this->createVideoSource("Blip", false, false);
-        $dailyMotion = $this->createVideoSource("Daily Motion", false, false);
-        $disclose = $this->createVideoSource("Disclose", false, false);
-        $forumNetwork = $this->createVideoSource("Forum Network", false, false);
-        $krishnatube = $this->createVideoSource("Krishnatube", false, false);
-        $megavideo = $this->createVideoSource("megavideo", false, false);
-        $myspace = $this->createVideoSource("MySpace", false, false);
-        $novamov = $this->createVideoSource("Novamov", false, false);
-        $pbs = $this->createVideoSource("PBS", false, false);
-        $rutube = $this->createVideoSource("Rutube", false, false);
-        $sevenload = $this->createVideoSource("Sevenload", false, false);
-        $snagfilms = $this->createVideoSource("Snagfilms", false, false);
-        $stagevu = $this->createVideoSource("stagevu", false, false);
-        $tudou = $this->createVideoSource("Tudou", false, false);
-        $veoh = $this->createVideoSource("Veoh", false, false);
-        $viddler = $this->createVideoSource("Viddler", false, false);
-        $vimeo = $this->createVideoSource("Vimeo", false, false);
-        $youtubePlaylist = $this->createVideoSource("youtube-playlist", false, false);
+        $fiftysix56 = $this->createVideoSource("56", "no", "disabled");
+        $blip = $this->createVideoSource("Blip", "no", "disabled");
+        $dailyMotion = $this->createVideoSource("Daily Motion", "no", "disabled");
+        $disclose = $this->createVideoSource("Disclose", "no", "disabled");
+        $forumNetwork = $this->createVideoSource("Forum Network", "no", "disabled");
+        $krishnatube = $this->createVideoSource("Krishnatube", "no", "disabled");
+        $megavideo = $this->createVideoSource("megavideo", "no", "disabled");
+        $myspace = $this->createVideoSource("MySpace", "no", "disabled");
+        $novamov = $this->createVideoSource("Novamov", "no", "disabled");
+        $pbs = $this->createVideoSource("PBS", "no", "disabled");
+        $rutube = $this->createVideoSource("Rutube", "no", "disabled");
+        $sevenload = $this->createVideoSource("Sevenload", "no", "disabled");
+        $snagfilms = $this->createVideoSource("Snagfilms", "no", "disabled");
+        $stagevu = $this->createVideoSource("stagevu", "no", "disabled");
+        $tudou = $this->createVideoSource("Tudou", "no", "disabled");
+        $veoh = $this->createVideoSource("Veoh", "no", "disabled");
+        $viddler = $this->createVideoSource("Viddler", "no", "disabled");
+        $vimeo = $this->createVideoSource("Vimeo", "no", "disabled");
+        $youtubePlaylist = $this->createVideoSource("youtube-playlist", "no", "disabled");
         $youtube = $this->createVideoSource("Youtube",
-            false,
-            true,
+            "no",
+            "enabled",
             '<iframe 
                 width="%WIDTH%" 
                 height="%HEIGHT%" 
@@ -42,7 +42,7 @@ class VideoSourceFixtures extends Fixture
                  frameborder="0" 
                  allowfullscreen>
              </iframe>');
-        $zshare = $this->createVideoSource("ZShare", false, false);
+        $zshare = $this->createVideoSource("ZShare", "no", "disabled");
 
         $manager->persist($fiftysix56);
         $manager->persist($blip);
@@ -77,12 +77,12 @@ class VideoSourceFixtures extends Fixture
      * @param string|null $embedCode
      * @return VideoSource
      */
-    private function createVideoSource(string $name, string $embed, bool $enabled, string $embedCode = null)
+    private function createVideoSource(string $name, string $embed, string $status, string $embedCode = null)
     {
         $videoSource = new VideoSource();
         $videoSource->setName($name);
-        $videoSource->setEmbed($embed);
-        $videoSource->setEnabled($enabled);
+        $videoSource->setEmbedAllowed($embed);
+        $videoSource->setStatus($status);
         $videoSource->setEmbedCode($embedCode);
         return $videoSource;
     }

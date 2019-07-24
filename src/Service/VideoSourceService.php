@@ -23,6 +23,15 @@ class VideoSourceService
     }
 
     /**
+     * @param int $id
+     * @return VideoSource|null
+     */
+    public function getVideoSourceById(int $id)
+    {
+        return $this->videoSourceRepository->find($id);
+    }
+
+    /**
      * @return VideoSource[]
      */
     public function getAllVideoSources()
@@ -37,5 +46,19 @@ class VideoSourceService
     public function getAllVideoSourcesByCriteria(VideoSourceCriteria $criteria)
     {
         return $this->videoSourceRepository->findVideoSourcesByCriteria($criteria);
+    }
+
+    /**
+     * @param VideoSource $videoSource
+     * @param bool $sync
+     * @return VideoSource|null
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function save(VideoSource $videoSource, bool $sync = true)
+    {
+        $this->videoSourceRepository->save($videoSource, $sync);
+
+        $videoSourceFromDatabase = $this->videoSourceRepository->find($videoSource->getId());
+        return $videoSourceFromDatabase;
     }
 }

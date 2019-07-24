@@ -24,9 +24,9 @@ class VideoSource
     private $name;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="string")
      */
-    private $embed;
+    private $embedAllowed;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -34,9 +34,9 @@ class VideoSource
     private $embedCode;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="string")
      */
-    private $enabled;
+    private $status;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="videoSource")
@@ -46,8 +46,8 @@ class VideoSource
     public function __construct()
     {
         $this->documentaries = new ArrayCollection();
-        $this->embed = false;
-        $this->enabled = false;
+        $this->embedAllowed = "no";
+        $this->status = "disabled";
     }
 
     public function getId(): ?int
@@ -67,14 +67,14 @@ class VideoSource
         return $this;
     }
 
-    public function getEmbed(): ?bool
+    public function getEmbedAllowed(): ?string
     {
-        return $this->embed;
+        return $this->embedAllowed;
     }
 
-    public function setEmbed(bool $embed): self
+    public function setEmbedAllowed(string $embedAllowed): self
     {
-        $this->embed = $embed;
+        $this->embedAllowed = $embedAllowed;
 
         return $this;
     }
@@ -94,17 +94,17 @@ class VideoSource
     /**
      * @return boolean
      */
-    public function getEnabled(): ?bool
+    public function getStatus(): ?string
     {
-        return $this->enabled;
+        return $this->status;
     }
 
     /**
-     * @param mixed $enabled
+     * @param string $status
      */
-    public function setEnabled($enabled): void
+    public function setStatus($status): void
     {
-        $this->enabled = $enabled;
+        $this->status = $status;
     }
 
     /**
@@ -142,9 +142,9 @@ class VideoSource
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
-            'embed' => $this->getEmbed(),
-            'embed_code' => $this->getEmbedCode(),
-            'enabled' => $this->getEnabled()
+            'embedAllowed' => $this->getEmbedAllowed(),
+            'embedCode' => $this->getEmbedCode(),
+            'status' => $this->getStatus()
         ];
     }
 

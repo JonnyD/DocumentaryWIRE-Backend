@@ -12,8 +12,6 @@ use App\Service\CategoryService;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
 use App\Service\ImageService;
-use App\Utils\Base64FileExtractor;
-use App\Utils\UploadedBase64File;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use Gedmo\Sluggable\Util\Urlizer;

@@ -90,4 +90,21 @@ class VideoSourceRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    /**
+     * @param VideoSource $videoSource
+     * @param bool $sync
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function save(VideoSource $videoSource, bool $sync = true)
+    {
+        $this->getEntityManager()->persist($videoSource);
+        if ($sync) {
+            $this->flush();
+        }
+    }
+
+    public function flush()
+    {
+        $this->getEntityManager()->flush();
+    }
 }
