@@ -138,7 +138,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Content-Type' => 'application/json',
             'Access-Control-Allow-Origin' => '*'
         ];
-        
+
         $serializedDocumentary = $this->serializeDocumentary($documentary);
 
         return new JsonResponse($serializedDocumentary, 200, $headers);
@@ -311,7 +311,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'summary' => $documentary->getSummary(),
             'year' => $documentary->getYear(),
             'length' => $documentary->getLength(),
-            'status' => $documentary->getViews(),
+            'status' => $documentary->getStatus(),
             'views' => $documentary->getViews(),
             'shortUrl' => $documentary->getShortUrl(),
             'featured' => $documentary->getFeatured(),
