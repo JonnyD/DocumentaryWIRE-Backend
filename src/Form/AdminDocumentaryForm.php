@@ -18,6 +18,7 @@ class AdminDocumentaryForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('id', IntegerType::class)
             ->add('title', TextType::class)
             ->add('slug', TextType::class)
             ->add('storyline', TextType::class)

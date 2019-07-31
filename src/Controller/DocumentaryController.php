@@ -166,6 +166,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
+                $documentary = $this->mapArrayToObject($data, $documentary);
                 $this->documentaryService->save($documentary);
                 $serializedDocumentary = $this->serializeDocumentary($documentary);
                 return new JsonResponse($serializedDocumentary, 200, $headers);
@@ -177,16 +178,16 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @FOSRest\Patch("/documentary/{slug}", name="partial_update_documentary", options={ "method_prefix" = false })
+     * @FOSRest\Patch("/documentary/{id}", name="partial_update_documentary", options={ "method_prefix" = false })
      *
-     * @param string $slug
+     * @param int $id
      * @param Request $request
-     * @return Documentary|null
+     * @return JsonResponse
      */
-    public function editDocumentaryAction(string $slug, Request $request)
+    public function editDocumentaryAction(int $id, Request $request)
     {
         /** @var Documentary $documentary */
-        $documentary = $this->documentaryService->getDocumentaryBySlug($slug);
+        $documentary = $this->documentaryService->getDocumentaryById($id);
 
         if ($documentary === null) {
             return new AccessDeniedException();
@@ -200,7 +201,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         $form = $this->createForm(AdminDocumentaryForm::class, $documentary);
         $form->handleRequest($request);
 
-        if ($request->isMethod('POST')) {
+        if ($request->isMethod('PATCH')) {
             $data = json_decode($request->getContent(), true)['resource'];
             $form->submit($data);
 
