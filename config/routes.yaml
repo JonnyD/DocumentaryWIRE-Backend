@@ -22,3 +22,8 @@ api_video_sources:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\VideoSourceController
+
+api_categories:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\CategoryController

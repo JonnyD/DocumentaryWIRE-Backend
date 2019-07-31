@@ -16,13 +16,14 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\DocumentaryRepository")
  *
  * @Gedmo\Loggable
  */
-class Documentary implements \JsonSerializable
+class Documentary
 {
     use Timestampable;
     use Blameable;
@@ -39,6 +40,8 @@ class Documentary implements \JsonSerializable
      * @ORM\Column(type="string", length=255)
      * @Groups({"documentary:write", "documentary:read"})
      * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
      */
     private $title;
 
@@ -53,30 +56,40 @@ class Documentary implements \JsonSerializable
     /**
      * @ORM\Column(type="text")
      * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
      */
     private $storyline;
 
     /**
      * @ORM\Column(type="text")
      * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
      */
     private $summary;
 
     /**
      * @ORM\Column(type="integer")
      * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
      */
     private $year;
 
     /**
      * @ORM\Column(type="integer")
      * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
      */
     private $length;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
      */
     private $status;
 
@@ -95,6 +108,8 @@ class Documentary implements \JsonSerializable
     /**
      * @ORM\Column(type="string", length=255)
      * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
      */
     private $videoId;
 
@@ -120,6 +135,8 @@ class Documentary implements \JsonSerializable
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="documentary")
      * @ORM\JoinColumn(nullable=false)
      * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
      */
     private $category;
 
@@ -136,6 +153,8 @@ class Documentary implements \JsonSerializable
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\VideoSource", inversedBy="documentary")
      * @ORM\JoinColumn(nullable=false)
+     *
+     * @Assert\NotBlank
      */
     private $videoSource;
 
@@ -143,8 +162,8 @@ class Documentary implements \JsonSerializable
     {
         $this->comments = new ArrayCollection();
         $this->watchlists = new ArrayCollection();
-        $this->posters = new ArrayCollection();
         $this->featured = false;
+        $this->views = 0;
     }
 
     public function getId(): ?int
@@ -385,27 +404,6 @@ class Documentary implements \JsonSerializable
         return serialize(array(
             $this->title
         ));
-    }
-
-    public function jsonSerialize() {
-        return [
-            'id' => $this->getId(),
-            'title' => $this->getTitle(),
-            'slug' => $this->getSlug(),
-            'storyline' => $this->getStoryline(),
-            'summary' => $this->getSummary(),
-            'year' => $this->getYear(),
-            'length' => $this->getLength(),
-            'status' => $this->getStatus(),
-            'views' => $this->getViews(),
-            'short_url' => $this->getShortUrl(),
-            'poster' => $this->getPosterImagePath(),
-            'wide_image' => $this->getWideImagePath(),
-            'video_source' => $this->getVideoSource()->getId(),
-            'video_id' => $this->getVideoId(),
-            'featured' => $this->getFeatured(),
-            'category' => $this->getCategory()->getName()
-        ];
     }
 
     /**

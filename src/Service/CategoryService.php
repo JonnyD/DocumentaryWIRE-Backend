@@ -30,4 +30,21 @@ class CategoryService
             'slug' => $slug
         ]);
     }
+
+    /**
+     * @param int $id
+     * @return Category|null
+     */
+    public function getCategoryById(int $id)
+    {
+        return $this->categoryRepository->find($id);
+    }
+
+    /**
+     * @return Category[]
+     */
+    public function getAllCategories()
+    {
+        return $this->categoryRepository->findAll();
+    }
 }

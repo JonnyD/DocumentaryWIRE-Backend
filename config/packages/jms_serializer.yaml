@@ -1,7 +1,11 @@
 jms_serializer:
-    visitors:
-        xml:
-            format_output: '%kernel.debug%'
+    metadata:
+        cache: file
+        debug: "%kernel.debug%"
+        file_cache:
+            dir: "%kernel.cache_dir%/serializer"
+        auto_detection: true
+
 #    metadata:
 #        auto_detection: false
 #        directories:

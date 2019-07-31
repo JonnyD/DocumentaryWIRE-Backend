@@ -7,14 +7,16 @@ use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\Order;
-use App\Form\EditDocumentaryForm;
+use App\Form\AdminDocumentaryForm;
 use App\Service\CategoryService;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
 use App\Service\ImageService;
+use App\Service\VideoSourceService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use Gedmo\Sluggable\Util\Urlizer;
+use PhpParser\Comment\Doc;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -50,21 +52,29 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     private $categoryService;
 
     /**
+     * @var VideoSourceService
+     */
+    private $videoSourceService;
+
+    /**
      * @param DocumentaryService $documentaryService
      * @param TokenStorageInterface $tokenStorage
      * @param ImageService $imageService
      * @param CategoryService $categoryService
+     * @param VideoSourceService $videoSourceService
      */
     public function __construct(
         DocumentaryService $documentaryService,
         TokenStorageInterface $tokenStorage,
         ImageService $imageService,
-        CategoryService $categoryService)
+        CategoryService $categoryService,
+        VideoSourceService $videoSourceService)
     {
         $this->documentaryService = $documentaryService;
         $this->tokenStorage = $tokenStorage;
         $this->imageService = $imageService;
         $this->categoryService = $categoryService;
+        $this->videoSourceService = $videoSourceService;
     }
 
     /**
@@ -123,7 +133,39 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @FOSRest\Patch("/documentary/{slug}", name="update_documentary", options={ "method_prefix" = false })
+     * @FOSRest\Post("/documentary", name="create_documentary", options={ "method_prefix" = false })
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function createDocumentaryAction(Request $request)
+    {
+        $documentary = new Documentary();
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+        $form = $this->createForm(AdminDocumentaryForm::class, $documentary);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $this->documentaryService->save($documentary);
+                $serializedDocumentary = $this->serializeDocumentary($documentary);
+                return new JsonResponse($serializedDocumentary, 200, $headers);
+            } else {
+                $errors = (string)$form->getErrors(true, false);
+                return new JsonResponse($errors, 200, $headers);
+            }
+        }
+    }
+
+    /**
+     * @FOSRest\Patch("/documentary/{slug}", name="partial_update_documentary", options={ "method_prefix" = false })
      *
      * @param string $slug
      * @param Request $request
@@ -138,14 +180,12 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             return new AccessDeniedException();
         }
 
-        $editDocumentaryForm = $this->createForm(EditDocumentaryForm::class, $documentary);
+        $editDocumentaryForm = $this->createForm(AdminDocumentaryForm::class, $documentary);
         $data = json_decode($request->getContent(), true)['resource'];
         $editDocumentaryForm->submit($data, false);
 
         if ($editDocumentaryForm->isSubmitted() && $editDocumentaryForm->isValid()) {
             $documentary = $this->mapArrayToObject($data, $documentary);
-            $this->documentaryService->save($documentary);
-
             $this->documentaryService->save($documentary);
         }
 
@@ -154,9 +194,14 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        return new JsonResponse($documentary, 200, $headers);
+        return new JsonResponse($data, 200, $headers);
     }
 
+    /**
+     * @param array $data
+     * @param Documentary $documentary
+     * @return Documentary
+     */
     public function mapArrayToObject(array $data, Documentary $documentary)
     {
         if (isset($data['poster'])) {
@@ -170,8 +215,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             }
         }
 
-        if (isset($data['wide_image'])) {
-            $wideImage = $data['wide_image'];
+        if (isset($data['wideImage'])) {
+            $wideImage = $data['wideImage'];
             $isBase64 = $this->imageService->isBase64($wideImage);
             if ($isBase64) {
                 $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
@@ -205,30 +250,67 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $documentary->setLength($data['length']);
         }
 
-        if (isset($data['short_url'])) {
-            $documentary->setShortUrl($data['short_url']);
+        if (isset($data['shortUrl'])) {
+            $documentary->setShortUrl($data['shortUrl']);
         }
 
         if (isset($data['status'])) {
             $documentary->setStatus($data['status']);
         }
 
-        if (isset($data['video_source'])) {
-            $documentary->setVideoSource($data['video_source']);
+        if (isset($data['videoSource'])) {
+            $videoSource = $this->videoSourceService->getVideoSourceById($data['videoSource']);
+            $documentary->setVideoSource($videoSource);
         }
 
-        if (isset($data['video_id'])) {
-            $documentary->setVideoId($data['video_id']);
+        if (isset($data['videoId'])) {
+            $documentary->setVideoId($data['videoId']);
         }
 
         if (isset($data['featured'])) {
             $documentary->setFeatured($data['featured']);
         }
 
-        if (isset($data['category_id'])) {
-            $documentary->setCategory($data['category_id']);
+        if (isset($data['category'])) {
+            $category = $this->categoryService->getCategoryById($data['category']);
+            $documentary->setCategory($category);
         }
 
         return $documentary;
+    }
+
+    /**
+     * @param Documentary $documentary
+     * @return array
+     */
+    private function serializeDocumentary(Documentary $documentary)
+    {
+        $serialized = [
+            'id' => $documentary->getId(),
+            'title' => $documentary->getTitle(),
+            'slug' => $documentary->getSlug(),
+            'storyline' => $documentary->getStoryline(),
+            'summary' => $documentary->getSummary(),
+            'year' => $documentary->getYear(),
+            'length' => $documentary->getLength(),
+            'status' => $documentary->getViews(),
+            'views' => $documentary->getViews(),
+            'shortUrl' => $documentary->getShortUrl(),
+            'featured' => $documentary->getFeatured(),
+            'posterFullName' => $documentary->getPosterFileName(),
+            'wideImage' => $documentary->getWideImage(),
+            'category' => [
+                'id' => $documentary->getCategory()->getId(),
+                'name' => $documentary->getCategory()->getName(),
+                'slug' => $documentary->getCategory()->getSlug()
+            ],
+            'videoSource' => [
+                'id' => $documentary->getVideoSource()->getId(),
+                'name' => $documentary->getVideoSource()->getName()
+            ],
+            'videoId' => $documentary->getVideoId()
+        ];
+
+        return $serialized;
     }
 }

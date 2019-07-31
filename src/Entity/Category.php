@@ -17,11 +17,14 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiProperty;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CategoryRepository")
  * @UniqueEntity(fields={"slug"})
  * @Gedmo\Loggable
+ * @ExclusionPolicy("all")
  */
 class Category
 {
@@ -33,7 +36,7 @@ class Category
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"category:read"})
+     * @Expose
      */
     private $id;
 
@@ -43,10 +46,10 @@ class Category
      * @Assert\Length(
      *     min=5,
      *     max="50",
-     *     minMessage="Your password must be longer than 5 characters"
+     *     minMessage="The name must be longer than 5 characters"
      * )
-     * @Groups({"category:write", "category:read"})
      * @Gedmo\Versioned
+     * @Expose
      */
     private $name;
 
@@ -56,8 +59,8 @@ class Category
      * @ORM\Column(type="string", unique=true)
      * @Gedmo\Slug(fields={"name"})
      * @Assert\NotBlank()
-     * @Groups({"category:read"})
      * @Gedmo\Versioned
+     * @Expose
      */
     private $slug;
 
