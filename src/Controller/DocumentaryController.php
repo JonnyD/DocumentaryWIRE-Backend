@@ -106,8 +106,13 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
 
         $items = (array) $pagerfanta->getCurrentPageResults();
 
+        $serialized = [];
+        foreach ($items as $item) {
+            $serialized[] = $this->serializeDocumentary($item);
+        }
+
         $data = [
-            'items'             => $items,
+            'items'             => $serialized,
             'count_results'     => $pagerfanta->getNbResults(),
             'current_page'      => $pagerfanta->getCurrentPage(),
             'number_of_pages'   => $pagerfanta->getNbPages(),
@@ -129,7 +134,14 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     {
         $documentary = $this->documentaryService->getDocumentaryBySlug($slug);
 
-        return new JsonResponse($documentary, 200, array('Access-Control-Allow-Origin'=> '*'));
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+        
+        $serializedDocumentary = $this->serializeDocumentary($documentary);
+
+        return new JsonResponse($serializedDocumentary, 200, $headers);
     }
 
     /**
@@ -180,21 +192,27 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             return new AccessDeniedException();
         }
 
-        $editDocumentaryForm = $this->createForm(AdminDocumentaryForm::class, $documentary);
-        $data = json_decode($request->getContent(), true)['resource'];
-        $editDocumentaryForm->submit($data, false);
-
-        if ($editDocumentaryForm->isSubmitted() && $editDocumentaryForm->isValid()) {
-            $documentary = $this->mapArrayToObject($data, $documentary);
-            $this->documentaryService->save($documentary);
-        }
-
         $headers = [
             'Content-Type' => 'application/json',
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        return new JsonResponse($data, 200, $headers);
+        $form = $this->createForm(AdminDocumentaryForm::class, $documentary);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST')) {
+            $data = json_decode($request->getContent(), true)['resource'];
+            $form->submit($data);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $this->documentaryService->save($documentary);
+                $serializedDocumentary = $this->serializeDocumentary($documentary);
+                return new JsonResponse($serializedDocumentary, 200, $headers);
+            } else {
+                $errors = (string)$form->getErrors(true, false);
+                return new JsonResponse($errors, 200, $headers);
+            }
+        }
     }
 
     /**
@@ -297,7 +315,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'views' => $documentary->getViews(),
             'shortUrl' => $documentary->getShortUrl(),
             'featured' => $documentary->getFeatured(),
-            'posterFullName' => $documentary->getPosterFileName(),
+            'poster' => $documentary->getPosterFileName(),
             'wideImage' => $documentary->getWideImage(),
             'category' => [
                 'id' => $documentary->getCategory()->getId(),
