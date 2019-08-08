@@ -81,11 +81,11 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
         $data = [
             'username' => $loggedInUser->getUsername(),
-            'first_name' => $loggedInUser->getFirstName(),
-            'last_name' => $loggedInUser->getLastName(),
+            'firstName' => $loggedInUser->getFirstName(),
+            'lastName' => $loggedInUser->getLastName(),
             'avatar' => $loggedInUser->getAvatar(),
-            'last_login' => $loggedInUser->getLastLogin(),
-            'activated_at' => $loggedInUser->getActivatedAt(),
+            'lastLogin' => $loggedInUser->getLastLogin(),
+            'activatedAt' => $loggedInUser->getActivatedAt(),
             'enabled' => $loggedInUser->isEnabled(),
             'roles' => $loggedInUser->getRoles()
         ];
