@@ -77,9 +77,9 @@ class VideoSourceRepository extends ServiceEntityRepository
         $qb->select('videoSource')
             ->from('App\Entity\VideoSource', 'videoSource');
 
-        if (!empty($criteria->isEnabled())) {
-            $qb->andWhere('videoSource.enabled = :enabled')
-                ->setParameter('enabled', $criteria->isEnabled());
+        if (!empty($criteria->getStatus())) {
+            $qb->andWhere('videoSource.status = :status')
+                ->setParameter('status', $criteria->getStatus());
         }
 
         if (!empty($criteria->isEmbedAllowed())) {

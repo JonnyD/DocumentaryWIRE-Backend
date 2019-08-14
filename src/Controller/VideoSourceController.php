@@ -39,12 +39,12 @@ class VideoSourceController extends AbstractFOSRestController implements ClassRe
 
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
         if (!$isRoleAdmin) {
-            $criteria->setEnabled(true);
+            $criteria->setStatus('enabled');
         }
 
         if ($isRoleAdmin) {
-            if ($enabled = $request->query->get('enabled')) {
-                $criteria->setEnabled($enabled);
+            if ($status = $request->query->get('status')) {
+                $criteria->setStatus($status);
             }
 
             if ($embedAllowed = $request->query->get('embed_allowed')) {
@@ -59,7 +59,17 @@ class VideoSourceController extends AbstractFOSRestController implements ClassRe
             $formatted[] = $videoSource->jsonSerialize();
         }
 
-        return new JsonResponse($formatted, 200,  array('Access-Control-Allow-Origin'=> '*'));
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Headers' => '*',
+            'Access-Control-Allow-Methods: GET, POST, OPTIONS',
+            'Access-Control-Allow-Credentials: true',
+            'Access-Control-Max-Age: 86400',
+            'Access-Control-Request-Headers' => [' X-Requested-With'],
+        ];
+
+        return new JsonResponse($formatted, 200,  $headers);
     }
 
     /**

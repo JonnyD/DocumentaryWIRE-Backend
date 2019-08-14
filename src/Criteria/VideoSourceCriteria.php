@@ -10,9 +10,9 @@ class VideoSourceCriteria
     private $embedAllowed;
 
     /**
-     * @var bool
+     * @var string
      */
-    private $enabled;
+    private $status;
 
     /**
      * @return bool
@@ -31,18 +31,18 @@ class VideoSourceCriteria
     }
 
     /**
-     * @return bool
+     * @return string
      */
-    public function isEnabled(): ?bool
+    public function getStatus(): ?string
     {
-        return $this->enabled;
+        return $this->status;
     }
 
     /**
-     * @param bool $enabled
+     * @param string $status
      */
-    public function setEnabled(bool $enabled): void
+    public function setStatus(string $status): void
     {
-        $this->enabled = $enabled;
+        $this->status = $status;
     }
 }
