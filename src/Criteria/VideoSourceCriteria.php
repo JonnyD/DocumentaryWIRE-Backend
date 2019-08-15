@@ -2,6 +2,8 @@
 
 namespace App\Criteria;
 
+use App\Entity\VideoSource;
+
 class VideoSourceCriteria
 {
     /**

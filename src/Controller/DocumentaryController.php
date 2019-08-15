@@ -96,6 +96,11 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         $criteria->setSort([
             DocumentaryOrderBy::CREATED_AT => Order::DESC
         ]);
+        $videoSourceId = $request->query->get('videoSource');
+        if (isset($videoSourceId)) {
+            $videoSource = $this->videoSourceService->getVideoSourceById($videoSourceId);
+            $criteria->setVideoSource($videoSource);
+        }
 
         $qb = $this->documentaryService->getDocumentariesByCriteriaQueryBuilder($criteria);
 

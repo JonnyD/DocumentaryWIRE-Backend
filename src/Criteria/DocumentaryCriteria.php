@@ -2,7 +2,8 @@
 
 namespace App\Criteria;
 
-use App\Criteria\Category;
+use App\Entity\Category;
+use App\Entity\VideoSource;
 
 class DocumentaryCriteria
 {
@@ -20,6 +21,11 @@ class DocumentaryCriteria
      * @var Category
      */
     private $category;
+
+    /**
+     * @var VideoSource
+     */
+    private $videoSource;
 
     /**
      * @var array
@@ -77,6 +83,22 @@ class DocumentaryCriteria
     public function setCategory(Category $category)
     {
         $this->category = $category;
+    }
+
+    /**
+     * @return VideoSource
+     */
+    public function getVideoSource()
+    {
+        return $this->videoSource;
+    }
+
+    /**
+     * @param VideoSource $videoSource
+     */
+    public function setVideoSource(VideoSource $videoSource)
+    {
+        $this->videoSource = $videoSource;
     }
 
     /**

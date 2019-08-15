@@ -32,10 +32,17 @@ security:
             stateless:  false
 
         api_documentary:
+            methods: [POST]
             pattern:    ^/api/v1/documentary
             fos_oauth:  true
             stateless:  false
-            methods: [POST]
+
+        api_public_video_source:
+            methods: [GET]
+            pattern: ^/api/v1/video-source
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
 
         api_admin_video_source:
             methods: [POST, PUT, PATCH, DELETE]
@@ -65,7 +72,7 @@ security:
 
     access_control:
     - { path: ^/api/v1/user/me, roles: IS_AUTHENTICATED_FULLY }
-    - { path: ^/api/v1/documentary, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/api/v1/documentary, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
     - { path: ^/api/v1/user/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
     - { path: ^/api/v1/video-source, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
     - { path: ^/api,       roles: IS_AUTHENTICATED_ANONYMOUSLY }
