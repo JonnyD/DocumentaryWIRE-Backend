@@ -78,12 +78,12 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @FOSRest\Get("/documentary", name="get_documentary_admin_list", options={ "method_prefix" = false })
+     * @FOSRest\Get("/documentary", name="get_documentary_list", options={ "method_prefix" = false })
      *
      * @param Request $request
      * @throws \Doctrine\ORM\ORMException
      */
-    public function adminListAction(Request $request)
+    public function listAction(Request $request)
     {
         if (!$this->isGranted('ROLE_ADMIN')) {
             return new JsonResponse("Not granted");

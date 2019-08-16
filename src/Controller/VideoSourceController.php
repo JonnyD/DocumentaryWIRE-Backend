@@ -35,12 +35,6 @@ class VideoSourceController extends AbstractFOSRestController implements ClassRe
      */
     public function getVideoSourcesAction(Request $request)
     {
-
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $criteria = new VideoSourceCriteria();
 
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
@@ -65,6 +59,11 @@ class VideoSourceController extends AbstractFOSRestController implements ClassRe
             $formatted[] = $videoSource->jsonSerialize();
         }
 
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+        
         return new JsonResponse($formatted, 200,  $headers);
     }
 
