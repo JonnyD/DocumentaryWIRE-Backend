@@ -85,22 +85,32 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      */
     public function listAction(Request $request)
     {
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            return new JsonResponse("Not granted");
-        }
-
         $page = $request->query->get('page', 1);
 
         $criteria = new DocumentaryCriteria();
-        $criteria->setStatus(DocumentaryStatus::PUBLISH);
+
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        if (!$isRoleAdmin) {
+            $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        }
+
+        if ($isRoleAdmin) {
+            $videoSourceId = $request->query->get('videoSource');
+            if (isset($videoSourceId)) {
+                $videoSource = $this->videoSourceService->getVideoSourceById($videoSourceId);
+                $criteria->setVideoSource($videoSource);
+            }
+
+            $categoryId = $request->query->get('category');
+            if (isset($categoryId)) {
+                $category = $this->categoryService->getCategoryById($categoryId);
+                $criteria->setCategory($category);
+            }
+        }
+
         $criteria->setSort([
             DocumentaryOrderBy::CREATED_AT => Order::DESC
         ]);
-        $videoSourceId = $request->query->get('videoSource');
-        if (isset($videoSourceId)) {
-            $videoSource = $this->videoSourceService->getVideoSourceById($videoSourceId);
-            $criteria->setVideoSource($videoSource);
-        }
 
         $qb = $this->documentaryService->getDocumentariesByCriteriaQueryBuilder($criteria);
 

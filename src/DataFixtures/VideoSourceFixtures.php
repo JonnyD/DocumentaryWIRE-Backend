@@ -68,6 +68,7 @@ class VideoSourceFixtures extends Fixture
         $manager->flush();
 
         $this->createReference($youtube);
+        $this->createReference($vimeo);
     }
 
     /**

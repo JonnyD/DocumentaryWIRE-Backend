@@ -109,6 +109,11 @@ class DocumentaryRepository extends ServiceEntityRepository
                 ->setParameter('category', $criteria->getCategory());
         }
 
+        if ($criteria->getVideoSource()) {
+            $qb->andWhere('documentary.videoSource = :videoSource')
+                ->setParameter('videoSource', $criteria->getVideoSource());
+        }
+
         if ($criteria->getSort()) {
             foreach ($criteria->getSort() as $column => $direction) {
                 $qb->addOrderBy($qb->getRootAliases()[0] . '.' . $column, $direction);

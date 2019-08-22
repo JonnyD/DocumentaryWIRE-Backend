@@ -33,7 +33,7 @@ security:
 
         api_public_documentary:
             methods: [GET]
-            pattern:    ^/api/v1/documentary
+            pattern: ^/api/v1/documentary
             fos_oauth:  true
             stateless:  false
             anonymous: true

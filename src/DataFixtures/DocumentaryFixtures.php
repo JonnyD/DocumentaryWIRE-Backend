@@ -24,14 +24,15 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         $category3 = $this->getCategory('Category 3');
 
         $youtube = $this->getVideoSource('Youtube');
+        $vimeo = $this->getVideoSource('Vimeo');
 
         $documentary1 = $this->createDocumentary(
             $category1, 'Documentary 1', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH, 'poster.jpg', '234jkjkfs', $youtube,
+            DocumentaryStatus::PENDING, 'poster.jpg', '234jkjkfs', $vimeo,
             true, 10, 90, 2015);
         $documentary2 = $this->createDocumentary(
             $category2, 'Documentary 2', 'This is a storyline', 'Storyline',
-            DocumentaryStatus::PUBLISH, 'poster.jpg', '234jkjkfs', $youtube,
+            DocumentaryStatus::PUBLISH, 'poster.jpg', '234jkjkfs', $vimeo,
             true, 10, 90, 2015);
         $documentary3 = $this->createDocumentary(
             $category3, 'Documentary 3', 'This is a storyline', 'Storyline',
