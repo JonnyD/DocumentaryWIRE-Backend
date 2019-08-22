@@ -106,6 +106,11 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 $category = $this->categoryService->getCategoryById($categoryId);
                 $criteria->setCategory($category);
             }
+
+            $status = $request->query->get('status');
+            if (isset($status)) {
+                $criteria->setStatus($status);
+            }
         }
 
         $criteria->setSort([
