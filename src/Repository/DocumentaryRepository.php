@@ -94,7 +94,7 @@ class DocumentaryRepository extends ServiceEntityRepository
         $qb->select('documentary')
             ->from('App\Entity\Documentary', 'documentary');
 
-        if (!empty($criteria->isFeatured())) {
+        if ($criteria->isFeatured() != null) {
             $qb->andWhere('documentary.featured = :featured')
                 ->setParameter('featured', $criteria->isFeatured());
         }

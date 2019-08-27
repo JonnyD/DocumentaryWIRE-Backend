@@ -28,12 +28,12 @@ class CommentFixtures extends Fixture implements DependentFixtureInterface
         $user2 = $this->getUser('user2');
         $user3 = $this->getUser('user3');
 
-        $comment1 = $this->createComment($documentary1, $user1, 'This is a comment 1');
-        $comment2 = $this->createComment($documentary1, $user2, 'This is a comment 2');
-        $comment3 = $this->createComment($documentary2, $user3, 'This is a comment 3');
-        $comment4 = $this->createComment($documentary2, $user1, 'This is a comment 4');
-        $comment5 = $this->createComment($documentary3, $user2, 'This is a comment 5');
-        $comment6 = $this->createComment($documentary3, $user3, 'This is a comment 6');
+        $comment1 = $this->createComment($documentary1, $user1, 'This is a comment 1', CommentStatus::PENDING);
+        $comment2 = $this->createComment($documentary1, $user2, 'This is a comment 2', CommentStatus::PUBLISH);
+        $comment3 = $this->createComment($documentary2, $user3, 'This is a comment 3', CommentStatus::PENDING);
+        $comment4 = $this->createComment($documentary2, $user1, 'This is a comment 4', CommentStatus::PUBLISH);
+        $comment5 = $this->createComment($documentary3, $user2, 'This is a comment 5', CommentStatus::PENDING);
+        $comment6 = $this->createComment($documentary3, $user3, 'This is a comment 6', CommentStatus::PUBLISH);
 
         $manager->persist($comment1);
         $manager->persist($comment2);
@@ -55,15 +55,16 @@ class CommentFixtures extends Fixture implements DependentFixtureInterface
      * @param Documentary $documentary
      * @param User $user
      * @param string $commentText
+     * @param int $commentStatus
      * @return Comment
      */
-    private function createComment(Documentary $documentary, User $user, string $commentText)
+    private function createComment(Documentary $documentary, User $user, string $commentText, int $commentStatus)
     {
         $comment = new Comment();
         $comment->setDocumentary($documentary);
         $comment->setUser($user);
         $comment->setComment($commentText);
-        $comment->setStatus(CommentStatus::PUBLISH);
+        $comment->setStatus($commentStatus);
         return $comment;
     }
 

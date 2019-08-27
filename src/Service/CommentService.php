@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Criteria\CommentCriteria;
+use App\Entity\Comment;
 use App\Entity\User;
 use App\Repository\CommentRepository;
 
@@ -12,6 +14,9 @@ class CommentService
      */
     private $commentRepository;
 
+    /**
+     * @param CommentRepository $commentRepository
+     */
     public function __construct(CommentRepository $commentRepository)
     {
         $this->commentRepository = $commentRepository;
@@ -31,5 +36,32 @@ class CommentService
         }
 
         $this->commentRepository->flush();
+    }
+
+    /**
+     * @param int $id
+     * @return Comment|null
+     */
+    public function getCommentById(int $id)
+    {
+        return $this->commentRepository->find($id);
+    }
+
+    /**
+     * @param CommentCriteria $criteria
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getCommentsByCriteriaQueryBuilder(CommentCriteria $criteria)
+    {
+        return $this->commentRepository->findCommentsByCriteriaQueryBuilder($criteria);
+    }
+
+    /**
+     * @param Comment $comment
+     * @param bool $sync
+     */
+    public function save(Comment $comment, $sync = true)
+    {
+        $this->commentRepository->save($comment, $sync);
     }
 }

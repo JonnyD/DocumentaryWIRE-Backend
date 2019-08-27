@@ -32,7 +32,7 @@ class Comment
      * @ORM\Column(type="text")
      * @Gedmo\Versioned
      */
-    private $comment;
+    private $commentText;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -70,14 +70,14 @@ class Comment
         return $this->id;
     }
 
-    public function getComment(): ?string
+    public function getCommentText(): ?string
     {
-        return $this->comment;
+        return $this->commentText;
     }
 
-    public function setComment(string $comment): self
+    public function setCommentText(string $commentText): self
     {
-        $this->comment = $comment;
+        $this->commentText = $commentText;
 
         return $this;
     }

@@ -111,6 +111,12 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             if (isset($status)) {
                 $criteria->setStatus($status);
             }
+
+            $featured = $request->query->get('featured');
+            if (isset($featured)) {
+                $featured = $featured === 'true' ? true: false;
+                $criteria->setFeatured($featured);
+            }
         }
 
         $criteria->setSort([

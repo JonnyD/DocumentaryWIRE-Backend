@@ -57,6 +57,20 @@ security:
             fos_oauth:  true
             stateless:  false
 
+        api_admin_comment:
+            methods: [POST, PUT, PATCH, DELETE]
+            pattern: ^/api/v1/comment
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
+        api_public_comment:
+            methods: [GET]
+            pattern: ^/api/v1/comment
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
         main:
             pattern: ^/
             form_login:
