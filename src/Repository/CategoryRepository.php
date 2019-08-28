@@ -47,4 +47,22 @@ class CategoryRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param Category $category
+     * @param bool $sync
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function save(Category $category, bool $sync = true)
+    {
+        $this->getEntityManager()->persist($category);
+        if ($sync) {
+            $this->flush();
+        }
+    }
+
+    public function flush()
+    {
+        $this->getEntityManager()->flush();
+    }
 }

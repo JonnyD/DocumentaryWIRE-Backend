@@ -47,4 +47,13 @@ class CategoryService
     {
         return $this->categoryRepository->findAll();
     }
+
+    /**
+     * @param Category $category
+     * @param bool $sync
+     */
+    public function save(Category $category, bool $sync = true)
+    {
+        $this->categoryRepository->save($category, $sync);
+    }
 }

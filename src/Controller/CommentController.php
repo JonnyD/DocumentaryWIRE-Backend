@@ -112,7 +112,6 @@ class CommentController extends AbstractFOSRestController implements ClassResour
         return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
     }
 
-
     /**
      * @FOSRest\Get("/comment/{id}", name="get_comment", options={ "method_prefix" = false })
      *
