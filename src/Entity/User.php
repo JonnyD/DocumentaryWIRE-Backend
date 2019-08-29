@@ -82,9 +82,8 @@ class User extends BaseUser
      */
     protected $username;
 
-
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"user:read", "user:write"})
      * @Assert\Length(
      *      min = 1,
@@ -94,20 +93,7 @@ class User extends BaseUser
      * )
      * @Gedmo\Versioned
      */
-    private $firstName;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"user:read", "user:write"})
-     * @Assert\Length(
-     *      min = 1,
-     *      max = 100,
-     *      minMessage = "FIELD_LENGTH_TOO_SHORT",
-     *      maxMessage = "FIELD_LENGTH_TOO_LONG"
-     * )
-     * @Gedmo\Versioned
-     */
-    private $lastName;
+    private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -141,11 +127,17 @@ class User extends BaseUser
      */
     private $activities;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SocialAccount", mappedBy="user")
+     */
+    private $socialAccounts;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->watchlists = new ArrayCollection();
         $this->activities = new ArrayCollection();
+        $this->socialAccounts = new ArrayCollection();
         $this->enabled = false;
     }
 
@@ -190,28 +182,20 @@ class User extends BaseUser
         // $this->plainPassword = null;
     }
 
-    public function getFirstName(): ?string
+    /**
+     * @return null|String
+     */
+    public function getName(): ?String
     {
-        return $this->firstName;
+        return $this->name;
     }
 
-    public function setFirstName(string $firstName): self
+    /**
+     * @param string $name
+     */
+    public function setName(string $name)
     {
-        $this->firstName = $firstName;
-
-        return $this;
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->lastName;
-    }
-
-    public function setLastName(string $lastName): self
-    {
-        $this->lastName = $lastName;
-
-        return $this;
+        $this->name = $name;
     }
 
     /**
@@ -301,6 +285,45 @@ class User extends BaseUser
             // set the owning side to null (unless already changed)
             if ($activity->getUser() === $this) {
                 $activity->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SocialAccount[]
+     */
+    public function getSocialAccounts(): Collection
+    {
+        return $this->socialAccounts;
+    }
+
+    /**
+     * @param SocialAccount $socialAccount
+     * @return User
+     */
+    public function addSocialAccount(SocialAccount $socialAccount): self
+    {
+        if (!$this->socialAccounts->contains($socialAccount)) {
+            $this->socialAccounts[] = $socialAccount;
+            $socialAccount->setUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param SocialAccount $socialAccount
+     * @return User
+     */
+    public function removeSocialAccount(SocialAccount $socialAccount): self
+    {
+        if ($this->socialAccounts->contains($socialAccount)) {
+            $this->socialAccounts->removeElement($socialAccount);
+            // set the owning side to null (unless already changed)
+            if ($socialAccount->getUser() === $this) {
+                $socialAccount->setUser(null);
             }
         }
 

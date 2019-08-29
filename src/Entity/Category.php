@@ -65,6 +65,13 @@ class Category
     private $slug;
 
     /**
+     * @ORM\Column(type="integer")
+     *
+     * @var int
+     */
+    private $count;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="category")
      */
     private $documentaries;
@@ -112,9 +119,17 @@ class Category
      *
      * @return int|null
      */
-    public function getDocumentaryCount(): ?int
+    public function getCount(): ?int
     {
-        return $this->documentaries->count();
+        return $this->count;
+    }
+
+    /**
+     * @param int $count
+     */
+    public function setCount(int $count)
+    {
+        $this->count = $count;
     }
 
     /**
