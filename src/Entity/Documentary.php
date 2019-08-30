@@ -62,7 +62,7 @@ class Documentary
     private $storyline;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      * @Gedmo\Versioned
      *
      * @Assert\NotBlank
@@ -70,7 +70,7 @@ class Documentary
     private $summary;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      * @Gedmo\Versioned
      *
      * @Assert\NotBlank
@@ -78,7 +78,7 @@ class Documentary
     private $year;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      * @Gedmo\Versioned
      *
      * @Assert\NotBlank
@@ -106,7 +106,7 @@ class Documentary
     private $shortUrl;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="text", nullable=true)
      * @Gedmo\Versioned
      *
      * @Assert\NotBlank
