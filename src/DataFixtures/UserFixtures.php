@@ -73,8 +73,7 @@ class UserFixtures extends Fixture implements ContainerAwareInterface
         $user = $this->userManager->createUser();
 
         $user->setUsername($username);
-        $user->setFirstName($firstName);
-        $user->setLastName($lastName);
+        $user->setName($firstName . ' ' . $lastName);
         $user->setEmail($username . "@email.com");
         $user->setRoles([$role]);
         $user->setPlainPassword('pass');

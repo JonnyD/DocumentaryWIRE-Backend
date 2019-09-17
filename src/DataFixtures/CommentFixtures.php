@@ -63,7 +63,7 @@ class CommentFixtures extends Fixture implements DependentFixtureInterface
         $comment = new Comment();
         $comment->setDocumentary($documentary);
         $comment->setUser($user);
-        $comment->setComment($commentText);
+        $comment->setCommentText($commentText);
         $comment->setStatus($commentStatus);
         return $comment;
     }
@@ -73,7 +73,7 @@ class CommentFixtures extends Fixture implements DependentFixtureInterface
      */
     private function createReference(Comment $comment)
     {
-        $this->addReference('comment.'.$comment->getComment(), $comment);
+        $this->addReference('comment.'.$comment->getCommentText(), $comment);
     }
 
     /**

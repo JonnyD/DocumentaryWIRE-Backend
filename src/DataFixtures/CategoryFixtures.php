@@ -37,6 +37,7 @@ class CategoryFixtures extends Fixture
     {
         $category = new Category();
         $category->setName($name);
+        $category->setCount(2);
         return $category;
     }
 

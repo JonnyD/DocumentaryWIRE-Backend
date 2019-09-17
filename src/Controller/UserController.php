@@ -256,14 +256,43 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     }
 
     /**
+     * @FOSRest\Get("/user/{id}")
+     *
+     * @param int $id
+     * @return User|string
+     */
+    public function getUserAction(int $id)
+    {
+        $user = $this->userService->getUserById($id);
+        $data = $this->serializeUser($user);
+
+        return new JsonResponse($data, 200);
+    }
+
+    /**
      * @param User $user
      * @return array
      */
     private function serializeUser(User $user)
     {
         return [
+            'id' => $user->getId(),
+            'name' => $user->getName(),
             'username' => $user->getUsername(),
-            'avatar' => $user->getAvatar()
+            'usernameCanonical' => $user->getUsernameCanonical(),
+            'email' => $user->getEmail(),
+            'emailCanonical' => $user->getEmailCanonical(),
+            'avatar' => $user->getAvatar(),
+            'resetKey' => $user->getResetKey(),
+            'activatedAt' => $user->getActivatedAt(),
+            'enabled' => $user->isEnabled(),
+            'password' => $user->getPassword(),
+            'lastLogin' => $user->getLastLogin(),
+            'confirmationToken' => $user->getConfirmationToken(),
+            'passwordRequestedAt' => $user->getPasswordRequestedAt(),
+            'roles' => $user->getRoles(),
+            'createdAt' => $user->getCreatedAt(),
+            'updatedAt' => $user->getUpdatedAt()
         ];
     }
 }
