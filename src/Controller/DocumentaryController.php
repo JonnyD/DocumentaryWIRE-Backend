@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Serializer\Normalizer\DataUriNormalizer;
 use Hshn\Base64EncodedFile\HttpFoundation\File\Base64EncodedFile;
@@ -56,6 +57,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      */
     private $videoSourceService;
 
+    private $reguest;
+
     /**
      * @param DocumentaryService $documentaryService
      * @param TokenStorageInterface $tokenStorage
@@ -68,13 +71,15 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         TokenStorageInterface $tokenStorage,
         ImageService $imageService,
         CategoryService $categoryService,
-        VideoSourceService $videoSourceService)
+        VideoSourceService $videoSourceService,
+        RequestStack $requestStack)
     {
         $this->documentaryService = $documentaryService;
         $this->tokenStorage = $tokenStorage;
         $this->imageService = $imageService;
         $this->categoryService = $categoryService;
         $this->videoSourceService = $videoSourceService;
+        $this->request = $requestStack->getCurrentRequest();
     }
 
     /**
@@ -119,9 +124,16 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             }
         }
 
-        $criteria->setSort([
-            DocumentaryOrderBy::CREATED_AT => Order::DESC
-        ]);
+        $sort = $request->query->get('sort');
+        if (isset($sort)) {
+            $exploded = explode("-", $sort);
+            $sort = [$exploded[0] => $exploded[1]];
+            $criteria->setSort($sort);
+        } else {
+            $criteria->setSort([
+                DocumentaryOrderBy::CREATED_AT => Order::DESC
+            ]);
+        }
 
         $qb = $this->documentaryService->getDocumentariesByCriteriaQueryBuilder($criteria);
 
@@ -259,7 +271,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $isBase64 = $this->imageService->isBase64($poster);
             if ($isBase64) {
                 $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
-                $path = 'uploads/documentary/posters/';
+                $path = 'uploads/posters/';
                 $posterFileName = $this->imageService->saveBase54Image($poster, $outputFileWithoutExtension, $path);
                 $documentary->setPosterFileName($posterFileName);
             }
@@ -270,7 +282,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $isBase64 = $this->imageService->isBase64($wideImage);
             if ($isBase64) {
                 $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
-                $path = 'uploads/documentary/wide/';
+                $path = 'uploads/wide/';
                 $wideImageFileName = $this->imageService->saveBase54Image($wideImage, $outputFileWithoutExtension, $path);
                 $documentary->setWideImage($wideImageFileName);
             }
@@ -347,7 +359,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'views' => $documentary->getViews(),
             'shortUrl' => $documentary->getShortUrl(),
             'featured' => $documentary->getFeatured(),
-            'poster' => $documentary->getPosterFileName(),
+            'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPosterFileName(),
             'wideImage' => $documentary->getWideImage(),
             'category' => [
                 'id' => $documentary->getCategory()->getId(),

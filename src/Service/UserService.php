@@ -2,8 +2,13 @@
 
 namespace App\Service;
 
+use App\Criteria\UserCriteria;
 use App\Entity\User;
+use App\Enum\Order;
+use App\Enum\UserOrderBy;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserService
@@ -112,6 +117,43 @@ class UserService
     {
         $this->userRepository->save($user);
     }
+
+    /**
+     * @return User[]|ArrayCollection
+     */
+    public function getNewestUsers()
+    {
+        $criteria = new UserCriteria();
+        $criteria->setSort([
+            UserOrderBy::ACTIVATED => Order::DESC
+        ]);
+
+        return $this->userRepository->findUsersByCriteria($criteria);
+    }
+
+    /**
+     * @return User[]|ArrayCollection
+     */
+    public function getActiveUsers()
+    {
+        $criteria = new UserCriteria();
+        $criteria->setSort([
+            UserOrderBy::LAST_LOGIN => Order::DESC
+        ]);
+
+        return $this->userRepository->findUsersByCriteria($criteria);
+    }
+
+
+    /**
+     * @param UserCriteria $criteria
+     * @return QueryBuilder
+     */
+    public function getUsersByCriteriaQueryBuilder(UserCriteria $criteria)
+    {
+        return $this->userRepository->findUsersByCriteriaQueryBuilder($criteria);
+    }
+
 
     /**
      * @param User $user

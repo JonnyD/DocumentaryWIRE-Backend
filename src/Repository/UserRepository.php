@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Criteria\UserCriteria;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -58,6 +59,46 @@ class UserRepository extends ServiceEntityRepository
         ;
     }
     */
+
+
+    /**
+     * @param UserCriteria $criteria
+     * @return mixed
+     */
+    public function findUsersByCriteria(UserCriteria $criteria)
+    {
+        $qb = $this->findUsersByCriteriaQueryBuilder($criteria);
+
+        $query = $qb->getQuery();
+        $result = $query->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param UserCriteria $criteria
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function findUsersByCriteriaQueryBuilder(UserCriteria $criteria)
+    {
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('user')
+            ->from('App\Entity\User', 'user');
+
+        if ($criteria->getSort()) {
+            foreach ($criteria->getSort() as $column => $direction) {
+                $qb->addOrderBy($qb->getRootAliases()[0] . '.' . $column, $direction);
+            }
+        }
+
+        if ($criteria->getLimit()) {
+            $qb->setMaxResults($criteria->getLimit());
+        }
+
+        return $qb;
+    }
 
     /**
      * @param User $user

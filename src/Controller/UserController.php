@@ -2,12 +2,15 @@
 
 namespace App\Controller;
 
+use App\Criteria\UserCriteria;
 use App\Entity\User;
 use App\Form\RegisterForm;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use FOS\RestBundle\View\View;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -204,5 +207,63 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
         }
 
         //@TODO Send email with $user->getUsername();
+    }
+
+    /**
+     * @FOSRest\Get("/user", name="list-users", options={ "method_prefix" = false })
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function listUsersAction(Request $request)
+    {
+        $page = $request->query->get('page', 1);
+
+        $criteria = new UserCriteria();
+
+        $sort = $request->query->get('sort');
+        if (isset($sort)) {
+            $exploded = explode("-", $sort);
+            $sort = [$exploded[0] => $exploded[1]];
+            $criteria->setSort($sort);
+        }
+
+        $qb = $this->userService->getUsersByCriteriaQueryBuilder($criteria);
+
+        $adapter = new DoctrineORMAdapter($qb, false);
+        $pagerfanta = new Pagerfanta($adapter);
+        $pagerfanta->setMaxPerPage(12);
+        $pagerfanta->setCurrentPage($page);
+
+        $items = (array) $pagerfanta->getCurrentPageResults();
+
+        $serialized = [];
+        foreach ($items as $item) {
+            $serialized[] = $this->serializeUser($item);
+        }
+
+        $data = [
+            'items'             => $serialized,
+            'count_results'     => $pagerfanta->getNbResults(),
+            'current_page'      => $pagerfanta->getCurrentPage(),
+            'number_of_pages'   => $pagerfanta->getNbPages(),
+            'next'              => ($pagerfanta->hasNextPage()) ? $pagerfanta->getNextPage() : null,
+            'prev'              => ($pagerfanta->hasPreviousPage()) ? $pagerfanta->getPreviousPage() : null,
+            'paginate'          => $pagerfanta->haveToPaginate(),
+        ];
+
+        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
+    }
+
+    /**
+     * @param User $user
+     * @return array
+     */
+    private function serializeUser(User $user)
+    {
+        return [
+            'username' => $user->getUsername(),
+            'avatar' => $user->getAvatar()
+        ];
     }
 }
