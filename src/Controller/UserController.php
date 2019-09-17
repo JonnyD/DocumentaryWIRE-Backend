@@ -13,6 +13,7 @@ use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -36,15 +37,22 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     private $userService;
 
     /**
+     * @var Request
+     */
+    private $request;
+
+    /**
      * @param TokenStorageInterface $tokenStorage
      * @param UserService $userService
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
-        UserService $userService)
+        UserService $userService,
+        RequestStack $requestStack)
     {
         $this->tokenStorage = $tokenStorage;
         $this->userService = $userService;
+        $this->request = $requestStack->getCurrentRequest();
     }
 
     /**
@@ -282,7 +290,7 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             'usernameCanonical' => $user->getUsernameCanonical(),
             'email' => $user->getEmail(),
             'emailCanonical' => $user->getEmailCanonical(),
-            'avatar' => $user->getAvatar(),
+            'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar(),
             'resetKey' => $user->getResetKey(),
             'activatedAt' => $user->getActivatedAt(),
             'enabled' => $user->isEnabled(),

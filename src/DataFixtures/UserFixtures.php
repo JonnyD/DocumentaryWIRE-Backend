@@ -81,6 +81,7 @@ class UserFixtures extends Fixture implements ContainerAwareInterface
         $user->setConfirmationToken($confirmationKey);
         $user->setActivatedAt($activatedAt);
         $user->setEnabled($enabled);
+        $user->setAvatar("0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg");
         return $user;
     }
 
