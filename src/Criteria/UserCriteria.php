@@ -4,6 +4,10 @@ namespace App\Criteria;
 
 class UserCriteria
 {
+    /**
+     * @var bool
+     */
+    private $enabled;
 
     /**
      * @var array
@@ -14,6 +18,22 @@ class UserCriteria
      * @var int
      */
     private $limit;
+
+    /**
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public function setEnabled(bool $enabled)
+    {
+        $this->enabled = $enabled;
+    }
 
     /**
      * @return array

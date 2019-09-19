@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Criteria\UserCriteria;
 use App\Entity\User;
+use App\Enum\UserStatus;
 use App\Form\RegisterForm;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -90,16 +91,7 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
         /** @var User $loggedInUser */
         $loggedInUser = $this->tokenStorage->getToken()->getUser();
 
-        $data = [
-            'username' => $loggedInUser->getUsername(),
-            'firstName' => $loggedInUser->getFirstName(),
-            'lastName' => $loggedInUser->getLastName(),
-            'avatar' => $loggedInUser->getAvatar(),
-            'lastLogin' => $loggedInUser->getLastLogin(),
-            'activatedAt' => $loggedInUser->getActivatedAt(),
-            'enabled' => $loggedInUser->isEnabled(),
-            'roles' => $loggedInUser->getRoles()
-        ];
+        $data = $this->serializeUser($loggedInUser);
 
         return new JsonResponse($data, 200);
     }
@@ -236,11 +228,21 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             $criteria->setSort($sort);
         }
 
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        if (!$isRoleAdmin) {
+            $criteria->setEnabled(true);
+        } else {
+            $enabled = $request->query->get('enabled');
+            if ($enabled != null) {
+                $criteria->setEnabled($enabled);
+            }
+        }
+
         $qb = $this->userService->getUsersByCriteriaQueryBuilder($criteria);
 
         $adapter = new DoctrineORMAdapter($qb, false);
         $pagerfanta = new Pagerfanta($adapter);
-        $pagerfanta->setMaxPerPage(12);
+        $pagerfanta->setMaxPerPage(16);
         $pagerfanta->setCurrentPage($page);
 
         $items = (array) $pagerfanta->getCurrentPageResults();

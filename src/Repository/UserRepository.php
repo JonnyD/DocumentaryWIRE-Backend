@@ -87,6 +87,11 @@ class UserRepository extends ServiceEntityRepository
         $qb->select('user')
             ->from('App\Entity\User', 'user');
 
+        if ($criteria->isEnabled() != null) {
+            $qb->andWhere('user.enabled = :enabled')
+                ->setParameter('enabled', $criteria->isEnabled());
+        }
+
         if ($criteria->getSort()) {
             foreach ($criteria->getSort() as $column => $direction) {
                 $qb->addOrderBy($qb->getRootAliases()[0] . '.' . $column, $direction);

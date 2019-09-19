@@ -21,10 +21,16 @@ security:
             pattern:    ^/oauth/v2/token
             security:   false
 
-        api_user:
+        api_user_change_password:
             pattern:    ^/api/v1/user/change-password
             fos_oauth:  true
             stateless:  false
+
+        api_user:
+            pattern:    ^/api/v1/user
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
 
         api_me:
             pattern:    ^/api/v1/user/me
