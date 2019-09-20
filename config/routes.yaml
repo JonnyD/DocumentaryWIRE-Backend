@@ -32,3 +32,13 @@ api_comments:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\CommentController
+
+api_activity:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\ActivityController
+
+api_sync:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\SyncController

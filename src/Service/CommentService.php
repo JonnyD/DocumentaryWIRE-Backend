@@ -57,6 +57,15 @@ class CommentService
     }
 
     /**
+     * @param CommentCriteria $criteria
+     * @return Comment[]|\Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getCommentsByCriteria(CommentCriteria $criteria)
+    {
+        return $this->commentRepository->findDCommentsByCriteria($criteria);
+    }
+
+    /**
      * @param Comment $comment
      * @param bool $sync
      */

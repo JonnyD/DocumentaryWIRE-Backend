@@ -47,6 +47,7 @@ class ActivityService
         $activity->setComponent($component);
         $activity->setData($data);
         $activity->setGroupNumber($groupNumber);
+        $activity->setCreatedAt($createdAt);
 
         $this->activityRepository->save($activity);
     }
@@ -151,7 +152,7 @@ class ActivityService
     /**
      * @param Comment $comment
      */
-    public function addCommentActivity(Comment $comment)
+    public function addCommentActivity(Comment $comment, \Datetime $createdAt)
     {
         $documentary = $comment->getDocumentary();
         $user = $comment->getUser();
@@ -162,14 +163,14 @@ class ActivityService
                 "documentaryTitle" => $documentary->getTitle(),
                 //"documentaryThumbnail" => $documentary->getPoster(),
                 "documentarySlug" => $documentary->getSlug(),
-                "comment" => $comment->getComment()
+                "comment" => $comment->getCommentText()
             ];
 
             $latestActivity = $this->getLatestActivity();
             $groupNumber = $latestActivity->getGroupNumber();
             $groupNumber++;
 
-            $this->addActivity($user, $comment->getId(), ActivityType::COMMENT, ComponentType::DOCUMENTARY, $data, $groupNumber);
+            $this->addActivity($user, $comment->getId(), ActivityType::COMMENT, ComponentType::DOCUMENTARY, $data, $groupNumber, $createdAt);
         }
     }
     /**
@@ -328,7 +329,6 @@ class ActivityService
             $user = $activityItem->getUser();
             $username = $user->getUsername();
             $avatar = $user->getAvatar();
-            $email = $user->getEmail();
             $data = $activityItem->getData();
             $created = $activityItem->getCreatedAt();
 
@@ -340,29 +340,24 @@ class ActivityService
                     $activityArray[$groupNumber]['parent']['data'] = $data;
                     $activityArray[$groupNumber]['parent']['user']['username'] = $username;
                     $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
-                    $activityArray[$groupNumber]['parent']['user']['email'] = $email;
                 } else {
                     $child['data'] = $data;
                     $child['user']['name'] = $username;
                     $child['user']['username'] = $username;
                     $child['user']['avatar'] = $avatar;
-                    $child['user']['email'] = $email;
                     $activityArray[$groupNumber]['child'][] = $child;
                 }
             } else if ($type == "comment") {
                 $activityArray[$groupNumber]['parent']['user']['username'] = $username;
                 $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
-                $activityArray[$groupNumber]['parent']['user']['email'] = $email;
                 $activityArray[$groupNumber]['parent']['data'] = $data;
             } else if ($type == "joined") {
                 if ($groupNumber != $previousGroupNumber) {
                     $activityArray[$groupNumber]['parent']['user']['username'] = $username;
                     $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
-                    $activityArray[$groupNumber]['parent']['user']['email'] = $email;
                 } else {
                     $child['user']['username'] = $username;
-                    $child['user']['avatar'] = $avatar;
-                    $child['user']['email'] = $email;
+                    $child['user']['avatar'] = $avatar;#
                     $activityArray[$groupNumber]['child'][] = $child;
                 }
             } else if ($type == "added") {
@@ -370,19 +365,17 @@ class ActivityService
                     $activityArray[$groupNumber]['parent']['data'] = $data;
                     $activityArray[$groupNumber]['parent']['user']['username'] = $username;
                     $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
-                    $activityArray[$groupNumber]['parent']['user']['email'] = $email;
                 } else {
                     $child['data'] = $data;
                     $child['user']['username'] = $username;
                     $child['user']['avatar'] = $avatar;
-                    $child['user']['email'] = $email;
                     $activityArray[$groupNumber]['child'][] = $child;
                 }
             }
 
             $previousGroupNumber = $groupNumber;
         }
-
+        
         return $activityArray;
     }
 

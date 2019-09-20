@@ -55,7 +55,7 @@ class CommentRepository extends ServiceEntityRepository
      * @param CommentCriteria $criteria
      * @return Comment
      */
-    public function findDocumentaryByCriteria(CommentCriteria $criteria)
+    public function findCommentByCriteria(CommentCriteria $criteria)
     {
         $criteria->setLimit(1);
         $qb = $this->findCommentsByCriteriaQueryBuilder($criteria);
@@ -70,7 +70,7 @@ class CommentRepository extends ServiceEntityRepository
      * @param CommentCriteria $criteria
      * @return ArrayCollection|Comment[]
      */
-    public function findDocumentariesByCriteria(CommentCriteria $criteria)
+    public function findDCommentsByCriteria(CommentCriteria $criteria)
     {
         $qb = $this->findCommentsByCriteriaQueryBuilder($criteria);
 

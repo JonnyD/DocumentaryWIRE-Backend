@@ -77,6 +77,20 @@ security:
             stateless:  false
             anonymous: true
 
+        api_public_activity:
+            methods: [GET]
+            pattern: ^/api/v1/activity
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
+        api_sync:
+            methods: [GET]
+            pattern: ^/api/v1/sync
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
         main:
             pattern: ^/
             form_login:
