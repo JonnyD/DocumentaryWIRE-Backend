@@ -375,7 +375,7 @@ class ActivityService
 
             $previousGroupNumber = $groupNumber;
         }
-        
+
         return $activityArray;
     }
 

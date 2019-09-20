@@ -6,6 +6,7 @@ use App\Criteria\DocumentaryCriteria;
 use App\Entity\Documentary;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -50,6 +51,22 @@ class DocumentaryRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @return mixed
+     */
+    public function findYears()
+    {
+        $rsm = new ResultSetMapping();
+
+        $sql = "SELECT DISTINCT(year) FROM documentary WHERE year IS NOT NULL ORDER BY year";
+
+        $stmt = $this->getEntityManager()->getConnection()->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        return $result;
+    }
 
     /**
      * @param DocumentaryCriteria $criteria

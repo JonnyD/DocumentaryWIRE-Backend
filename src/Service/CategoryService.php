@@ -41,11 +41,12 @@ class CategoryService
     }
 
     /**
-     * @return Category[]
+     * @return Category|null
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getAllCategories()
     {
-        return $this->categoryRepository->findAll();
+        return $this->categoryRepository->findAllCategoriesOrderedByName();
     }
 
     /**

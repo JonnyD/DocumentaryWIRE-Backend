@@ -49,6 +49,18 @@ class CategoryRepository extends ServiceEntityRepository
     */
 
     /**
+     * @return Category|null
+     */
+    public function findAllCategoriesOrderedByName()
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.count > 0')
+            ->orderBy('c.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * @param Category $category
      * @param bool $sync
      * @throws \Doctrine\ORM\ORMException
