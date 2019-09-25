@@ -213,7 +213,19 @@ class Documentary
 
     public function getSummary(): ?string
     {
-        return $this->summary;
+        $returnString = null;
+
+        if ($this->summary === null) {
+            if (strlen($this->storyline) === 200) {
+                $returnString = $this->storyline;
+            } else {
+                $returnString = substr($this->storyline, 0, 200) . "...";
+            }
+        } else {
+            $returnString = $this->summary;
+        }
+
+        return $returnString;
     }
 
     public function setSummary(string $summary): self

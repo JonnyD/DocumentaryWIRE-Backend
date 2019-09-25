@@ -135,11 +135,16 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             ]);
         }
 
+        $amountPerPage = $request->query->get('amountPerPage', 12);
+        if (isset($amountPerPage) && $amountPerPage > 50) {
+            throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException();
+        }
+
         $qb = $this->documentaryService->getDocumentariesByCriteriaQueryBuilder($criteria);
 
         $adapter = new DoctrineORMAdapter($qb, false);
         $pagerfanta = new Pagerfanta($adapter);
-        $pagerfanta->setMaxPerPage(12);
+        $pagerfanta->setMaxPerPage($amountPerPage);
         $pagerfanta->setCurrentPage($page);
 
         $items = (array) $pagerfanta->getCurrentPageResults();
