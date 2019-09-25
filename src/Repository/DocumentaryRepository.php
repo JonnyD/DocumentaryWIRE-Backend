@@ -130,6 +130,11 @@ class DocumentaryRepository extends ServiceEntityRepository
             $qb->andWhere('documentary.videoSource = :videoSource')
                 ->setParameter('videoSource', $criteria->getVideoSource());
         }
+        
+        if ($criteria->getYear()) {
+            $qb->andWhere('documentary.year = :year')
+                ->setParameter('year', $criteria->getYear());
+        }
 
         if ($criteria->getSort()) {
             foreach ($criteria->getSort() as $column => $direction) {

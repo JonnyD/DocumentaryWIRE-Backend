@@ -50,14 +50,14 @@ class CategoryController extends AbstractFOSRestController implements ClassResou
 
 
     /**
-     * @FOSRest\Get("/category/{id}", name="get_category", options={ "method_prefix" = false })
+     * @FOSRest\Get("/category/{slug}", name="get_category", options={ "method_prefix" = false })
      *
-     * @param int $id
+     * @param string $slug
      * @return Category|null
      */
-    public function getCategoryAction(int $id)
+    public function getCategoryAction(string $slug)
     {
-        $category = $this->categoryService->getCategoryById($id);
+        $category = $this->categoryService->getCategoryBySlug($slug);
 
         $headers = [
             'Content-Type' => 'application/json',

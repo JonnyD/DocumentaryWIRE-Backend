@@ -27,6 +27,8 @@ class DocumentaryCriteria
      */
     private $videoSource;
 
+    private $year;
+
     /**
      * @var array
      */

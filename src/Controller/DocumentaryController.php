@@ -106,12 +106,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 $criteria->setVideoSource($videoSource);
             }
 
-            $categoryId = $request->query->get('category');
-            if (isset($categoryId)) {
-                $category = $this->categoryService->getCategoryById($categoryId);
-                $criteria->setCategory($category);
-            }
-
             $status = $request->query->get('status');
             if (isset($status)) {
                 $criteria->setStatus($status);
@@ -124,6 +118,11 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             }
         }
 
+        $categorySlug = $request->query->get('category');
+        if (isset($categorySlug)) {
+            $category = $this->categoryService->getCategoryBySlug($categorySlug);
+            $criteria->setCategory($category);
+        }
         $sort = $request->query->get('sort');
         if (isset($sort)) {
             $exploded = explode("-", $sort);
