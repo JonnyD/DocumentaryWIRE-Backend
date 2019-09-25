@@ -14,6 +14,8 @@ use App\Enum\Order;
 use App\Entity\Comment;
 use App\Entity\User;
 use App\Entity\Watchlist;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class ActivityService
 {
@@ -23,11 +25,20 @@ class ActivityService
     private $activityRepository;
 
     /**
-     * @param ActivityRepository $activityRepository
+     * @var Request
      */
-    public function __construct(ActivityRepository $activityRepository)
+    private $request;
+
+    /**
+     * @param ActivityRepository $activityRepository
+     * @param RequestStack $requestStack
+     */
+    public function __construct(
+        ActivityRepository $activityRepository,
+        RequestStack $requestStack)
     {
         $this->activityRepository = $activityRepository;
+        $this->request = $requestStack->getCurrentRequest();
     }
 
     /**
@@ -265,7 +276,7 @@ class ActivityService
     public function getRecentActivityForWidget()
     {
         $criteria = new ActivityCriteria();
-        $criteria->setLimit(110);
+        $criteria->setLimit(300);
         $criteria->setSort([
             ActivityOrderBy::GROUP_NUMBER => Order::DESC,
             ActivityOrderBy::CREATED_AT => Order::DESC
@@ -321,14 +332,15 @@ class ActivityService
     {
         $activityArray = array();
 
+        $activity = array_reverse($activity);
         $previousGroupNumber = null;
         /** @var Activity $activityItem */
         foreach ($activity as $activityItem) {
             $type = $activityItem->getType();
             $groupNumber = $activityItem->getGroupNumber();
             $user = $activityItem->getUser();
-            $username = $user->getUsername();
-            $avatar = $user->getAvatar();
+            $name = $user->getName();
+            $avatar = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar();
             $data = $activityItem->getData();
             $created = $activityItem->getCreatedAt();
 
@@ -338,36 +350,35 @@ class ActivityService
             if ($type == "like") {
                 if ($groupNumber != $previousGroupNumber) {
                     $activityArray[$groupNumber]['parent']['data'] = $data;
-                    $activityArray[$groupNumber]['parent']['user']['username'] = $username;
+                    $activityArray[$groupNumber]['parent']['user']['name'] = $name;
                     $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
                 } else {
                     $child['data'] = $data;
-                    $child['user']['name'] = $username;
-                    $child['user']['username'] = $username;
+                    $child['user']['name'] = $name;
                     $child['user']['avatar'] = $avatar;
                     $activityArray[$groupNumber]['child'][] = $child;
                 }
             } else if ($type == "comment") {
-                $activityArray[$groupNumber]['parent']['user']['username'] = $username;
+                $activityArray[$groupNumber]['parent']['user']['name'] = $name;
                 $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
                 $activityArray[$groupNumber]['parent']['data'] = $data;
             } else if ($type == "joined") {
                 if ($groupNumber != $previousGroupNumber) {
-                    $activityArray[$groupNumber]['parent']['user']['username'] = $username;
+                    $activityArray[$groupNumber]['parent']['user']['name'] = $name;
                     $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
                 } else {
-                    $child['user']['username'] = $username;
+                    $child['user']['name'] = $name;
                     $child['user']['avatar'] = $avatar;#
                     $activityArray[$groupNumber]['child'][] = $child;
                 }
             } else if ($type == "added") {
                 if ($groupNumber != $previousGroupNumber) {
                     $activityArray[$groupNumber]['parent']['data'] = $data;
-                    $activityArray[$groupNumber]['parent']['user']['username'] = $username;
+                    $activityArray[$groupNumber]['parent']['user']['name'] = $name;
                     $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
                 } else {
                     $child['data'] = $data;
-                    $child['user']['username'] = $username;
+                    $child['user']['name'] = $name;
                     $child['user']['avatar'] = $avatar;
                     $activityArray[$groupNumber]['child'][] = $child;
                 }

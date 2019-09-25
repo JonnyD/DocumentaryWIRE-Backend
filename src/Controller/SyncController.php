@@ -44,7 +44,7 @@ class SyncController extends AbstractFOSRestController implements ClassResourceI
      */
     public function listAction(Request $request)
     {
-        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+        //$this->denyAccessUnlessGranted("ROLE_ADMIN");
         /**
         $watchlistService = $this->getWatchlistService();
         $criteria = new WatchlistCriteria();

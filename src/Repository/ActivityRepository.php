@@ -123,7 +123,7 @@ class ActivityRepository extends ServiceEntityRepository
                 where activity.type = 'like' or activity.type = 'comment' or activity.type = 'joined'
                 group by activity.group_number
                 order by activity.group_number DESC, activity.created_at DESC
-                limit 20) as A";
+                limit 50) as A";
 
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('sum', 'amount');
