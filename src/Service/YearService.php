@@ -27,6 +27,9 @@ class YearService
         $this->documentaryRepository = $documentaryRepository;
     }
 
+    /**
+     * @return array
+     */
     public function getYears()
     {
         return $this->documentaryRepository->findYears();

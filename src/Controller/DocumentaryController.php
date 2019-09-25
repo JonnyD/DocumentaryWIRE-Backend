@@ -123,6 +123,12 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $category = $this->categoryService->getCategoryBySlug($categorySlug);
             $criteria->setCategory($category);
         }
+
+        $year = $request->query->get('year');
+        if (isset($year)) {
+            $criteria->setYear($year);
+        }
+
         $sort = $request->query->get('sort');
         if (isset($sort)) {
             $exploded = explode("-", $sort);

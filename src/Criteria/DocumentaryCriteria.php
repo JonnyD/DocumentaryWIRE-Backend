@@ -27,6 +27,9 @@ class DocumentaryCriteria
      */
     private $videoSource;
 
+    /**
+     * @var int
+     */
     private $year;
 
     /**
@@ -101,6 +104,22 @@ class DocumentaryCriteria
     public function setVideoSource(VideoSource $videoSource)
     {
         $this->videoSource = $videoSource;
+    }
+
+    /**
+     * @return int
+     */
+    public function getYear()
+    {
+        return $this->year;
+    }
+
+    /**
+     * @param int $year
+     */
+    public function setYear(int $year)
+    {
+        $this->year = $year;
     }
 
     /**
