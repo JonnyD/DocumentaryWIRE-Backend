@@ -33,6 +33,11 @@ class DocumentaryCriteria
     private $year;
 
     /**
+     * @var string
+     */
+    private $duration;
+
+    /**
      * @var array
      */
     private $sort;
@@ -120,6 +125,22 @@ class DocumentaryCriteria
     public function setYear(int $year)
     {
         $this->year = $year;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDuration()
+    {
+        return $this->duration;
+    }
+
+    /**
+     * @param string $duration
+     */
+    public function setDuration(string $duration)
+    {
+        $this->duration = $duration;
     }
 
     /**

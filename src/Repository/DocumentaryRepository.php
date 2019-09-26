@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Criteria\DocumentaryCriteria;
 use App\Entity\Documentary;
+use App\Enum\DurationType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Query\ResultSetMapping;
@@ -134,6 +135,27 @@ class DocumentaryRepository extends ServiceEntityRepository
         if ($criteria->getYear()) {
             $qb->andWhere('documentary.year = :year')
                 ->setParameter('year', $criteria->getYear());
+        }
+
+        if ($criteria->getDuration()) {
+            switch ($criteria->getDuration()) {
+                case DurationType::LESS_THAN_4_MINUTES:
+                    $qb->andWhere('documentary.length < :duration')
+                        ->setParameter('duration', 4);
+                    break;
+                case DurationType::LESS_THAN_20_MINUTES:
+                    $qb->andWhere('documentary.length < :duration')
+                        ->setParameter('duration', 20);
+                    break;
+                case DurationType::GREATER_THAN_20_MINUTES:
+                    $qb->andWhere('documentary.length > :duration')
+                        ->setParameter('duration', 20);
+                    break;
+                case DurationType::GREATER_THAN_60_MINUTES:
+                    $qb->andWhere('documentary.length > :duration')
+                        ->setParameter('duration', 60);
+                    break;
+            }
         }
 
         if ($criteria->getSort()) {

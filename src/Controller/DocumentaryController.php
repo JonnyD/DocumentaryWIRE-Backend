@@ -129,6 +129,11 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $criteria->setYear($year);
         }
 
+        $duration = $request->query->get('duration');
+        if (isset($duration)) {
+            $criteria->setDuration($duration);
+        }
+
         $sort = $request->query->get('sort');
         if (isset($sort)) {
             $exploded = explode("-", $sort);
