@@ -47,3 +47,8 @@ api_year:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\YearController
+
+api_community:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\CommunityController
