@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -15,9 +16,8 @@ class RegisterForm extends AbstractType
         $builder
             ->add('username', TextType::class)
             ->add('email', TextType::class)
-            ->add('password', TextType::class)
-            ->add('firstName', TextType::class)
-            ->add('lastName', TextType::class);
+            ->add('password', PasswordType::class)
+            ->add('name', TextType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)

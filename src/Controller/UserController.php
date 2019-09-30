@@ -10,6 +10,7 @@ use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use FOS\RestBundle\View\View;
+use FOS\UserBundle\Model\UserManagerInterface;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,6 +39,11 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     private $userService;
 
     /**
+     * @var UserManagerInterface
+     */
+    private $userManager;
+
+    /**
      * @var Request
      */
     private $request;
@@ -45,14 +51,18 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     /**
      * @param TokenStorageInterface $tokenStorage
      * @param UserService $userService
+     * @param UserManagerInterface $userManager
+     * @param RequestStack $requestStack
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
         UserService $userService,
+        UserManagerInterface $userManager,
         RequestStack $requestStack)
     {
         $this->tokenStorage = $tokenStorage;
         $this->userService = $userService;
+        $this->userManager = $userManager;
         $this->request = $requestStack->getCurrentRequest();
     }
 
@@ -64,15 +74,39 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
      */
     public function postRegisterAction(Request $request)
     {
-        $user = new User();
+        $user = $this->userManager->createUser();
         $form = $this->createForm(RegisterForm::class, $user);
-
         $form->submit($request->request->all());
 
-        //return new JsonResponse((string) $form->getErrors(true, false));
-
         if ($form->isValid()){
-            $this->userService->save($user);
+            $email = $request->request->get('email');
+            $username = $request->request->get('username');
+            $name = $request->request->get('name');
+            $password = $request->request->get('password');
+
+            $emailAlreadyExists = $this->userManager->findUserByEmail($email);
+            $usernameAlreadyExists = $this->userManager->findUserByUsername($username);
+
+            if ($emailAlreadyExists){
+                $response = new JsonResponse();
+                $response->setData("Email ".$email." already exists");
+                return $response;
+            }
+
+            if ($usernameAlreadyExists){
+                $response = new JsonResponse();
+                $response->setData("Username ".$username." already exists");
+                return $response;
+            }
+
+            $user->setUsername($username);
+            $user->setEmail($email);
+            $user->setEnabled(false);
+            $user->setPlainPassword($password);
+            $user->setRoles(["ROLE_USER"]);
+            $this->userManager->updateUser($user);
+
+            return new JsonResponse($this->serializeUser($user));
         }
 
         //@TODO send activation code email
