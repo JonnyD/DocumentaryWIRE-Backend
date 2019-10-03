@@ -3,6 +3,7 @@
 namespace App\Criteria;
 
 use App\Entity\Category;
+use App\Entity\User;
 use App\Entity\VideoSource;
 
 class DocumentaryCriteria
@@ -36,6 +37,11 @@ class DocumentaryCriteria
      * @var string
      */
     private $duration;
+
+    /**
+     * @var User
+     */
+    private $addedBy;
 
     /**
      * @var array
@@ -141,6 +147,22 @@ class DocumentaryCriteria
     public function setDuration(string $duration)
     {
         $this->duration = $duration;
+    }
+
+    /**
+     * @return User
+     */
+    public function getAddedBy()
+    {
+        return $this->addedBy;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setAddedBy(User $user)
+    {
+        $this->addedBy = $user;
     }
 
     /**

@@ -158,6 +158,13 @@ class Documentary
      */
     private $videoSource;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="documentaries")
+     *
+     * @var User
+     */
+    private $addedBy;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -460,5 +467,21 @@ class Documentary
         $this->videoSource = $videoSource;
 
         return $this;
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getAddedBy(): ?User
+    {
+        return $this->addedBy;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setAddedBy(User $user)
+    {
+        $this->addedBy = $user;
     }
 }

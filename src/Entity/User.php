@@ -132,12 +132,18 @@ class User extends BaseUser
      */
     private $socialAccounts;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="user")
+     */
+    private $documentaries;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->watchlists = new ArrayCollection();
         $this->activities = new ArrayCollection();
         $this->socialAccounts = new ArrayCollection();
+        $this->documentaries = new ArrayCollection();
         $this->enabled = false;
     }
 
@@ -373,6 +379,46 @@ class User extends BaseUser
     {
         return ($this->getConfirmationToken() !== null);
     }
+
+    /**
+     * @return Collection|Documentary[]
+     */
+    public function getDocumentaries(): Collection
+    {
+        return $this->documentaries;
+    }
+
+    /**
+     * @param Documentary $documentary
+     * @return User
+     */
+    public function addDocumentary(Documentary $documentary): self
+    {
+        if (!$this->documentaries->contains($documentary)) {
+            $this->documentaries[] = $documentary;
+            $documentary->setAddedBy($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Documentary $documentary
+     * @return User
+     */
+    public function removeDocumentary(Documentary $documentary): self
+    {
+        if ($this->documentaries->contains($documentary)) {
+            $this->documentaries->removeElement($documentary);
+            // set the owning side to null (unless already changed)
+            if ($documentary->getAddedBy() === $this) {
+                $documentary->setAddedBy(null);
+            }
+        }
+
+        return $this;
+    }
+
 
     /**
      * @param string $role

@@ -12,6 +12,7 @@ use App\Service\CategoryService;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
 use App\Service\ImageService;
+use App\Service\UserService;
 use App\Service\VideoSourceService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -57,17 +58,28 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      */
     private $videoSourceService;
 
+    /**
+     * @var UserService
+     */
+    private $userService;
+
+    /**
+     * @var Request
+     */
     private $reguest;
 
     /**
      * @param DocumentaryService $documentaryService
+     * @param UserService $userService
      * @param TokenStorageInterface $tokenStorage
      * @param ImageService $imageService
      * @param CategoryService $categoryService
      * @param VideoSourceService $videoSourceService
+     * @param RequestStack $requestStack
      */
     public function __construct(
         DocumentaryService $documentaryService,
+        UserService $userService,
         TokenStorageInterface $tokenStorage,
         ImageService $imageService,
         CategoryService $categoryService,
@@ -75,6 +87,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         RequestStack $requestStack)
     {
         $this->documentaryService = $documentaryService;
+        $this->userService = $userService;
         $this->tokenStorage = $tokenStorage;
         $this->imageService = $imageService;
         $this->categoryService = $categoryService;
@@ -132,6 +145,12 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         $duration = $request->query->get('duration');
         if (isset($duration)) {
             $criteria->setDuration($duration);
+        }
+
+        $addedBy = $request->query->get('addedBy');
+        if (isset($addedBy)) {
+            $user = $this->userService->getUserByUsername($addedBy);
+            $criteria->setAddedBy($user);
         }
 
         $sort = $request->query->get('sort');
@@ -385,7 +404,10 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 'id' => $documentary->getVideoSource()->getId(),
                 'name' => $documentary->getVideoSource()->getName()
             ],
-            'videoId' => $documentary->getVideoId()
+            'videoId' => $documentary->getVideoId(),
+            'addedBy' => [
+                'username' => $documentary->getAddedBy()->getName()
+            ]
         ];
 
         return $serialized;
