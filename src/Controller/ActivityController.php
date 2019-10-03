@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Criteria\ActivityCriteria;
 use App\Entity\Activity;
 use App\Enum\ActivityOrderBy;
+use App\Enum\ActivityType;
 use App\Enum\Order;
 use App\Service\ActivityService;
 use App\Service\UserService;
@@ -30,7 +31,7 @@ class ActivityController extends AbstractFOSRestController implements ClassResou
     private $userService;
 
     /**
-     * @var Requestt
+     * @var Request
      */
     private $request;
 
@@ -51,6 +52,12 @@ class ActivityController extends AbstractFOSRestController implements ClassResou
      */
     public function listAction(Request $request)
     {
+        $show = $request->query->get('show');
+
+        if (isset($show) && $show === 'widget') {
+            $activities = $this->activityService->getRecentActivityForWidget();
+            return new JsonResponse($activities, 200, array('Access-Control-Allow-Origin'=> '*'));
+        }
         $page = $request->query->get('page', 1);
 
         $criteria = new ActivityCriteria();
@@ -130,5 +137,33 @@ class ActivityController extends AbstractFOSRestController implements ClassResou
                 'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $activity->getUser()->getAvatar()
             ]
         ];
+    }
+
+    /**
+     * @TODO tombstone
+     */
+    private function sync()
+    {
+        $criteria = new ActivityCriteria();
+        $activities = $this->activityService->getAllActivityByCriteria($criteria);
+
+        foreach ($activities as $activity) {
+            $data = $activity->getData();
+
+            if ($activity->getType() === ActivityType::LIKE) {
+                $oldThumbnailPath = $data['documentaryThumbnail'];
+
+                if (strpos($oldThumbnailPath, "documentary/")) {
+                    $exploded = explode("documentary/", $oldThumbnailPath);
+                    $data['documentaryThumbnail'] = $exploded[1];
+                } else if (strpos($oldThumbnailPath, "/") != null) {
+                    $exploded = explode("/", $oldThumbnailPath);
+                    $data['documentaryThumbnail'] = $exploded[1];
+                }
+
+                $activity->setData($data);
+                $this->activityService->save($activity);
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Criteria\WatchlistCriteria;
 use App\Repository\WatchlistRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
@@ -42,4 +43,12 @@ class WatchlistService
         $this->request = $requestStack->getCurrentRequest();
     }
 
+    /**
+     * @param WatchlistCriteria $criteria
+     * @return QueryBuilder
+     */
+    public function getWatchlistByCriteriaQueryBuilder(WatchlistCriteria $criteria)
+    {
+        return $this->watchlistRepository->findWatchlistByCriteriaQueryBuilder($criteria);
+    }
 }

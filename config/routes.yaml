@@ -52,3 +52,8 @@ api_community:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\CommunityController
+
+api_watchlist:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\WatchlistController

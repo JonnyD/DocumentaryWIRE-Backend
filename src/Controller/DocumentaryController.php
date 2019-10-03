@@ -66,7 +66,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     /**
      * @var Request
      */
-    private $reguest;
+    private $request;
 
     /**
      * @param DocumentaryService $documentaryService

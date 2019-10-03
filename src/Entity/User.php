@@ -338,7 +338,13 @@ class User extends BaseUser
 
     public function getAvatar(): ?string
     {
-        return $this->avatar;
+        $avatar = $this->avatar;
+
+        if ($avatar === null) {
+            $avatar = 'default.jpg';
+        }
+
+        return $avatar;
     }
 
     public function setAvatar(?string $avatar): self
