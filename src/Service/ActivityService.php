@@ -349,10 +349,12 @@ class ActivityService
 
             if ($type == "like") {
                 if ($groupNumber != $previousGroupNumber) {
+                    $data['documentaryThumbnail'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $data['documentaryThumbnail'];
                     $activityArray[$groupNumber]['parent']['data'] = $data;
                     $activityArray[$groupNumber]['parent']['user']['name'] = $name;
                     $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
                 } else {
+                    $data['documentaryThumbnail'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $data['documentaryThumbnail'];
                     $child['data'] = $data;
                     $child['user']['name'] = $name;
                     $child['user']['avatar'] = $avatar;

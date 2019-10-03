@@ -135,6 +135,7 @@ class WatchlistController extends AbstractFOSRestController implements ClassReso
                 'title' => $documentary->getTitle(),
                 'slug' => $documentary->getSlug(),
                 'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPosterFileName(),
+                'summary' => $documentary->getSummary()
             ]
         ];
     }
