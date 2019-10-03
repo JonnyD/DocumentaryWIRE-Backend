@@ -300,14 +300,14 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     }
 
     /**
-     * @FOSRest\Get("/user/{id}")
+     * @FOSRest\Get("/user/{username}")
      *
-     * @param int $id
+     * @param string $username
      * @return User|string
      */
-    public function getUserAction(int $id)
+    public function getUserAction(string $username)
     {
-        $user = $this->userService->getUserById($id);
+        $user = $this->userService->getUserByUsername($username);
         $data = $this->serializeUser($user);
 
         return new JsonResponse($data, 200);
