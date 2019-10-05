@@ -6,8 +6,10 @@ use App\Entity\Documentary;
 use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
+use App\Enum\DocumentaryType;
 use App\Enum\Order;
 use App\Form\AdminDocumentaryForm;
+use App\Form\UserDocumentaryForm;
 use App\Service\CategoryService;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
@@ -229,13 +231,26 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      */
     public function createDocumentaryAction(Request $request)
     {
+        $type = $request->query->get('type');
+
         $documentary = new Documentary();
 
         $headers = [
             'Content-Type' => 'application/json',
             'Access-Control-Allow-Origin' => '*'
         ];
-        $form = $this->createForm(AdminDocumentaryForm::class, $documentary);
+
+        switch ($type) {
+            case DocumentaryType::ADMIN:
+                $form = $this->createForm(AdminDocumentaryForm::class, $documentary);
+                break;
+            case DocumentaryType::USER:
+                $form = $this->createForm(UserDocumentaryForm::class, $documentary);
+                $documentary->setStatus(DocumentaryStatus::PENDING);
+                $documentary->setAddedBy($this->getLoggedInUser());
+                break;
+        }
+
         $form->handleRequest($request);
 
         if ($request->isMethod('POST')) {
@@ -304,7 +319,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $poster = $data['poster'];
             $isBase64 = $this->imageService->isBase64($poster);
             if ($isBase64) {
-                $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
+                $outputFileWithoutExtension = uniqid();
                 $path = 'uploads/posters/';
                 $posterFileName = $this->imageService->saveBase54Image($poster, $outputFileWithoutExtension, $path);
                 $documentary->setPosterFileName($posterFileName);
@@ -315,7 +330,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $wideImage = $data['wideImage'];
             $isBase64 = $this->imageService->isBase64($wideImage);
             if ($isBase64) {
-                $outputFileWithoutExtension = $documentary->getSlug().'-'.uniqid();
+                $outputFileWithoutExtension = uniqid();
                 $path = 'uploads/wide/';
                 $wideImageFileName = $this->imageService->saveBase54Image($wideImage, $outputFileWithoutExtension, $path);
                 $documentary->setWideImage($wideImageFileName);
@@ -411,5 +426,13 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         ];
 
         return $serialized;
+    }
+
+    /**
+     * @return User
+     */
+    private function getLoggedInUser()
+    {
+        return $this->tokenStorage->getToken()->getUser();
     }
 }
