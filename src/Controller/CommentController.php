@@ -176,6 +176,10 @@ class CommentController extends AbstractFOSRestController implements ClassResour
         }
     }
 
+    /**
+     * @param Comment $comment
+     * @return array
+     */
     private function serialiseComment(Comment $comment)
     {
         $serialized = [

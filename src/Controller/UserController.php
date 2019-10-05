@@ -121,10 +121,7 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     public function getMeAction()
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
-        /** @var User $loggedInUser */
-        $loggedInUser = $this->tokenStorage->getToken()->getUser();
-
+        $loggedInUser = $this->getLoggedInUser();
         $data = $this->serializeUser($loggedInUser);
 
         return new JsonResponse($data, 200);
@@ -314,18 +311,25 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     }
 
     /**
+     * @return User
+     */
+    private function getLoggedInUser()
+    {
+        return $this->tokenStorage->getToken()->getUser();
+    }
+
+    /**
      * @param User $user
      * @return array
      */
     private function serializeUser(User $user)
     {
-        return [
+
+        $serialized = [
             'id' => $user->getId(),
             'name' => $user->getName(),
             'username' => $user->getUsername(),
             'usernameCanonical' => $user->getUsernameCanonical(),
-            'email' => $user->getEmail(),
-            'emailCanonical' => $user->getEmailCanonical(),
             'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar(),
             'resetKey' => $user->getResetKey(),
             'activatedAt' => $user->getActivatedAt(),
@@ -338,5 +342,16 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             'createdAt' => $user->getCreatedAt(),
             'updatedAt' => $user->getUpdatedAt()
         ];
+
+        $isUser = false;
+        if ($this->getLoggedInUser() === $user) {
+            $isUser = true;
+        }
+
+        if ($isUser) {
+            $serialized['email'] = $user->getEmail();
+        }
+
+        return $serialized;
     }
 }

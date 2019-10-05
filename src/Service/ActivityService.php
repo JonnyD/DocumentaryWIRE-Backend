@@ -332,7 +332,6 @@ class ActivityService
     {
         $activityArray = array();
 
-        $activity = array_reverse($activity);
         $previousGroupNumber = null;
         /** @var Activity $activityItem */
         foreach ($activity as $activityItem) {
