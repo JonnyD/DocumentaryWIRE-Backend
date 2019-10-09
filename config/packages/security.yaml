@@ -112,6 +112,11 @@ security:
             stateless:  false
             anonymous: true
 
+        api_subscription:
+            pattern: ^/api/v1/subscription
+            fos_oauth:  true
+            stateless:  false
+
         main:
             pattern: ^/
             form_login:

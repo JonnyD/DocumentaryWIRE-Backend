@@ -48,7 +48,6 @@ class CategoryController extends AbstractFOSRestController implements ClassResou
         return new JsonResponse($serialized, 200, $headers);
     }
 
-
     /**
      * @FOSRest\Get("/category/{slug}", name="get_category", options={ "method_prefix" = false })
      *

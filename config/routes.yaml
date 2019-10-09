@@ -57,3 +57,8 @@ api_watchlist:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\WatchlistController
+
+api_subscription:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\SubscriptionController

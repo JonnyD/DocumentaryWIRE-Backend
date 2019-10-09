@@ -137,6 +137,16 @@ class User extends BaseUser
      */
     private $documentaries;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Subscription", mappedBy="userFrom", orphanRemoval=true)
+     */
+    private $subscribedFrom;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Subscription", mappedBy="userTo", orphanRemoval=true)
+     */
+    private $subscribedTo;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -144,6 +154,8 @@ class User extends BaseUser
         $this->activities = new ArrayCollection();
         $this->socialAccounts = new ArrayCollection();
         $this->documentaries = new ArrayCollection();
+        $this->subscribedFrom = new ArrayCollection();
+        $this->subscribedTo = new ArrayCollection();
         $this->enabled = false;
     }
 
@@ -425,7 +437,6 @@ class User extends BaseUser
         return $this;
     }
 
-
     /**
      * @param string $role
      * @return bool
@@ -433,5 +444,67 @@ class User extends BaseUser
     public function isGranted(string $role)
     {
         return in_array($role, $this->getRoles());
+    }
+
+    /**
+     * @return Collection|Subscription[]
+     */
+    public function getSubscribedFrom(): Collection
+    {
+        return $this->subscribedFrom;
+    }
+
+    public function addSubscribedFrom(Subscription $subscribedFrom): self
+    {
+        if (!$this->subscribedFrom->contains($subscribedFrom)) {
+            $this->subscribedFrom[] = $subscribedFrom;
+            $subscribedFrom->setUserFrom($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubscribedFrom(Subscription $subscribedFrom): self
+    {
+        if ($this->subscribedFrom->contains($subscribedFrom)) {
+            $this->subscribedFrom->removeElement($subscribedFrom);
+            // set the owning side to null (unless already changed)
+            if ($subscribedFrom->getUserFrom() === $this) {
+                $subscribedFrom->setUserFrom(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Subscription[]
+     */
+    public function getSubscribedTo(): Collection
+    {
+        return $this->subscribedTo;
+    }
+
+    public function addSubcribedTo(Subscription $subscribedTo): self
+    {
+        if (!$this->subscribedTo->contains($subscribedTo)) {
+            $this->subscribedTo[] = $subscribedTo;
+            $subscribedTo->setUserTo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubcribedTo(Subscription $subcribedTo): self
+    {
+        if ($this->subcribedTo->contains($subcribedTo)) {
+            $this->subcribedTo->removeElement($subcribedTo);
+            // set the owning side to null (unless already changed)
+            if ($subcribedTo->getUserTo() === $this) {
+                $subcribedTo->setUserTo(null);
+            }
+        }
+
+        return $this;
     }
 }
