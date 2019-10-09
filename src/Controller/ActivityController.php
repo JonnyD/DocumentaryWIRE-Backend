@@ -83,7 +83,7 @@ class ActivityController extends AbstractFOSRestController implements ClassResou
 
         $adapter = new DoctrineORMAdapter($qb, false);
         $pagerfanta = new Pagerfanta($adapter);
-        $pagerfanta->setMaxPerPage(6);
+        $pagerfanta->setMaxPerPage(50);
         $pagerfanta->setCurrentPage($page);
 
         $items = (array) $pagerfanta->getCurrentPageResults();
@@ -129,13 +129,15 @@ class ActivityController extends AbstractFOSRestController implements ClassResou
             'type' => $activity->getType(),
             'component' => $activity->getComponent(),
             'objectId' => $activity->getObjectId(),
-            'data' => $activity->getData(),
+            'data' => json_encode($activity->getData(), true),
             'groupNumber' => $activity->getGroupNumber(),
             'user' => [
                 'username' => $activity->getUser()->getUsername(),
                 'name' => $activity->getUser()->getName(),
                 'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $activity->getUser()->getAvatar()
-            ]
+            ],
+            'createdAt' => $activity->getCreatedAt(),
+            'updatedAt' => $activity->getUpdatedAt()
         ];
     }
 
