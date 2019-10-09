@@ -187,7 +187,9 @@ class CommentController extends AbstractFOSRestController implements ClassResour
             'commentText' => $comment->getCommentText(),
             'email' => $comment->getEmail(),
             'status' => $comment->getStatus(),
-            'author' => $comment->getAuthor()
+            'author' => $comment->getAuthor(),
+            'createdAt' => $comment->getCreatedAt(),
+            'updatedAt' => $comment->getUpdatedAt()
        ];
 
         if ($comment->getUser() != null) {
