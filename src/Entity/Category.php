@@ -22,6 +22,8 @@ use JMS\Serializer\Annotation\Expose;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CategoryRepository")
+ * @ORM\HasLifecycleCallbacks
+ *
  * @UniqueEntity(fields={"slug"})
  * @Gedmo\Loggable
  * @ExclusionPolicy("all")

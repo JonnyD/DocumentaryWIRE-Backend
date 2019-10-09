@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"facebook" = "App\Entity\Facebook", "google" = "App\Entity\Google"})
+ * @ORM\HasLifecycleCallbacks
  */
 abstract class SocialAccount
 {

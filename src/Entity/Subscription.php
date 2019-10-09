@@ -8,7 +8,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SubscriptionRepository")
- *
  * @ORM\HasLifecycleCallbacks
  */
 class Subscription

@@ -11,6 +11,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\WatchlistRepository")
+ * @ORM\HasLifecycleCallbacks
+ *
  * @Gedmo\Loggable
  */
 class Watchlist
