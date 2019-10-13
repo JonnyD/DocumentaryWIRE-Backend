@@ -23,6 +23,8 @@ class UserDocumentaryForm extends AbstractType
             ->add('summary', TextType::class)
             ->add('year', IntegerType::class)
             ->add('length', TextType::class)
+            ->add('imdbId', TextType::class)
+            ->add('type', TextType::class)
             ->add('videoSource', EntityType::class, [
                 'class' => VideoSource::class,
                 'choice_label' => 'id',

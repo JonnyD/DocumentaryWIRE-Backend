@@ -158,6 +158,9 @@
     "hshn/base64-encoded-file": {
         "version": "2.x-dev"
     },
+    "imagine/imagine": {
+        "version": "1.2.2"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
@@ -182,6 +185,19 @@
             "./config/packages/dev/jms_serializer.yaml",
             "./config/packages/jms_serializer.yaml",
             "./config/packages/prod/jms_serializer.yaml"
+        ]
+    },
+    "liip/imagine-bundle": {
+        "version": "1.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.8",
+            "ref": "1d42bc3f713130582e6e0c475c49bc327ab0a2a2"
+        },
+        "files": [
+            "./config/packages/liip_imagine.yaml",
+            "./config/routes/liip_imagine.yaml"
         ]
     },
     "michelf/php-markdown": {
@@ -253,6 +269,9 @@
     },
     "psr/log": {
         "version": "1.1.0"
+    },
+    "rooxie/omdb": {
+        "version": "0.3.0"
     },
     "sensio/framework-extra-bundle": {
         "version": "5.2",

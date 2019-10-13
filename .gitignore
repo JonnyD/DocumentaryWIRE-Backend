@@ -19,3 +19,6 @@
 .idea
 .env
 config/jwt
+###> liip/imagine-bundle ###
+/public/media/cache/
+###< liip/imagine-bundle ###

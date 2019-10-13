@@ -111,11 +111,18 @@ security:
             fos_oauth:  true
             stateless:  false
             anonymous: true
-
+#
         api_subscription:
             pattern: ^/api/v1/subscription
             fos_oauth:  true
             stateless:  false
+
+        api_omdb:
+            methods: [GET]
+            pattern: ^/api/v1/omdb
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
 
         main:
             pattern: ^/

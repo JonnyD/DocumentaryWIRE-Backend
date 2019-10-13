@@ -26,6 +26,7 @@ class AdminDocumentaryForm extends AbstractType
             ->add('year', IntegerType::class)
             ->add('length', IntegerType::class)
             ->add('status', TextType::class)
+            ->add('imdbId', TextType::class)
             ->add('videoSource', EntityType::class, [
                 'class' => VideoSource::class,
                 'choice_label' => 'id',

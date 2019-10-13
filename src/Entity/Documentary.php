@@ -133,6 +133,18 @@ class Documentary
     private $wideImage;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Gedmo\Versioned
+     */
+    private $imdbId;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=false)
+     * @Gedmo\Versioned
+     */
+    private $type;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="documentary")
      * @ORM\JoinColumn(nullable=false)
      * @Gedmo\Versioned
@@ -338,6 +350,38 @@ class Documentary
         $this->wideImage = $wideImage;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getImdbId(): ?string
+    {
+        return $this->imdbId;
+    }
+
+    /**
+     * @param string $imdbId
+     */
+    public function setImdbId($imdbId): void
+    {
+        $this->imdbId = $imdbId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType(string $type): void
+    {
+        $this->type = $type;
     }
 
     public function getCategory(): ?Category

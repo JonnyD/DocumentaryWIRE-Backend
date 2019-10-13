@@ -8,6 +8,9 @@ fos_oauth_server_token:
 fos_oauth_server_authorize:
   resource: "@FOSOAuthServerBundle/Resources/config/routing/authorize.xml"
 
+_liip_imagine:
+  resource: "@LiipImagineBundle/Resources/config/routing.yaml"
+
 api_users:
   type:     rest
   prefix:   api/v1
@@ -62,3 +65,8 @@ api_subscription:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\SubscriptionController
+
+api_omdb:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\OMDBController

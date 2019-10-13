@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Documentary;
+use App\Entity\Poster;
 use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
@@ -19,6 +20,8 @@ use App\Service\VideoSourceService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use Gedmo\Sluggable\Util\Urlizer;
+use Liip\ImagineBundle\Imagine\Data\DataManager;
+use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use PhpParser\Comment\Doc;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -78,6 +81,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      * @param CategoryService $categoryService
      * @param VideoSourceService $videoSourceService
      * @param RequestStack $requestStack
+     * @param DataManager $dataManager
+     * @param FilterManager $filterManager
      */
     public function __construct(
         DocumentaryService $documentaryService,
@@ -231,25 +236,18 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      */
     public function createDocumentaryAction(Request $request)
     {
-        $type = $request->query->get('type');
-
         $documentary = new Documentary();
+        $documentary->setStatus(DocumentaryStatus::PENDING);
+
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        $documentary->setAddedBy($this->getLoggedInUser());
 
         $headers = [
             'Content-Type' => 'application/json',
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        switch ($type) {
-            case DocumentaryType::ADMIN:
-                $form = $this->createForm(AdminDocumentaryForm::class, $documentary);
-                break;
-            case DocumentaryType::USER:
-                $form = $this->createForm(UserDocumentaryForm::class, $documentary);
-                $documentary->setStatus(DocumentaryStatus::PENDING);
-                $documentary->setAddedBy($this->getLoggedInUser());
-                break;
-        }
+        $form = $this->createForm(UserDocumentaryForm::class, $documentary);
 
         $form->handleRequest($request);
 
@@ -317,11 +315,16 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     {
         if (isset($data['poster'])) {
             $poster = $data['poster'];
+            $outputFileWithoutExtension = uniqid();
+            $path = 'uploads/posters/';
+
             $isBase64 = $this->imageService->isBase64($poster);
+            $isUrl = $this->imageService->isUrl($poster);
             if ($isBase64) {
-                $outputFileWithoutExtension = uniqid();
-                $path = 'uploads/posters/';
                 $posterFileName = $this->imageService->saveBase54Image($poster, $outputFileWithoutExtension, $path);
+                $documentary->setPosterFileName($posterFileName);
+            } else if ($isUrl) {
+                $posterFileName = $this->imageService->saveFromURL($poster, $path);
                 $documentary->setPosterFileName($posterFileName);
             }
         }
@@ -408,6 +411,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'views' => $documentary->getViews(),
             'shortUrl' => $documentary->getShortUrl(),
             'featured' => $documentary->getFeatured(),
+            'imdbId' => $documentary->getImdbId(),
             'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPosterFileName(),
             'wideImage' => $documentary->getWideImage(),
             'category' => [
