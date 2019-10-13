@@ -331,11 +331,16 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
 
         if (isset($data['wideImage'])) {
             $wideImage = $data['wideImage'];
+            $outputFileWithoutExtension = uniqid();
+            $path = 'uploads/wide/';
+
             $isBase64 = $this->imageService->isBase64($wideImage);
+            $isUrl = $this->imageService->isUrl($wideImage);
             if ($isBase64) {
-                $outputFileWithoutExtension = uniqid();
-                $path = 'uploads/wide/';
                 $wideImageFileName = $this->imageService->saveBase54Image($wideImage, $outputFileWithoutExtension, $path);
+                $documentary->setWideImage($wideImageFileName);
+            } else if ($isUrl) {
+                $wideImageFileName = $this->imageService->saveFromURL($wideImage, $path);
                 $documentary->setWideImage($wideImageFileName);
             }
         }

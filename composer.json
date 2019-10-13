@@ -10,6 +10,7 @@
         "friendsofsymfony/oauth-server-bundle": "1.6",
         "friendsofsymfony/rest-bundle": "^2.3",
         "friendsofsymfony/user-bundle": "^2.1",
+        "google/apiclient": "~2.0",
         "hshn/base64-encoded-file": "2.x@dev",
         "jms/serializer-bundle": "^2.4",
         "nelmio/api-doc-bundle": "^2.13",

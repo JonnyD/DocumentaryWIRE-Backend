@@ -70,3 +70,8 @@ api_omdb:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\OMDBController
+
+api_youtube:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\YoutubeController
