@@ -115,9 +115,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         $criteria = new DocumentaryCriteria();
 
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
-        if (!$isRoleAdmin) {
-            $criteria->setStatus(DocumentaryStatus::PUBLISH);
-        }
 
         if ($isRoleAdmin) {
             $videoSourceId = $request->query->get('videoSource');
@@ -136,6 +133,10 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 $featured = $featured === 'true' ? true: false;
                 $criteria->setFeatured($featured);
             }
+        }
+
+        if (!$isRoleAdmin) {
+            $criteria->setStatus(DocumentaryStatus::PUBLISH);
         }
 
         $categorySlug = $request->query->get('category');
@@ -418,7 +419,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'featured' => $documentary->getFeatured(),
             'imdbId' => $documentary->getImdbId(),
             'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPosterFileName(),
-            'wideImage' => $documentary->getWideImage(),
+            'wideImage' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/wide/' . $documentary->getWideImage(),
             'category' => [
                 'id' => $documentary->getCategory()->getId(),
                 'name' => $documentary->getCategory()->getName(),
