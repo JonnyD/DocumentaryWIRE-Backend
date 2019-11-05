@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiProperty;
+use App\Enum\DocumentaryType;
 use App\Traits\Timestampable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -19,12 +20,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\DocumentaryRepository")
+ * @ORM\Entity
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorMap({"standalone" = "App\Entity\Standalone", "episodic" = "App\Entity\Episodic", "episode" = "App\Entity\Episode"})
  * @ORM\HasLifecycleCallbacks
  *
  * @Gedmo\Loggable
  */
-class Documentary
+abstract class Documentary
 {
     use Timestampable;
     use Blameable;
@@ -81,8 +85,6 @@ class Documentary
     /**
      * @ORM\Column(type="integer", nullable=true)
      * @Gedmo\Versioned
-     *
-     * @Assert\NotBlank
      */
     private $length;
 
@@ -106,13 +108,6 @@ class Documentary
      */
     private $shortUrl;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     * @Gedmo\Versioned
-     *
-     * @Assert\NotBlank
-     */
-    private $videoId;
 
     /**
      * @ORM\Column(type="boolean")
@@ -123,6 +118,8 @@ class Documentary
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
      */
     private $posterFileName;
 
@@ -136,13 +133,13 @@ class Documentary
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    private $imdbId;
+    private $type;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=false)
+     * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    private $type;
+    private $imdbId;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="documentary")
@@ -164,19 +161,16 @@ class Documentary
     private $watchlists;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\VideoSource", inversedBy="documentary")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @Assert\NotBlank
-     */
-    private $videoSource;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="documentaries")
      *
      * @var User
      */
     private $addedBy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Season", inversedBy="episodes")
+     */
+    private $season;
 
     public function __construct()
     {
@@ -316,17 +310,6 @@ class Documentary
     }
 
 
-    public function getVideoId(): ?string
-    {
-        return $this->videoId;
-    }
-
-    public function setVideoId(string $videoId): self
-    {
-        $this->videoId = $videoId;
-
-        return $this;
-    }
 
     public function getFeatured(): ?bool
     {
@@ -355,6 +338,38 @@ class Documentary
     /**
      * @return string
      */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType($type): void
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStandalone(): bool
+    {
+        return ($this->type === DocumentaryType::STANDALONE);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEpisodic(): bool
+    {
+        return ($this->type === DocumentaryType::EPISODIC);
+    }
+
+    /**
+     * @return string
+     */
     public function getImdbId(): ?string
     {
         return $this->imdbId;
@@ -369,26 +384,17 @@ class Documentary
     }
 
     /**
-     * @return string
+     * @return Category|null
      */
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param string $type
-     */
-    public function setType(string $type): void
-    {
-        $this->type = $type;
-    }
-
     public function getCategory(): ?Category
     {
         return $this->category;
     }
 
+    /**
+     * @param Category|null $category
+     * @return Documentary
+     */
     public function setCategory(?Category $category): self
     {
         $this->category = $category;
@@ -502,18 +508,6 @@ class Documentary
         return 'uploads/documentary/wide/'.$this->getWideImage();
     }
 
-    public function getVideoSource(): ?VideoSource
-    {
-        return $this->videoSource;
-    }
-
-    public function setVideoSource(?VideoSource $videoSource): self
-    {
-        $this->videoSource = $videoSource;
-
-        return $this;
-    }
-
     /**
      * @return User|null
      */
@@ -528,5 +522,17 @@ class Documentary
     public function setAddedBy(User $user)
     {
         $this->addedBy = $user;
+    }
+
+    public function getSeason(): ?Season
+    {
+        return $this->season;
+    }
+
+    public function setSeason(?Season $season): self
+    {
+        $this->season = $season;
+
+        return $this;
     }
 }

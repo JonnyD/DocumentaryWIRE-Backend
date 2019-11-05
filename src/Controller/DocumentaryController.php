@@ -3,14 +3,17 @@
 namespace App\Controller;
 
 use App\Entity\Documentary;
+use App\Entity\Episodic;
 use App\Entity\Poster;
+use App\Entity\Standalone;
 use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
 use App\Enum\Order;
 use App\Form\AdminDocumentaryForm;
-use App\Form\UserDocumentaryForm;
+use App\Form\EpisodicForm;
+use App\Form\StandaloneForm;
 use App\Service\CategoryService;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
@@ -139,6 +142,11 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $criteria->setStatus(DocumentaryStatus::PUBLISH);
         }
 
+        $type = $request->query->get('type');
+        if (isset($type)) {
+            $criteria->setType($type);
+        }
+
         $categorySlug = $request->query->get('category');
         if (isset($categorySlug)) {
             $category = $this->categoryService->getCategoryBySlug($categorySlug);
@@ -187,8 +195,15 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         $items = (array) $pagerfanta->getCurrentPageResults();
 
         $serialized = [];
+        /** @var Documentary $item */
         foreach ($items as $item) {
-            $serialized[] = $this->serializeDocumentary($item);
+            if ($item->isStandalone()) {
+                $serialized[] = $this->serializeStandalone($item);
+            } else if ($item->isEpisodic()) {
+                $serialized[] = $this->serializeEpisodic($item);
+            } else {
+                $serialized[] = $this->serializeStandalone($item);
+            }
         }
 
         $data = [
@@ -224,9 +239,13 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Access-Control-Request-Headers' => [' X-Requested-With'],
         ];
 
-        $serializedDocumentary = $this->serializeDocumentary($documentary);
+        if ($documentary->isStandalone()) {
+            $serialized = $this->serializeStandalone($documentary);
+        } else if ($documentary->isEpisodic()) {
+            $serialized = $this->serializeEpisodic($documentary);
+        }
 
-        return new JsonResponse($serializedDocumentary, 200, $headers);
+        return new JsonResponse($serialized, 200, $headers);
     }
 
     /**
@@ -237,7 +256,19 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      */
     public function createDocumentaryAction(Request $request)
     {
-        $documentary = new Documentary();
+        $type = $request->query->get('type');
+
+        if ($type === DocumentaryType::STANDALONE) {
+            $documentary = new Standalone();
+            $formClass = StandaloneForm::class;
+        } else if ($type === DocumentaryType::EPISODIC) {
+            $documentary = new Episodic();
+            $formClass = EpisodicForm::class;
+        } else {
+            //@TODO throw exception
+        }
+
+        $documentary->setType($type);
         $documentary->setStatus(DocumentaryStatus::PENDING);
 
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
@@ -248,22 +279,27 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        $form = $this->createForm(UserDocumentaryForm::class, $documentary);
+        $form = $this->createForm($formClass, $documentary);
 
         $form->handleRequest($request);
 
         if ($request->isMethod('POST')) {
+            $documentary->setType($type);
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $documentary = $this->mapArrayToObject($data, $documentary);
                 $this->documentaryService->save($documentary);
-                $serializedDocumentary = $this->serializeDocumentary($documentary);
-                return new JsonResponse($serializedDocumentary, 200, $headers);
+                if ($documentary->isStandalone()) {
+                    $serialized = $this->serializeStandalone($documentary);
+                } else if ($documentary->isEpisodic()) {
+                    $serialized = $this->serializeEpisodic($documentary);
+                }
+                return new JsonResponse($serialized, 200, $headers);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 200, $headers);
+                return new JsonResponse($errors, 400, $headers);
             }
         }
     }
@@ -289,7 +325,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        $form = $this->createForm(AdminDocumentaryForm::class, $documentary);
+        $form = $this->createForm(StandaloneForm::class, $documentary);
         $form->handleRequest($request);
 
         if ($request->isMethod('PATCH')) {
@@ -298,8 +334,12 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $this->documentaryService->save($documentary);
-                $serializedDocumentary = $this->serializeDocumentary($documentary);
-                return new JsonResponse($serializedDocumentary, 200, $headers);
+                if ($documentary->isStandalone()) {
+                    $serialized = $this->serializeStandalone($documentary);
+                } else if ($documentary->isEpisodic()) {
+                    $serialized = $this->serializeEpisodic($documentary);
+                }
+                return new JsonResponse($serialized, 200, $headers);
             } else {
                 $errors = (string)$form->getErrors(true, false);
                 return new JsonResponse($errors, 200, $headers);
@@ -400,13 +440,14 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @param Documentary $documentary
+     * @param Standalone $documentary
      * @return array
      */
-    private function serializeDocumentary(Documentary $documentary)
+    private function serializeStandalone(Standalone $documentary)
     {
         $serialized = [
             'id' => $documentary->getId(),
+            'type' => $documentary->getType(),
             'title' => $documentary->getTitle(),
             'slug' => $documentary->getSlug(),
             'storyline' => $documentary->getStoryline(),
@@ -434,6 +475,61 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 'username' => $documentary->getAddedBy()->getName()
             ]
         ];
+
+        return $serialized;
+    }
+
+    /**
+     * @param Episodic $episodic
+     * @return array
+     */
+    private function serializeEpisodic(Episodic $episodic)
+    {
+        $serialized = [
+            'id' => $episodic->getId(),
+            'type' => $episodic->getType(),
+            'title' => $episodic->getTitle(),
+            'slug' => $episodic->getSlug(),
+            'storyline' => $episodic->getStoryline(),
+            'summary' => $episodic->getSummary(),
+            'year' => $episodic->getYear(),
+            'status' => $episodic->getStatus(),
+            'views' => $episodic->getViews(),
+            'shortUrl' => $episodic->getShortUrl(),
+            'featured' => $episodic->getFeatured(),
+            'imdbId' => $episodic->getImdbId(),
+            'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $episodic->getPosterFileName(),
+            'wideImage' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/wide/' . $episodic->getWideImage(),
+            'category' => [
+                'id' => $episodic->getCategory()->getId(),
+                'name' => $episodic->getCategory()->getName(),
+                'slug' => $episodic->getCategory()->getSlug()
+            ],
+            'addedBy' => [
+                'username' => $episodic->getAddedBy()->getName()
+            ]
+        ];
+
+        $seasonsArray = [];
+        foreach ($episodic->getSeasons() as $season) {
+
+            $episodesArray = [];
+            foreach ($season->getEpisodes() as $episode) {
+                $episodesArray[] = [
+                    'number' => $episode->getNumber()
+                ];
+            }
+
+            $seasonArray = [];
+            $seasonArray[] = [
+                'number' => $season->getNumber(),
+                'episodes' => $episodesArray
+            ];
+
+            $seasonsArray[] = $seasonArray;
+        }
+
+        $serialized['seasons'] = $seasonsArray;
 
         return $serialized;
     }

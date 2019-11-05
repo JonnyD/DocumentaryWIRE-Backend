@@ -9,6 +9,11 @@ use App\Entity\VideoSource;
 class DocumentaryCriteria
 {
     /**
+     * @var string
+     */
+    private $type;
+
+    /**
      * @var bool
      */
     private $featured;
@@ -52,6 +57,22 @@ class DocumentaryCriteria
      * @var int
      */
     private $limit;
+
+    /**
+     * @return string
+     */
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
 
     /**
      * @return boolean

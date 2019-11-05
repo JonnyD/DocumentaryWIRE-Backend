@@ -1,4 +1,7 @@
 {
+    "aharen/omdbapi": {
+        "version": "v2.0.8"
+    },
     "api-platform/api-pack": {
         "version": "v1.2.0"
     },

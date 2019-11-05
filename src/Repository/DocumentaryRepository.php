@@ -142,6 +142,11 @@ class DocumentaryRepository extends ServiceEntityRepository
                 ->setParameter('year', $criteria->getYear());
         }
 
+        if ($criteria->getType()) {
+            $qb->andWhere('documentary.type = :type')
+                ->setParameter('type', $criteria->getType());
+        }
+
         if ($criteria->getDuration()) {
             switch ($criteria->getDuration()) {
                 case DurationType::LESS_THAN_4_MINUTES:

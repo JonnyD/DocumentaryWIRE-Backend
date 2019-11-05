@@ -45,7 +45,7 @@ security:
             anonymous: true
 
         api_documentary:
-            methods: [POST]
+            methods: [POST, PATCH]
             pattern:    ^/api/v1/documentary
             fos_oauth:  true
             stateless:  false

@@ -43,7 +43,7 @@ class VideoSource
     private $status;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="videoSource")
+     * @ORM\OneToMany(targetEntity="App\Entity\Standalone", mappedBy="videoSource")
      */
     private $documentaries;
 
@@ -119,7 +119,7 @@ class VideoSource
         return $this->documentaries;
     }
 
-    public function addDocumentary(Documentary $documentary): self
+    public function addDocumentary(Standalone $documentary): self
     {
         if (!$this->documentaries->contains($documentary)) {
             $this->documentaries[] = $documentary;
@@ -129,7 +129,7 @@ class VideoSource
         return $this;
     }
 
-    public function removeDocumentary(Documentary $documentary): self
+    public function removeDocumentary(Standalone $documentary): self
     {
         if ($this->documentaries->contains($documentary)) {
             $this->documentaries->removeElement($documentary);
