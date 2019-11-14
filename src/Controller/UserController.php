@@ -6,6 +6,7 @@ use App\Criteria\UserCriteria;
 use App\Entity\User;
 use App\Enum\UserStatus;
 use App\Form\RegisterForm;
+use App\Form\UserForm;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -309,6 +310,47 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
         return new JsonResponse($data, 200);
     }
+
+    /**
+     * @FOSRest\Put("/user/{id}", name="update_user", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function editUserAction(int $id, Request $request)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->userService->getUserById($id);
+
+        if ($user === null) {
+            return new AccessDeniedException();
+        }
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
+        $form = $this->createForm(UserForm::class, $user);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('PUT')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $this->userService->save($user);
+                $serialized = $this->serializeUser($user);
+                return new JsonResponse($serialized, 200, $headers);
+            } else {
+                $errors = (string)$form->getErrors(true, false);
+                return new JsonResponse($errors, 400, $headers);
+            }
+        }
+    }
+
+
 
     /**
      * @return User

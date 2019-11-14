@@ -78,6 +78,7 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         ];
 
         $result = $omdb->get_by_id($imdbId);
+        $result = $this->serializeStandalone($result);
 
         $type = $request->query->get('type');
         if ($type === DocumentaryType::EPISODIC) {
@@ -130,6 +131,24 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
     }
 
     /**
+     * @param array $result
+     * @return array
+     */
+    public function serializeStandalone(array $result)
+    {
+        return [
+            'title' => $result['Title'],
+            'year' => $result['Year'],
+            'duration' => $result['Runtime'],
+            'storyline' => $result['Plot'],
+            'imdbRating' => $result['imdbRating'],
+            'imdbVotes' => $result['imdbVotes'],
+            'imdbId' => $result['imdbID'],
+            'type' => $result['Type']
+        ];
+    }
+
+    /**
      * @param Series $series
      * @return array
      */
@@ -138,7 +157,7 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         $seriesArray = [
             'imdbId' => $series->getImdbId(),
             'title' => $series->getTitle(),
-            'plot' => $series->getPlot(),
+            'storyline' => $series->getPlot(),
             'poster' => $series->getPoster(),
             'imdbRating' => $series->getImdbRating(),
             'imdbVotes' => $series->getImdbVotes()
@@ -156,8 +175,8 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
                     'number' => $episode->getNumber(),
                     'title' => $episode->getTitle(),
                     'year' => $episode->getYear(),
-                    'duration' => $episode->getDuration(),
-                    'plot' => $episode->getPlot(),
+                    'length' => $episode->getDuration(),
+                    'storyline' => $episode->getPlot(),
                     'thumbnail' => $episode->getThumbnail(),
                     'imdbId' => $episode->getImdbID(),
                     'imdbRating' => $episode->getImdbRating(),
