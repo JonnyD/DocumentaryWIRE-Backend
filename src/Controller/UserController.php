@@ -327,17 +327,18 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
         if ($user === null) {
             return new AccessDeniedException();
         }
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
 
         $form = $this->createForm(UserForm::class, $user);
         $form->handleRequest($request);
 
         if ($request->isMethod('PUT')) {
-            $data = json_decode($request->getContent(), true);
+            $data = json_decode($request->getContent(), true)['resource'];
             $form->submit($data);
+
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Access-Control-Allow-Origin' => '*'
+            ];
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $this->userService->save($user);

@@ -20,6 +20,7 @@ class UserForm extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
+            'allow_extra_fields' => true,
             'data_class' => User::class,
         ]);
     }
