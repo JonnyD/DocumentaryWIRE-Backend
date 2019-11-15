@@ -14,6 +14,7 @@ use FOS\RestBundle\View\View;
 use FOS\UserBundle\Model\UserManagerInterface;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -306,9 +307,13 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     public function getUserAction(string $username)
     {
         $user = $this->userService->getUserByUsername($username);
-        $data = $this->serializeUser($user);
-
-        return new JsonResponse($data, 200);
+        if (!$user) {
+            $data = null;
+            return new JsonResponse($data, 404);
+        } else {
+            $data = $this->serializeUser($user);
+            return new JsonResponse($data, 200);
+        }
     }
 
     /**
@@ -328,12 +333,19 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             return new AccessDeniedException();
         }
 
+        $loggedInUser = $this->getLoggedInUser();
+
         $form = $this->createForm(UserForm::class, $user);
         $form->handleRequest($request);
 
         if ($request->isMethod('PUT')) {
             $data = json_decode($request->getContent(), true)['resource'];
             $form->submit($data);
+
+            $existingUsername = $this->userService->getUserByUsername($user->getUsername());
+            if ($existingUsername && $loggedInUser->getUsername() != $user->getUsername()) {
+                $form->addError(new FormError('Username already exists'));
+            }
 
             $headers = [
                 'Content-Type' => 'application/json',
