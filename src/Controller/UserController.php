@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Criteria\UserCriteria;
 use App\Entity\User;
 use App\Enum\UserStatus;
+use App\Form\ChangePasswordForm;
 use App\Form\RegisterForm;
 use App\Form\UserForm;
 use App\Service\UserService;
@@ -14,12 +15,14 @@ use FOS\RestBundle\View\View;
 use FOS\UserBundle\Model\UserManagerInterface;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use FOS\RestBundle\Controller\Annotations\RouteResource;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -51,20 +54,28 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     private $request;
 
     /**
+     * @var UserPasswordEncoderInterface
+     */
+    private $passwordEncoder;
+
+    /**
      * @param TokenStorageInterface $tokenStorage
      * @param UserService $userService
      * @param UserManagerInterface $userManager
      * @param RequestStack $requestStack
+     * @param UserPasswordEncoderInterface $passwordEncoder
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
         UserService $userService,
         UserManagerInterface $userManager,
-        RequestStack $requestStack)
+        RequestStack $requestStack,
+        UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->tokenStorage = $tokenStorage;
         $this->userService = $userService;
         $this->userManager = $userManager;
+        $this->passwordEncoder = $passwordEncoder;
         $this->request = $requestStack->getCurrentRequest();
     }
 
@@ -363,7 +374,77 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
         }
     }
 
+    /**
+     * @FOSRest\Post("/user/{id}/change-password", name="change_password", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function changePasswordAction(int $id, Request $request)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
+        $user = $this->userService->getUserById($id);
+        $loggedInUser = $this->getLoggedInUser();
+
+        if ($user !== $loggedInUser) {
+            throw new AccessDeniedException();
+        }
+
+
+        $userInfo = [
+            'currentPassword' => $request->request->get("currentPassword"),
+            'newPassword' => $request->request->get("newPassword"),
+            'confirmPassword' => $request->request->get("confirmPassword")
+        ];
+
+        $form = $this->createForm(ChangePasswordForm::class, $userInfo);
+        $form->handleRequest($request);
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
+        if ($request->isMethod('POST')) {
+            $form->submit($userInfo);
+
+            if ($form->isSubmitted()) {
+                $data = $form->getData();
+
+                $currentPassword = $data["currentPassword"];
+                $newPassword = $data["newPassword"];
+                $confirmPassword = $data["confirmPassword"];
+
+                $oldPassword = $loggedInUser->getPassword();
+                $valid = $this->passwordEncoder->isPasswordValid($user, $currentPassword);#
+                if (!$valid) {
+                    $form->addError(new FormError("Password doesn't match the one in your account"));
+                }
+                if (strlen($newPassword) < 6 || strlen($newPassword) > 40) {
+                    $form->addError(new FormError("New Password must be between 6 and 40 characters"));
+                }
+                if ($newPassword != $confirmPassword) {
+                    $form->addError(new FormError("New Password and Confirm Password don't match"));
+                }
+                if ($newPassword == $oldPassword) {
+                    $form->addError(new FormError("New Password cannot be the same as old password"));
+                }
+
+                if ($form->isValid()) {
+                    $user->setPassword($newPassword);
+                    $this->userService->save($user);
+
+                    $serialized = $this->serializeUser($user);
+                    return new JsonResponse($serialized, 200, $headers);
+                }
+            }
+        }
+
+        $errors = (string)$form->getErrors(true, false);
+        return new JsonResponse($errors, 400, $headers);
+    }
 
     /**
      * @return User
