@@ -8,6 +8,7 @@ use App\Enum\UserStatus;
 use App\Form\ChangePasswordForm;
 use App\Form\ForgotPasswordForm;
 use App\Form\RegisterForm;
+use App\Form\ResetPasswordForm;
 use App\Form\UserForm;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -192,44 +193,64 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     /**
      * @FOSRest\Post("/user/reset-password", name="post_user_reset-password", options={ "method_prefix" = false })
      *
-     * @param $data
      * @param Request $request
      * @param UserService $userService
      */
-    public function postResetpasswordAction(Request $request)
+    public function resetPasswordAction(Request $request)
     {
-        $resetKey = $request->query->get('reset_key');
-        if ($resetKey === null) {
-            //@TODO
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
+        $data = [];
+        $form = $this->createForm(ResetPasswordForm::class, $data);
+
+        if ($request->isMethod("POST")) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            $resetKey = $data['reset_key'];
+            if ($resetKey === null) {
+                return new JsonResponse("Reset key not found", 400, $headers);
+            }
+
+            $username = $data['username'];
+            if ($username === null) {
+                return new JsonResponse("Username not found", 400, $headers);
+            }
+
+            $newPassword = $data['password'];
+            if ($newPassword === null) {
+                return new JsonResponse("Password not found", 400, $headers);
+            }
+
+            $userFromDatabase = $this->userService->getUserByUsername($username);
+            if ($userFromDatabase === null) {
+                return new JsonResponse("User does not exist", 403, $headers);
+            }
+
+            if ($resetKey !== $userFromDatabase->getResetKey()) {
+                return new JsonResponse("Reset key does not exist", 403, $headers);
+            }
+
+            $now = new \DateTime();
+            $isGreaterThan24Hours = $userFromDatabase->getPasswordRequestedAt()
+                    ->diff($now)->format('H') > 24;
+
+            if ($isGreaterThan24Hours) {
+                return new JsonResponse("Reset key expired", 403, $headers);
+            }
+            
+            if ($form->isSubmitted() && $form->isValid()) {
+                $userFromDatabase->setPlainPassword($newPassword);
+                $userFromDatabase->setPassword($newPassword);
+
+                $this->userService->resetPassword($userFromDatabase);
+
+                return new JsonResponse("New password set", 200, $headers);
+            }
         }
-
-        $username = $request->query->get('username');
-        if ($username === null) {
-            //@TODO
-        }
-
-        $userFromDatabase = $this->userService->getUserByUsername($username);
-        if ($userFromDatabase === null) {
-            //@TODO
-        }
-
-        if ($resetKey !== $userFromDatabase->getResetKey()) {
-            //@TODO
-        }
-
-        $now = new \DateTime();
-        $isGreaterThan24Hours = $userFromDatabase->getPasswordRequestedAt()
-                ->diff($now)->format('H') > 24;
-
-        if ($isGreaterThan24Hours) {
-            //@TODO
-        }
-
-        $newPassword = $request->request->get('password');
-        $userFromDatabase->setPlainPassword($newPassword);
-        $userFromDatabase->setPassword($newPassword);
-
-        $this->userService->resetPassword($userFromDatabase);
     }
 
     public function forgotUsername(Request $request)
@@ -426,6 +447,7 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
                 }
 
                 if ($form->isValid()) {
+                    $user->setPlainPassword($newPassword);
                     $user->setPassword($newPassword);
                     $this->userService->save($user);
 
@@ -481,8 +503,19 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
                     $this->userService->save($user);
 
-                    //@TODO email
-                    return;
+
+
+                    $email = (new \Swift_Message('Hello Email'))
+                        ->setFrom(array('contact@documentarywire.com' => 'DocumentaryWIRE'))
+                        ->setTo(array('facebook@jonnydevine.com' => 'Test'))
+                        ->setSubject('Time for Symfony Mailer!')#
+                        ->setBody('<p>Someone requested that the password be reset for the following account: " . $user->getUsername() . ".
+If this was a mistake, just ignore this email and nothing will happen.
+To reset your password, visit the following address: " . $url</p>');
+
+                    $this->mailer->send($email);
+
+                    return new JsonResponse("An email has been sent", 200, $headers);
                 }
             }
         }
