@@ -6,16 +6,19 @@ use App\Criteria\UserCriteria;
 use App\Entity\User;
 use App\Enum\UserStatus;
 use App\Form\ChangePasswordForm;
+use App\Form\ForgotPasswordForm;
 use App\Form\RegisterForm;
 use App\Form\UserForm;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use FOS\RestBundle\View\View;
+use FOS\UserBundle\Mailer\Mailer;
 use FOS\UserBundle\Model\UserManagerInterface;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,24 +62,32 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     private $passwordEncoder;
 
     /**
+     * @var \Swift_Mailer
+     */
+    private $mailer;
+
+    /**
      * @param TokenStorageInterface $tokenStorage
      * @param UserService $userService
      * @param UserManagerInterface $userManager
      * @param RequestStack $requestStack
      * @param UserPasswordEncoderInterface $passwordEncoder
+     * @param \Swift_Mailer $mailer
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
         UserService $userService,
         UserManagerInterface $userManager,
         RequestStack $requestStack,
-        UserPasswordEncoderInterface $passwordEncoder)
+        UserPasswordEncoderInterface $passwordEncoder,
+        \Swift_Mailer $mailer)
     {
         $this->tokenStorage = $tokenStorage;
         $this->userService = $userService;
         $this->userManager = $userManager;
         $this->passwordEncoder = $passwordEncoder;
         $this->request = $requestStack->getCurrentRequest();
+        $this->mailer = $mailer;
     }
 
     /**
@@ -176,23 +187,6 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
         }
 
         return new JsonResponse('TODO', 200);
-    }
-
-    /**
-     * @FOSRest\Post("/user/forgot-password", name="post_user_forgot-password", options={ "method_prefix" = false })
-     *
-     * @param Request $request
-     * @return JsonResponse
-     * @throws \Doctrine\ORM\ORMException
-     */
-    public function postForgotpasswordAction(Request $request)
-    {
-        $username = $request->request->get('username');
-
-        $this->userService->generatePasswordResetKey($username);
-
-        return new JsonResponse("sent", 200);
-        //@TODO Create Event and send email
     }
 
     /**
@@ -392,7 +386,6 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             throw new AccessDeniedException();
         }
 
-
         $userInfo = [
             'currentPassword' => $request->request->get("currentPassword"),
             'newPassword' => $request->request->get("newPassword"),
@@ -438,6 +431,58 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
                     $serialized = $this->serializeUser($user);
                     return new JsonResponse($serialized, 200, $headers);
+                }
+            }
+        }
+
+        $errors = (string)$form->getErrors(true, false);
+        return new JsonResponse($errors, 400, $headers);
+    }
+
+    /**
+     * @FOSRest\Post("/user/forgot-password", name="forgot_password", options={ "method_prefix" = false })
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function forgotPasswordAction(Request $request)
+    {
+        $userInfo = [
+            'username' => $request->request->get("username")
+        ];
+
+        $form = $this->createForm(ForgotPasswordForm::class, $userInfo);
+        $form->handleRequest($request);
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
+        if ($request->isMethod('POST')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            if ($form->isSubmitted()) {
+                $data = $form->getData();
+
+                $username =  $data['username'];
+                $user = $this->userService->getUserByUsername($username);
+
+                if ($user == null) {
+                    $form->addError(new FormError("Username or email cannot be found."));
+                }
+
+                if ($form->isValid()) {
+                    $resetKey = sha1(mt_rand(10000, 99999) . time() . $username);
+                    $resetTime = new \DateTime();
+                    $user->setResetKey($resetKey);
+                    $user->setPasswordRequestedAt($resetTime);
+
+                    $this->userService->save($user);
+
+                    //@TODO email
+                    return;
                 }
             }
         }

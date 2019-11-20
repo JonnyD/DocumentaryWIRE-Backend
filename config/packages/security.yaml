@@ -26,7 +26,15 @@ security:
             fos_oauth:  true
             stateless:  false
 
-        api_user:
+        api_public_forgot_password:
+            methods: [POST]
+            pattern:    ^/api/v1/user/forgot-password
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
+        api_public_user:
+            methods: [GET, POST]
             pattern:    ^/api/v1/user
             fos_oauth:  true
             stateless:  false
