@@ -61,7 +61,7 @@ class Comment
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Documentary", inversedBy="comments")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(name="documentary_id", referencedColumnName="id")
      * @Gedmo\Versioned
      */
     private $documentary;

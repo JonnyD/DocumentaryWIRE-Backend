@@ -198,11 +198,11 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         /** @var Documentary $item */
         foreach ($items as $item) {
             if ($item->isStandalone()) {
-                $serialized[] = $this->serializeStandalone($item);
+                $serialized[] = $this->serializeStandalone($item->getStandalone());
             } else if ($item->isEpisodic()) {
-                $serialized[] = $this->serializeEpisodic($item);
+                $serialized[] = $this->serializeEpisodic($item->getEpisodic());
             } else {
-                $serialized[] = $this->serializeStandalone($item);
+                //@TODO throw exception
             }
         }
 
@@ -440,11 +440,13 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @param Standalone $documentary
+     * @param Standalone $standalone
      * @return array
      */
-    private function serializeStandalone(Standalone $documentary)
+    private function serializeStandalone(Standalone $standalone)
     {
+        $documentary = $standalone->getDocumentary();
+
         $serialized = [
             'id' => $documentary->getId(),
             'type' => $documentary->getType(),
@@ -465,16 +467,25 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 'id' => $documentary->getCategory()->getId(),
                 'name' => $documentary->getCategory()->getName(),
                 'slug' => $documentary->getCategory()->getSlug()
-            ],
-            'videoSource' => [
-                'id' => $documentary->getVideoSource()->getId(),
-                'name' => $documentary->getVideoSource()->getName()
-            ],
-            'videoId' => $documentary->getVideoId(),
-            'addedBy' => [
-                'username' => $documentary->getAddedBy()->getName()
             ]
         ];
+
+        if ($documentary->getAddedBy() != null) {
+            $serialized['addedBy'] = [
+                'username' => $documentary->getAddedBy()->getUsername()
+            ];
+        }
+
+        if ($standalone->getVideoSource() != null) {
+            $serialized['videoSource'] = [
+                'id' => $standalone->getVideoSource()->getId(),
+                'name' => $standalone->getVideoSource()->getName()
+            ];
+        }
+
+        if ($standalone->getVideoId() != null) {
+            $serialized['videoId'] = $standalone->getVideoId();
+        }
 
         return $serialized;
     }
@@ -485,30 +496,35 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      */
     private function serializeEpisodic(Episodic $episodic)
     {
+        $documentary = $episodic->getDocumentary();
+
         $serialized = [
             'id' => $episodic->getId(),
-            'type' => $episodic->getType(),
-            'title' => $episodic->getTitle(),
-            'slug' => $episodic->getSlug(),
-            'storyline' => $episodic->getStoryline(),
-            'summary' => $episodic->getSummary(),
-            'year' => $episodic->getYear(),
-            'status' => $episodic->getStatus(),
-            'views' => $episodic->getViews(),
-            'shortUrl' => $episodic->getShortUrl(),
-            'featured' => $episodic->getFeatured(),
-            'imdbId' => $episodic->getImdbId(),
-            'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $episodic->getPosterFileName(),
-            'wideImage' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/wide/' . $episodic->getWideImage(),
+            'type' => $documentary->getType(),
+            'title' => $documentary->getTitle(),
+            'slug' => $documentary->getSlug(),
+            'storyline' => $documentary->getStoryline(),
+            'summary' => $documentary->getSummary(),
+            'year' => $documentary->getYear(),
+            'status' => $documentary->getStatus(),
+            'views' => $documentary->getViews(),
+            'shortUrl' => $documentary->getShortUrl(),
+            'featured' => $documentary->getFeatured(),
+            'imdbId' => $documentary->getImdbId(),
+            'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPosterFileName(),
+            'wideImage' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/wide/' . $documentary->getWideImage(),
             'category' => [
-                'id' => $episodic->getCategory()->getId(),
-                'name' => $episodic->getCategory()->getName(),
-                'slug' => $episodic->getCategory()->getSlug()
-            ],
-            'addedBy' => [
-                'username' => $episodic->getAddedBy()->getName()
+                'id' => $documentary->getCategory()->getId(),
+                'name' => $documentary->getCategory()->getName(),
+                'slug' => $documentary->getCategory()->getSlug()
             ]
         ];
+
+        if ($documentary->getAddedBy() != null) {
+            $serialized['addedBy'] = [
+                'username' => $documentary->getAddedBy()->getUsername()
+            ];
+        }
 
         $seasonsArray = [];
         foreach ($episodic->getSeasons() as $season) {

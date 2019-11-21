@@ -13,8 +13,20 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Gedmo\Loggable
  */
-class Standalone extends Documentary
+class Standalone
 {
+    /**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     */
+    private $id;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Documentary", inversedBy="standalone")
+     * @ORM\JoinColumn(name="documentary_id", referencedColumnName="id")
+     */
+    private $documentary;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -28,9 +40,25 @@ class Standalone extends Documentary
      */
     private $videoSource;
 
-    public function __construct()
+    /**
+     * @return int|null
+     */
+    public function getId(): ?int
     {
-        parent::__construct();
+        return $this->id;
+    }
+
+    public function getDocumentary(): ?Documentary
+    {
+        return $this->documentary;
+    }
+
+    /**
+     * @param Documentary $documentary
+     */
+    public function setDocumentary(Documentary $documentary)
+    {
+        $this->documentary = $documentary;
     }
 
     /**

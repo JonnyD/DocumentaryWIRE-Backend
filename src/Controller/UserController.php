@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Enum\UserStatus;
 use App\Form\ChangePasswordForm;
 use App\Form\ForgotPasswordForm;
+use App\Form\ForgotUsernameForm;
 use App\Form\RegisterForm;
 use App\Form\ResetPasswordForm;
 use App\Form\UserForm;
@@ -241,7 +242,7 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             if ($isGreaterThan24Hours) {
                 return new JsonResponse("Reset key expired", 403, $headers);
             }
-            
+
             if ($form->isSubmitted() && $form->isValid()) {
                 $userFromDatabase->setPlainPassword($newPassword);
                 $userFromDatabase->setPassword($newPassword);
@@ -249,23 +250,51 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
                 $this->userService->resetPassword($userFromDatabase);
 
                 return new JsonResponse("New password set", 200, $headers);
+            } else {
+                $errors = (string)$form->getErrors(true, false);
+                return new JsonResponse($errors, 400, $headers);
             }
         }
     }
 
-    public function forgotUsername(Request $request)
+    /**
+     * @FOSRest\Post("/user/forgot-username", name="forgot_username", options={ "method_prefix" = false })
+     *
+     * @param Request $request
+     * @param UserService $userService
+     */
+    public function forgotUsernameAction(Request $request)
     {
-        $email = $request->request->get('email');
-        if ($email === null) {
-            //@TODO
-        }
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
 
-        $user = $this->userService->getUserByEmail($email);
-        if ($user === null) {
-            //@TODO
-        }
+        $data = [];
+        $form = $this->createForm(ForgotUsernameForm::class, $data);
 
-        //@TODO Send email with $user->getUsername();
+        if ($request->isMethod("POST")) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            $email = $data['email'];
+            if ($email === null) {
+                return new JsonResponse("Email not found", 400, $headers);
+            }
+
+            $user = $this->userService->getUserByEmail($email);
+            if ($user === null) {
+                return new JsonResponse("User not found", 400, $headers);
+            }
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                //@TODO send email with username
+                return new JsonResponse("Email has been sent", 200, $headers);
+            } else {
+                $errors = (string)$form->getErrors(true, false);
+                return new JsonResponse($errors, 400, $headers);
+            }
+        }
     }
 
     /**

@@ -20,15 +20,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity
- * @ORM\InheritanceType("SINGLE_TABLE")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"standalone" = "App\Entity\Standalone", "episodic" = "App\Entity\Episodic", "episode" = "App\Entity\Episode"})
+ * @ORM\Entity(repositoryClass="App\Repository\DocumentaryRepository")
  * @ORM\HasLifecycleCallbacks
  *
  * @Gedmo\Loggable
  */
-abstract class Documentary
+class Documentary
 {
     use Timestampable;
     use Blameable;
@@ -39,7 +36,7 @@ abstract class Documentary
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -48,7 +45,7 @@ abstract class Documentary
      *
      * @Assert\NotBlank
      */
-    private $title;
+    protected $title;
 
     /**
      * @var string
@@ -56,7 +53,7 @@ abstract class Documentary
      * @ORM\Column(type="string", unique=true)
      * @Gedmo\Slug(fields={"title"})
      */
-    private $slug;
+    protected $slug;
 
     /**
      * @ORM\Column(type="text")
@@ -64,7 +61,7 @@ abstract class Documentary
      *
      * @Assert\NotBlank
      */
-    private $storyline;
+    protected $storyline;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -72,7 +69,7 @@ abstract class Documentary
      *
      * @Assert\NotBlank
      */
-    private $summary;
+    protected $summary;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
@@ -80,13 +77,13 @@ abstract class Documentary
      *
      * @Assert\NotBlank
      */
-    private $year;
+    protected $year;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      * @Gedmo\Versioned
      */
-    private $length;
+    protected $length;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -94,26 +91,26 @@ abstract class Documentary
      *
      * @Assert\NotBlank
      */
-    private $status;
+    protected $status;
 
     /**
      * @ORM\Column(type="integer")
      * @Gedmo\Versioned
      */
-    private $views;
+    protected $views;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    private $shortUrl;
+    protected $shortUrl;
 
 
     /**
      * @ORM\Column(type="boolean")
      * @Gedmo\Versioned
      */
-    private $featured;
+    protected $featured;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -121,25 +118,39 @@ abstract class Documentary
      *
      * @Assert\NotBlank
      */
-    private $posterFileName;
+    protected $posterFileName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    private $wideImage;
+    protected $wideImage;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    private $type;
+    protected $type;
+
+    /**
+     * @var Standalone
+     *
+     * @ORM\OneToOne(targetEntity="App\Entity\Standalone", mappedBy="documentary", cascade={"persist"})
+     */
+    protected $standalone;
+
+    /**
+     * @var Episodic
+     *
+     * @ORM\OneToOne(targetEntity="App\Entity\Episodic", mappedBy="documentary", cascade={"persist"})
+     */
+    protected $episodic;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    private $imdbId;
+    protected $imdbId;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="documentary")
@@ -148,29 +159,29 @@ abstract class Documentary
      *
      * @Assert\NotBlank
      */
-    private $category;
+    protected $category;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="documentary")
      */
-    private $comments;
+    protected $comments;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Watchlist", mappedBy="documentary")
      */
-    private $watchlists;
+    protected $watchlists;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="documentaries")
      *
      * @var User
      */
-    private $addedBy;
+    protected $addedBy;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Season", inversedBy="episodes")
      */
-    private $season;
+    protected $season;
 
     public function __construct()
     {
@@ -349,6 +360,40 @@ abstract class Documentary
     public function setType($type): void
     {
         $this->type = $type;
+    }
+
+    /**
+     * @return Standalone|null
+     */
+    public function getStandalone(): ?Standalone
+    {
+        return $this->standalone;
+    }
+
+    /**
+     * @param Standalone $standalone
+     */
+    public function setStandalone(Standalone $standalone)
+    {
+        $this->standalone = $standalone;
+        $standalone->setDocumentary($this);
+    }
+
+    /**
+     * @return Episodic|null
+     */
+    public function getEpisodic(): ?Episodic
+    {
+        return $this->episodic;
+    }
+
+    /**
+     * @param Episodic $episodic
+     */
+    public function setEpisodic(Episodic $episodic)
+    {
+        $this->episodic = $episodic;
+        $episodic->setDocumentary($this);
     }
 
     /**
