@@ -63,10 +63,6 @@ class User extends BaseUser
      *
      * @Assert\NotBlank(message="FIELD_CAN_NOT_BE_EMPTY")
      * @Groups({"user:write"})
-     * @Assert\Email(
-     *     message = "INCORRECT_EMAIL_ADDRESS",
-     *     checkMX = true
-     * )
      */
     protected $email;
 

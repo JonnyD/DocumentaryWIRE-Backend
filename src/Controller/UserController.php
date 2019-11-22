@@ -105,15 +105,16 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        $user = $this->userManager->createUser();
+        $user = new User();
         $form = $this->createForm(RegisterForm::class, $user);
-        $form->submit($request->request->all());
+        $data = json_decode($request->getContent(), true);
+        $form->submit($data);
 
         if ($form->isSubmitted() && $form->isValid()){
-            $email = $request->request->get('email');
-            $username = $request->request->get('username');
-            $name = $request->request->get('name');
-            $password = $request->request->get('password');
+            $email = $data['email'];
+            $username = $data['username'];
+            $name = $data['name'];
+            $password = $data['password'];
 
             $emailAlreadyExists = $this->userManager->findUserByEmail($email);
             $usernameAlreadyExists = $this->userManager->findUserByUsername($username);
@@ -126,6 +127,7 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
                 return new JsonResponse("Username ".$username." already exists", 200, $headers);
             }
 
+            $user->setName($name);
             $user->setUsername($username);
             $user->setEmail($email);
             $user->setEnabled(false);
