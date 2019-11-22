@@ -93,18 +93,23 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     }
 
     /**
-     * @FOSRest\Post("/user/register")
+     * @FOSRest\Post("/user")
      *
      * @param Request $request
      * @throws \Doctrine\ORM\ORMException
      */
-    public function postRegisterAction(Request $request)
+    public function registerAction(Request $request)
     {
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
         $user = $this->userManager->createUser();
         $form = $this->createForm(RegisterForm::class, $user);
         $form->submit($request->request->all());
 
-        if ($form->isValid()){
+        if ($form->isSubmitted() && $form->isValid()){
             $email = $request->request->get('email');
             $username = $request->request->get('username');
             $name = $request->request->get('name');
@@ -114,15 +119,11 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             $usernameAlreadyExists = $this->userManager->findUserByUsername($username);
 
             if ($emailAlreadyExists){
-                $response = new JsonResponse();
-                $response->setData("Email ".$email." already exists");
-                return $response;
+                return new JsonResponse("Email ".$email." already exists", 200, $headers);
             }
 
             if ($usernameAlreadyExists){
-                $response = new JsonResponse();
-                $response->setData("Username ".$username." already exists");
-                return $response;
+                return new JsonResponse("Username ".$username." already exists", 200, $headers);
             }
 
             $user->setUsername($username);
@@ -132,11 +133,13 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             $user->setRoles(["ROLE_USER"]);
             $this->userManager->updateUser($user);
 
-            return new JsonResponse($this->serializeUser($user));
-        }
+            //@TODO send activation code email
 
-        //@TODO send activation code email
-        return new JsonResponse($user);
+            return new JsonResponse($this->serializeUser($user));
+        } else {
+            $errors = (string)$form->getErrors(true, false);
+            return new JsonResponse($errors, 400, $headers);
+        }
     }
 
     /**
