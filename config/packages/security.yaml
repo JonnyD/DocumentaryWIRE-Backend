@@ -52,6 +52,13 @@ security:
             fos_oauth:  true
             stateless:  false
 
+        api_public_confirm:
+            methods: [GET]
+            pattern:    ^/api/v1/user/confirm
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
         api_public_documentary:
             methods: [GET]
             pattern: ^/api/v1/documentary

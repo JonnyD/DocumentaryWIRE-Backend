@@ -133,6 +133,8 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             $user->setEnabled(false);
             $user->setPlainPassword($password);
             $user->setRoles(["ROLE_USER"]);
+            $confirmationToken = sha1(mt_rand(10000,99999).time().$user->getUsername());
+            $user->setConfirmationToken($confirmationToken);
             $this->userManager->updateUser($user);
 
             //@TODO send activation code email
@@ -159,20 +161,26 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     }
 
     /**
-     * @FOSRest\Get("/user/activate")
+     * @FOSRest\Get("/user/confirm")
      *
      * @param Request $request
      * @return JsonResponse
      */
-    public function getActivateAction(Request $request)
+    public function confirmAction(Request $request)
     {
-        /** @var User $data */
-        $username = $request->query->et('username');
+        $username = $request->query->get('username');
+        if ($username == null || $username == 'undefined') {
+            return new JsonResponse("Username not found", 404);
+        }
+
         $confirmationToken = $request->query->get('confirmation_token');
+        if ($confirmationToken == null || $confirmationToken == 'undefined') {
+            return new JsonResponse("Confirmation Token not found", 404);
+        }
 
         $userInDatabase = $this->userService->getUserByUsername($username);
         if ($userInDatabase === null) {
-            //@TODO
+            return new JsonResponse("User not found", 404);
         }
 
         if ($confirmationToken === $userInDatabase->getConfirmationToken()) {
@@ -182,8 +190,7 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
             $data = [
                 'username' => $userInDatabase->getUsername(),
-                'first_name' => $userInDatabase->getFirstName(),
-                'last_name' => $userInDatabase->getLastName(),
+                'name' => $userInDatabase->getName(),
                 'avatar' => $userInDatabase->getAvatar(),
                 'last_login' => $userInDatabase->getLastLogin(),
                 'activated_at' => $userInDatabase->getActivatedAt(),
