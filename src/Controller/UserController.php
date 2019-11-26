@@ -183,21 +183,16 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             return new JsonResponse("User not found", 404);
         }
 
+        if ($userInDatabase->isActivated()) {
+            return new JsonResponse("Already confirmed", 200);
+        }
+
         if ($confirmationToken === $userInDatabase->getConfirmationToken()) {
             $userInDatabase->setActivatedAt(new \DateTime());
             $userInDatabase->setEnabled(true);
             $this->userService->save($userInDatabase);
 
-            $data = [
-                'username' => $userInDatabase->getUsername(),
-                'name' => $userInDatabase->getName(),
-                'avatar' => $userInDatabase->getAvatar(),
-                'last_login' => $userInDatabase->getLastLogin(),
-                'activated_at' => $userInDatabase->getActivatedAt(),
-                'enabled' => $userInDatabase->isEnabled()
-            ];
-
-            return new JsonResponse($data, 200);
+            return new JsonResponse("Successfully confirmed", 200);
         }
 
         return new JsonResponse('TODO', 200);
