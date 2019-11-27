@@ -198,9 +198,9 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         /** @var Documentary $item */
         foreach ($items as $item) {
             if ($item->isStandalone()) {
-                $serialized[] = $this->serializeStandalone($item->getStandalone());
+                $serialized[] = $this->serializeStandalone($item);
             } else if ($item->isEpisodic()) {
-                $serialized[] = $this->serializeEpisodic($item->getEpisodic());
+                $serialized[] = $this->serializeEpisodic($item);
             } else {
                 //@TODO throw exception
             }
@@ -440,12 +440,12 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @param Standalone $standalone
+     * @param Documentary $documentary
      * @return array
      */
-    private function serializeStandalone(Standalone $standalone)
+    private function serializeStandalone(Documentary $documentary)
     {
-        $documentary = $standalone->getDocumentary();
+        $standalone = $documentary->getStandalone();
 
         $serialized = [
             'id' => $documentary->getId(),
@@ -491,12 +491,12 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @param Episodic $episodic
+     * @param Documentary $documentary
      * @return array
      */
-    private function serializeEpisodic(Episodic $episodic)
+    private function serializeEpisodic(Documentary $documentary)
     {
-        $documentary = $episodic->getDocumentary();
+        $episodic = $documentary->getEpisodic();
 
         $serialized = [
             'id' => $episodic->getId(),
