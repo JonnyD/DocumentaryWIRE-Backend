@@ -339,12 +339,30 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
+                if ($poster = $data['poster']) {
+                    $currentPoster = $this->getParameter('postersUrl') . $documentary->getPosterFileName();
+                    if ($poster != $currentPoster) {
+                        $posterFileName = $this->uploadPoster($poster);
+                        $documentary->setPosterFileName($posterFileName);
+                    }
+                }
+
+                if ($wideImage = $data['wideImage']) {
+                    $currentWideImage = $this->getParameter('wideImagesUrl') . $documentary->getWideImage();
+                    if ($wideImage != $currentWideImage) {
+                        $wideImageFileName = $this->uploadWideImage($wideImage);
+                        $documentary->setWideImage($wideImageFileName);
+                    }
+                }
+
                 $this->documentaryService->save($documentary);
+
                 if ($documentary->isStandalone()) {
                     $serialized = $this->serializeStandalone($documentary);
                 } else if ($documentary->isEpisodic()) {
                     $serialized = $this->serializeEpisodic($documentary);
                 }
+
                 return new JsonResponse($serialized, 200, $headers);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -354,44 +372,62 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
+     * @param string $poster
+     * @return string
+     */
+    public function uploadPoster(string $poster)
+    {
+        $posterFileName = '';
+
+        if ($poster) {
+            $outputFileWithoutExtension = uniqid();
+            $path = 'uploads/posters/';
+
+            $isBase64 = $this->imageService->isBase64($poster);
+            $isUrl = $this->imageService->isUrl($poster);
+
+            if ($isBase64) {
+                $posterFileName = $this->imageService->saveBase54Image($poster, $outputFileWithoutExtension, $path);
+            } else if ($isUrl) {
+                $posterFileName = $this->imageService->saveFromURL($poster, $path);
+            }
+        }
+
+        return $posterFileName;
+    }
+
+    /**
+     * @param string $wideImage
+     * @return string
+     */
+    public function uploadWideImage(string $wideImage)
+    {
+        $wideImageFileName = '';
+
+        if ($wideImage) {
+            $outputFileWithoutExtension = uniqid();
+            $path = 'uploads/wide/';
+
+            $isBase64 = $this->imageService->isBase64($wideImage);
+            $isUrl = $this->imageService->isUrl($wideImage);
+
+            if ($isBase64) {
+                $wideImageFileName = $this->imageService->saveBase54Image($wideImage, $outputFileWithoutExtension, $path);
+            } else if ($isUrl) {
+                $wideImageFileName = $this->imageService->saveFromURL($wideImage, $path);
+            }
+        }
+
+        return $wideImageFileName;
+    }
+
+    /**
      * @param array $data
      * @param Documentary $documentary
      * @return Documentary
      */
     public function mapArrayToObject(array $data, Documentary $documentary)
     {
-        if (isset($data['poster'])) {
-            $poster = $data['poster'];
-            $outputFileWithoutExtension = uniqid();
-            $path = 'uploads/posters/';
-
-            $isBase64 = $this->imageService->isBase64($poster);
-            $isUrl = $this->imageService->isUrl($poster);
-            if ($isBase64) {
-                $posterFileName = $this->imageService->saveBase54Image($poster, $outputFileWithoutExtension, $path);
-                $documentary->setPosterFileName($posterFileName);
-            } else if ($isUrl) {
-                $posterFileName = $this->imageService->saveFromURL($poster, $path);
-                $documentary->setPosterFileName($posterFileName);
-            }
-        }
-
-        if (isset($data['wideImage'])) {
-            $wideImage = $data['wideImage'];
-            $outputFileWithoutExtension = uniqid();
-            $path = 'uploads/wide/';
-
-            $isBase64 = $this->imageService->isBase64($wideImage);
-            $isUrl = $this->imageService->isUrl($wideImage);
-            if ($isBase64) {
-                $wideImageFileName = $this->imageService->saveBase54Image($wideImage, $outputFileWithoutExtension, $path);
-                $documentary->setWideImage($wideImageFileName);
-            } else if ($isUrl) {
-                $wideImageFileName = $this->imageService->saveFromURL($wideImage, $path);
-                $documentary->setWideImage($wideImageFileName);
-            }
-        }
-
         if (isset($data['title'])) {
             $documentary->setTitle($data['title']);
         }
@@ -462,7 +498,9 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 'id' => $documentary->getCategory()->getId(),
                 'name' => $documentary->getCategory()->getName(),
                 'slug' => $documentary->getCategory()->getSlug()
-            ]
+            ],
+            'createdAt' => $documentary->getCreatedAt(),
+            'updatedAt' => $documentary->getUpdatedAt()
         ];
 
         if ($documentary->getPosterFileName() != null) {
