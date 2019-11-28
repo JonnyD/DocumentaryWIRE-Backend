@@ -12,6 +12,7 @@ use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
 use App\Enum\Order;
 use App\Form\AdminDocumentaryForm;
+use App\Form\DocumentaryStandaloneForm;
 use App\Form\EpisodicForm;
 use App\Form\StandaloneForm;
 use App\Service\CategoryService;
@@ -256,19 +257,24 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      */
     public function createDocumentaryAction(Request $request)
     {
+        $documentary = new Documentary();
+
         $type = $request->query->get('type');
 
         if ($type === DocumentaryType::STANDALONE) {
-            $documentary = new Standalone();
-            $formClass = StandaloneForm::class;
+            $standalone = new Standalone();
+            $documentary->setStandalone($standalone);
+            $documentary->setType(DocumentaryType::STANDALONE);
+            $formClass = DocumentaryStandaloneForm::class;
         } else if ($type === DocumentaryType::EPISODIC) {
-            $documentary = new Episodic();
+            $episodic = new Episodic();
+            $documentary->setEpisodic($episodic);
+            $documentary->setType(DocumentaryType::EPISODIC);
             $formClass = EpisodicForm::class;
         } else {
             //@TODO throw exception
         }
 
-        $documentary->setType($type);
         $documentary->setStatus(DocumentaryStatus::PENDING);
 
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
@@ -325,11 +331,11 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        $form = $this->createForm(StandaloneForm::class, $documentary);
+        $form = $this->createForm(DocumentaryStandaloneForm::class, $documentary);
         $form->handleRequest($request);
 
         if ($request->isMethod('PATCH')) {
-            $data = json_decode($request->getContent(), true)['resource'];
+            $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
@@ -418,15 +424,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $documentary->setStatus($data['status']);
         }
 
-        if (isset($data['videoSource'])) {
-            $videoSource = $this->videoSourceService->getVideoSourceById($data['videoSource']);
-            $documentary->setVideoSource($videoSource);
-        }
-
-        if (isset($data['videoId'])) {
-            $documentary->setVideoId($data['videoId']);
-        }
-
         if (isset($data['featured'])) {
             $documentary->setFeatured($data['featured']);
         }
@@ -461,14 +458,24 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'shortUrl' => $documentary->getShortUrl(),
             'featured' => $documentary->getFeatured(),
             'imdbId' => $documentary->getImdbId(),
-            'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPosterFileName(),
-            'wideImage' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/wide/' . $documentary->getWideImage(),
             'category' => [
                 'id' => $documentary->getCategory()->getId(),
                 'name' => $documentary->getCategory()->getName(),
                 'slug' => $documentary->getCategory()->getSlug()
             ]
         ];
+
+        if ($documentary->getPosterFileName() != null) {
+            $serialized['poster'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPosterFileName();
+        } else {
+            $serialized['poster'] = null;
+        }
+
+        if ($documentary->getWideImage() != null) {
+           $serialized['wideImage'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/wide/' . $documentary->getWideImage();
+        } else {
+            $serialized['wideImage'] = null;
+        }
 
         if ($documentary->getAddedBy() != null) {
             $serialized['addedBy'] = [
@@ -477,14 +484,14 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         }
 
         if ($standalone->getVideoSource() != null) {
-            $serialized['videoSource'] = [
+            $serialized['standalone']['videoSource'] = [
                 'id' => $standalone->getVideoSource()->getId(),
                 'name' => $standalone->getVideoSource()->getName()
             ];
         }
 
         if ($standalone->getVideoId() != null) {
-            $serialized['videoId'] = $standalone->getVideoId();
+            $serialized['standalone']['videoId'] = $standalone->getVideoId();
         }
 
         return $serialized;
