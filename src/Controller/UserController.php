@@ -191,7 +191,7 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
         }
 
         if ($confirmationToken === $userInDatabase->getConfirmationToken()) {
-            $this->userService->save($userInDatabase);
+            $this->userService->confirmUser($userInDatabase);
 
             return new JsonResponse("Successfully confirmed", 200);
         }
