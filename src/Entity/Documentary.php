@@ -115,8 +115,6 @@ class Documentary
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
-     *
-     * @Assert\NotBlank
      */
     protected $posterFileName;
 
@@ -136,6 +134,7 @@ class Documentary
      * @var Standalone
      *
      * @ORM\OneToOne(targetEntity="App\Entity\Standalone", mappedBy="documentary", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=true)
      */
     protected $standalone;
 
@@ -143,6 +142,7 @@ class Documentary
      * @var Episodic
      *
      * @ORM\OneToOne(targetEntity="App\Entity\Episodic", mappedBy="documentary", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=true)
      */
     protected $episodic;
 
@@ -173,6 +173,7 @@ class Documentary
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="documentaries")
+     * @ORM\JoinColumn(nullable=true)
      *
      * @var User
      */
@@ -180,6 +181,7 @@ class Documentary
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Season", inversedBy="episodes")
+     * @ORM\JoinColumn(nullable=true)
      */
     protected $season;
 

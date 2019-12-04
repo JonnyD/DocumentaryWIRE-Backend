@@ -272,7 +272,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $documentary->setType(DocumentaryType::EPISODIC);
             $formClass = EpisodicForm::class;
         } else {
-            //@TODO throw exception
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException();
         }
 
         $documentary->setStatus(DocumentaryStatus::PENDING);
@@ -286,22 +286,37 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         ];
 
         $form = $this->createForm($formClass, $documentary);
-
         $form->handleRequest($request);
 
         if ($request->isMethod('POST')) {
-            $documentary->setType($type);
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                $documentary = $this->mapArrayToObject($data, $documentary);
+                if ($poster = $data['poster']) {
+                    $currentPoster = $this->getParameter('postersUrl') . $documentary->getPosterFileName();
+                    if ($poster != $currentPoster) {
+                        $posterFileName = $this->uploadPoster($poster);
+                        $documentary->setPosterFileName($posterFileName);
+                    }
+                }
+
+                if ($wideImage = $data['wideImage']) {
+                    $currentWideImage = $this->getParameter('wideImagesUrl') . $documentary->getWideImage();
+                    if ($wideImage != $currentWideImage) {
+                        $wideImageFileName = $this->uploadWideImage($wideImage);
+                        $documentary->setWideImage($wideImageFileName);
+                    }
+                }
+
                 $this->documentaryService->save($documentary);
+
                 if ($documentary->isStandalone()) {
                     $serialized = $this->serializeStandalone($documentary);
                 } else if ($documentary->isEpisodic()) {
                     $serialized = $this->serializeEpisodic($documentary);
                 }
+
                 return new JsonResponse($serialized, 200, $headers);
             } else {
                 $errors = (string)$form->getErrors(true, false);
