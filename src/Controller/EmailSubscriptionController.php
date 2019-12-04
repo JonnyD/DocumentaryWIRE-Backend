@@ -6,6 +6,7 @@ use App\Criteria\EmailCriteria;
 use App\Entity\Category;
 use App\Entity\Email;
 use App\Form\CategoryForm;
+use App\Form\UnsubscribeEmailSubscriptionForm;
 use App\Service\CategoryService;
 use App\Service\EmailService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -90,6 +91,61 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
             'Access-Control-Allow-Origin' => '*'
         ];
         return new JsonResponse($data, 200, $headers);
+    }
+
+    /**
+     * @FOSRest\Get("/email/unsubscribe", name="unsubscribe", options={ "method_prefix" = false })
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function unsubscribeAction(Request $request)
+    {
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
+        $emailAddress = $request->query->get('email');
+        if (!$emailAddress) {
+            return new JsonResponse("Email not found", 400, $headers);
+        } else {
+            $existingEmail = $this->emailService->getEmailByEmailAddress($emailAddress);
+            if (!$existingEmail) {
+                return new JsonResponse("Email not found", 400, $headers);
+            }
+        }
+
+        $subscriptionKey = $request->query->get('subscription_key');
+        if (!$subscriptionKey) {
+            return new JsonResponse("Subscription key not found", 400, $headers);
+        } else {
+            $existingEmail = $this->emailService->getEmailByEmailAddressAndSubscriptionKey($emailAddress, $subscriptionKey);
+            if (!$existingEmail) {
+                return new JsonResponse("Subscription key not found", 400, $headers);
+            }
+        }
+        $unsubscribeData = [
+            'email' => $emailAddress,
+            'subscriptionKey' => $subscriptionKey
+        ];
+
+        $form = $this->createForm(UnsubscribeEmailSubscriptionForm::class, $unsubscribeData);
+        $form->handleRequest($request);
+
+        $form->submit($unsubscribeData);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $unsubscribed = $this->emailService->unsubscribe($emailAddress);
+            if ($unsubscribed) {
+                return new JsonResponse("Email Unsubscribed", 200, $headers);
+            } else {
+                return new JsonResponse("An error occurred", 400, $headers);
+            }
+        } else {
+            $errors = (string)$form->getErrors(true, false);
+            return new JsonResponse($errors, 400, $headers);
+        }
     }
 
     /**

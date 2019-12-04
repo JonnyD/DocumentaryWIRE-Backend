@@ -50,8 +50,21 @@ class EmailService
      */
     public function getEmailByEmailAddress(string $emailAddress)
     {
-        return $this->emailRepository->findOneBY([
+        return $this->emailRepository->findOneBy([
             'email' => $emailAddress
+        ]);
+    }
+
+    /**
+     * @param string $emailAddress
+     * @param string $subscriptionKey
+     * @return null|object
+     */
+    public function getEmailByEmailAddressAndSubscriptionKey(string $emailAddress, string $subscriptionKey)
+    {
+        return $this->emailRepository->findOneBy([
+            'email' => $emailAddress,
+            'subscriptionKey' => $subscriptionKey
         ]);
     }
 
@@ -110,5 +123,7 @@ class EmailService
         $existingEmail->setUpdatedAt(new \DateTime());
 
         $this->save($existingEmail);
+
+        return true;
     }
 }

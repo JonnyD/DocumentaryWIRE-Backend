@@ -117,12 +117,11 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             $password = $data['password'];
 
             $emailAlreadyExists = $this->userManager->findUserByEmail($email);
-            $usernameAlreadyExists = $this->userManager->findUserByUsername($username);
-
             if ($emailAlreadyExists){
                 return new JsonResponse("Email ".$email." already exists", 200, $headers);
             }
 
+            $usernameAlreadyExists = $this->userManager->findUserByUsername($username);
             if ($usernameAlreadyExists){
                 return new JsonResponse("Username ".$username." already exists", 200, $headers);
             }
