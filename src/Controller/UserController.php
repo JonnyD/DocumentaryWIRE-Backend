@@ -578,23 +578,12 @@ To reset your password, visit the following address: " . $url</p>');
      */
     private function serializeUser(User $user)
     {
-
         $serialized = [
-            'id' => $user->getId(),
             'name' => $user->getName(),
             'username' => $user->getUsername(),
-            'usernameCanonical' => $user->getUsernameCanonical(),
             'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar(),
-            'resetKey' => $user->getResetKey(),
-            'activatedAt' => $user->getActivatedAt(),
-            'enabled' => $user->isEnabled(),
-            'password' => $user->getPassword(),
-            'lastLogin' => $user->getLastLogin(),
-            'confirmationToken' => $user->getConfirmationToken(),
-            'passwordRequestedAt' => $user->getPasswordRequestedAt(),
             'roles' => $user->getRoles(),
-            'createdAt' => $user->getCreatedAt(),
-            'updatedAt' => $user->getUpdatedAt()
+            'createdAt' => $user->getCreatedAt()
         ];
 
         $isUser = false;
@@ -602,8 +591,20 @@ To reset your password, visit the following address: " . $url</p>');
             $isUser = true;
         }
 
-        if ($isUser) {
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        if ($isUser || $isRoleAdmin) {
+            $serialized['id'] = $user->getId();
+            $serialized['usernameCanonical'] = $user->getUsernameCanonical();
             $serialized['email'] = $user->getEmail();
+            $serialized['emailCanonical'] = $user->getEmailCanonical();
+            $serialized['resetKey'] = $user->getResetKey();
+            $serialized['activatedAt'] = $user->getActivatedAt();
+            $serialized['enabled'] = $user->isEnabled();
+            $serialized['password'] = $user->getPassword();
+            $serialized['lastLogin'] = $user->getLastLogin();
+            $serialized['confirmationToken'] = $user->getConfirmationToken();
+            $serialized['passwordRequestedAt'] = $user->getPasswordRequestedAt();
+            $serialized['updatedAt'] = $user->getUpdatedAt();
         }
 
         return $serialized;
