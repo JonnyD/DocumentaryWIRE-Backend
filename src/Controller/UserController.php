@@ -192,8 +192,6 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
         }
 
         if ($confirmationToken === $userInDatabase->getConfirmationToken()) {
-            $userInDatabase->setActivatedAt(new \DateTime());
-            $userInDatabase->setEnabled(true);
             $this->userService->save($userInDatabase);
 
             return new JsonResponse("Successfully confirmed", 200);

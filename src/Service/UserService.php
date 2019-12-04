@@ -19,19 +19,27 @@ class UserService
     private $userRepository;
 
     /**
+     * @var EmailService
+     */
+    private $emailService;
+
+    /**
      * @var UserPasswordEncoderInterface
      */
     private $encoder;
 
     /**
      * @param UserRepository $userRepository
+     * @param EmailService $emailService
      * @param UserPasswordEncoderInterface $encoder
      */
     public function __construct(
         UserRepository $userRepository,
+        EmailService $emailService,
         UserPasswordEncoderInterface $encoder)
     {
         $this->userRepository = $userRepository;
+        $this->emailService = $emailService;
         $this->encoder = $encoder;
     }
 
@@ -154,7 +162,15 @@ class UserService
         return $this->userRepository->findUsersByCriteriaQueryBuilder($criteria);
     }
 
+    public function confirmUser(User $user)
+    {
+        $user->setActivatedAt(new \DateTime());
+        $user->setEnabled(true);
 
+        $this->emailService->subscribe($user->getEmailCanonical());
+
+        $this->save($user);
+    }
     /**
      * @param User $user
      * @param bool $sync
