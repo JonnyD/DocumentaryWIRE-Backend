@@ -391,7 +391,7 @@ class User extends BaseUser
      */
     public function isActivated()
     {
-        return ($this->getConfirmationToken() !== null);
+        return ($this->getActivatedAt() !== null);
     }
 
     /**

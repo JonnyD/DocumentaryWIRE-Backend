@@ -200,6 +200,39 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     }
 
     /**
+     * @FOSRest\Get("/user/resend")
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function resendAction(Request $request)
+    {
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
+        $email = $request->query->get('email');
+
+        if ($email == null || $email == 'undefined') {
+            return new JsonResponse("Email not entered", 404, $headers);
+        }
+
+        $userInDatabase = $this->userService->getUserByEmail($email);
+        if ($userInDatabase === null) {
+            return new JsonResponse("Email not found", 404, $headers);
+        }
+
+        if ($userInDatabase->isActivated()) {
+            return new JsonResponse("Already confirmed", 200, $headers);
+        }
+
+        //@TODO send email
+
+        return new JsonResponse('We have resent a new confirmation email', 200, $headers);
+    }
+
+    /**
      * @FOSRest\Post("/user/reset-password", name="post_user_reset-password", options={ "method_prefix" = false })
      *
      * @param Request $request

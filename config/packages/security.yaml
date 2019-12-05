@@ -52,6 +52,14 @@ security:
             stateless:  false
             anonymous: true
 
+
+        api_public_resend:
+            pattern:    ^/api/v1/user/resend
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
+
         api_me:
             pattern:    ^/api/v1/user/me
             fos_oauth:  true
