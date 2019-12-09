@@ -47,9 +47,16 @@ class VideoSource
      */
     private $documentaries;
 
+    /**
+     * @var DocumentaryVideoSource[]|ArrayCollection
+     * @ORM\OneToMany(targetEntity="App\Entity\DocumentaryVideoSource", mappedBy="videoSource")
+     */
+    private $documentaryVideoSources;
+
     public function __construct()
     {
         $this->documentaries = new ArrayCollection();
+        $this->documentaryVideoSources = new ArrayCollection();
         $this->embedAllowed = "no";
         $this->status = "disabled";
     }
@@ -136,6 +143,44 @@ class VideoSource
             // set the owning side to null (unless already changed)
             if ($documentary->getVideoSource() === $this) {
                 $documentary->setVideoSource(null);
+            }
+        }
+
+        return $this;
+    }
+    /**
+     * @return Collection|DocumentaryVideoSource[]
+     */
+    public function getDocumentaryVideoSources(): Collection
+    {
+        return $this->documentaryVideoSources;
+    }
+
+    /**
+     * @param DocumentaryVideoSource $documentaryVideoSource
+     * @return VideoSource
+     */
+    public function addDocumentaryVideoSource(DocumentaryVideoSource $documentaryVideoSource): self
+    {
+        if (!$this->documentaryVideoSources->contains($documentaryVideoSource)) {
+            $this->documentaryVideoSources[] = $documentaryVideoSource;
+            $documentaryVideoSource->setVideoSource($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param DocumentaryVideoSource $documentaryVideoSource
+     * @return VideoSource
+     */
+    public function removeDocumentaryVideoSources(DocumentaryVideoSource $documentaryVideoSource): self
+    {
+        if ($this->documentaryVideoSources->contains($documentaryVideoSource)) {
+            $this->documentaryVideoSources->removeElement($documentaryVideoSource);
+            // set the owning side to null (unless already changed)
+            if ($documentaryVideoSource->getVideoSource() === $this) {
+                $documentaryVideoSource->setVideoSource(null);
             }
         }
 

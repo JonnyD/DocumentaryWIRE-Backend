@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Documentary;
+use App\Entity\DocumentaryVideoSource;
 use App\Entity\Episodic;
 use App\Entity\Poster;
 use App\Entity\Standalone;
@@ -290,6 +291,17 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
 
         if ($request->isMethod('POST')) {
             $data = json_decode($request->getContent(), true);
+
+            if ($type === DocumentaryType::STANDALONE) {
+                $videoSourceId = $data['standalone']['videoSource'];
+                $videoSource = $this->videoSourceService->getVideoSourceById($videoSourceId);
+
+                $documentaryVideoSource = new DocumentaryVideoSource();
+                $documentaryVideoSource->setDocumentary($documentary);
+                $documentaryVideoSource->setVideoSource($videoSource);
+                $documentary->addDocumentaryVideoSource($documentaryVideoSource);
+            }
+
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {

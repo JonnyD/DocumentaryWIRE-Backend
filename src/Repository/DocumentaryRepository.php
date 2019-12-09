@@ -128,7 +128,8 @@ class DocumentaryRepository extends ServiceEntityRepository
         }
 
         if ($criteria->getVideoSource()) {
-            $qb->andWhere('documentary.videoSource = :videoSource')
+            $qb->leftJoin('documentary.documentaryVideoSources', 'documentaryVideoSources')
+                ->andWhere('documentaryVideoSources.videoSource = :videoSource')
                 ->setParameter('videoSource', $criteria->getVideoSource());
         }
 

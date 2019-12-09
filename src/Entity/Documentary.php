@@ -172,6 +172,12 @@ class Documentary
     protected $watchlists;
 
     /**
+     * @var DocumentaryVideoSource[]|ArrayCollection
+     * @ORM\OneToMany(targetEntity="App\Entity\DocumentaryVideoSource", mappedBy="documentary", cascade={"persist"})
+     */
+    protected $documentaryVideoSources;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="documentaries")
      * @ORM\JoinColumn(nullable=true)
      *
@@ -189,6 +195,7 @@ class Documentary
     {
         $this->comments = new ArrayCollection();
         $this->watchlists = new ArrayCollection();
+        $this->documentaryVideoSources = new ArrayCollection();
         $this->featured = false;
         $this->views = 0;
     }
@@ -505,6 +512,45 @@ class Documentary
             // set the owning side to null (unless already changed)
             if ($watchlist->getDocumentary() === $this) {
                 $watchlist->setDocumentary(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getDocumentaryVideoSources(): Collection
+    {
+        return $this->documentaryVideoSources;
+    }
+
+    /**
+     * @param DocumentaryVideoSource $documentaryVideoSource
+     * @return Documentary
+     */
+    public function addDocumentaryVideoSource(DocumentaryVideoSource $documentaryVideoSource): self
+    {
+        if (!$this->documentaryVideoSources->contains($documentaryVideoSource)) {
+            $this->documentaryVideoSources[] = $documentaryVideoSource;
+            $documentaryVideoSource->setDocumentary($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param DocumentaryVideoSource $documentaryVideoSource
+     * @return Documentary
+     */
+    public function removeDocumentaryVideoSource(DocumentaryVideoSource $documentaryVideoSource): self
+    {
+        if ($this->documentaryVideoSources->contains($documentaryVideoSource)) {
+            $this->documentaryVideoSources->removeElement($documentaryVideoSource);
+            // set the owning side to null (unless already changed)
+            if ($documentaryVideoSource->getDocumentary() === $this) {
+                $documentaryVideoSource->setDocumentary(null);
             }
         }
 

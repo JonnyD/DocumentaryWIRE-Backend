@@ -4,8 +4,10 @@ namespace App\Form;
 
 use App\Entity\Category;
 use App\Entity\Documentary;
+use App\Entity\DocumentaryVideoSource;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -38,6 +40,11 @@ class DocumentaryStandaloneForm extends AbstractType
             ->add('wideImage', FileType::class, [
                 'mapped' => false,
                 'required' => true
+            ])
+            ->add('documentaryVideoSources', CollectionType::class, [
+                'entry_type' => DocumentaryVideoSourceForm::class,
+                'entry_options' => ['label' => false],
+                'allow_add' => true
             ]);
     }
 
