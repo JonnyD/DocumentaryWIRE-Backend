@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Traits\Timestampable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -12,8 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class DocumentaryVideoSource
 {
-    use Timestampable;
-
     /**
      * @var int
      *
