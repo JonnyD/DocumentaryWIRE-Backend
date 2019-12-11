@@ -20,28 +20,6 @@ class EpisodicForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title', TextType::class)
-            ->add('storyline', TextType::class)
-            ->add('summary', TextType::class, [
-                'empty_data' => '',
-                'required' => true
-            ])
-            ->add('year', IntegerType::class)
-            ->add('imdbId', TextType::class, [
-                'required' => false
-            ])
-            ->add('category', EntityType::class, [
-                'class' => Category::class,
-                'choice_label' => 'id',
-            ])
-            ->add('poster', FileType::class, [
-                'mapped' => false,
-                'required' => true
-            ])
-            ->add('wideImage', FileType::class, [
-                'mapped' => false,
-                'required' => true
-            ])
             ->add('seasons', CollectionType::class, [
                 'entry_type' => SeasonForm::class,
                 'entry_options' => ['label' => false],

@@ -13,6 +13,7 @@ use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
 use App\Enum\Order;
 use App\Form\AdminDocumentaryForm;
+use App\Form\DocumentaryEpisodicForm;
 use App\Form\DocumentaryStandaloneForm;
 use App\Form\EpisodicForm;
 use App\Form\StandaloneForm;
@@ -251,34 +252,19 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @FOSRest\Post("/documentary", name="create_documentary", options={ "method_prefix" = false })
+     * @FOSRest\Post("/documentary/standalone", name="create_standalone_documentary", options={ "method_prefix" = false })
      *
      * @param Request $request
      * @return JsonResponse
      */
-    public function createDocumentaryAction(Request $request)
+    public function createStandaloneDocumentaryAction(Request $request)
     {
         $documentary = new Documentary();
 
-        $type = $request->query->get('type');
-
-        if ($type === DocumentaryType::STANDALONE) {
-            $standalone = new Standalone();
-            $documentary->setStandalone($standalone);
-            $documentary->setType(DocumentaryType::STANDALONE);
-            $formClass = DocumentaryStandaloneForm::class;
-        } else if ($type === DocumentaryType::EPISODIC) {
-            $episodic = new Episodic();
-            $documentary->setEpisodic($episodic);
-            $documentary->setType(DocumentaryType::EPISODIC);
-            $formClass = EpisodicForm::class;
-        } else {
-            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException();
-        }
-
+        $standalone = new Standalone();
+        $documentary->setStandalone($standalone);
+        $documentary->setType(DocumentaryType::STANDALONE);
         $documentary->setStatus(DocumentaryStatus::PENDING);
-
-        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
         $documentary->setAddedBy($this->getLoggedInUser());
 
         $headers = [
@@ -286,21 +272,19 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        $form = $this->createForm($formClass, $documentary);
+        $form = $this->createForm(DocumentaryStandaloneForm::class, $documentary);
         $form->handleRequest($request);
 
         if ($request->isMethod('POST')) {
             $data = json_decode($request->getContent(), true);
 
-            if ($type === DocumentaryType::STANDALONE) {
-                $videoSourceId = $data['standalone']['videoSource'];
-                $videoSource = $this->videoSourceService->getVideoSourceById($videoSourceId);
+            $videoSourceId = $data['standalone']['videoSource'];
+            $videoSource = $this->videoSourceService->getVideoSourceById($videoSourceId);
 
-                $documentaryVideoSource = new DocumentaryVideoSource();
-                $documentaryVideoSource->setDocumentary($documentary);
-                $documentaryVideoSource->setVideoSource($videoSource);
-                $documentary->addDocumentaryVideoSource($documentaryVideoSource);
-            }
+            $documentaryVideoSource = new DocumentaryVideoSource();
+            $documentaryVideoSource->setDocumentary($documentary);
+            $documentaryVideoSource->setVideoSource($videoSource);
+            $documentary->addDocumentaryVideoSource($documentaryVideoSource);
 
             $form->submit($data);
 
@@ -323,12 +307,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
 
                 $this->documentaryService->save($documentary);
 
-                if ($documentary->isStandalone()) {
-                    $serialized = $this->serializeStandalone($documentary);
-                } else if ($documentary->isEpisodic()) {
-                    $serialized = $this->serializeEpisodic($documentary);
-                }
-
+                $serialized = $this->serializeStandalone($documentary);
                 return new JsonResponse($serialized, 200, $headers);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -338,19 +317,62 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @FOSRest\Patch("/documentary/{id}", name="partial_update_documentary", options={ "method_prefix" = false })
+     * @FOSRest\Post("/documentary/episodic", name="create_series_ocumentary", options={ "method_prefix" = false })
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function createEpisodicDocumentaryAction(Request $request)
+    {
+        $documentary = new Documentary();
+
+        $episodic = new Episodic();
+        $documentary->setEpisodic($episodic);
+        $documentary->setType(DocumentaryType::EPISODIC);
+        $documentary->setAddedBy($this->getLoggedInUser());
+        $documentary->setStatus(DocumentaryStatus::PENDING);
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
+        $form = $this->createForm(DocumentaryEpisodicForm::class, $documentary);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            $documentary = $this->documentaryService
+                ->addDocumentaryVideoSources($data['seasons'], $documentary);
+
+            $this->documentaryService->save($documentary);
+
+            $serialized = $this->serializeEpisodic($documentary);
+            return new JsonResponse($serialized, 200, $headers);
+        }
+
+    }
+
+    /**
+     * @FOSRest\Patch("/documentary/standalone/{id}", name="partial_update_standalone_documentary", options={ "method_prefix" = false })
      *
      * @param int $id
      * @param Request $request
      * @return JsonResponse
      */
-    public function editDocumentaryAction(int $id, Request $request)
+    public function editStandaloneDocumentaryAction(int $id, Request $request)
     {
         /** @var Documentary $documentary */
         $documentary = $this->documentaryService->getDocumentaryById($id);
 
         if ($documentary === null) {
             return new AccessDeniedException();
+        }
+
+        if (!$documentary->isStandalone()) {
+            //@todo
         }
 
         $headers = [
@@ -384,12 +406,68 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
 
                 $this->documentaryService->save($documentary);
 
-                if ($documentary->isStandalone()) {
-                    $serialized = $this->serializeStandalone($documentary);
-                } else if ($documentary->isEpisodic()) {
-                    $serialized = $this->serializeEpisodic($documentary);
+                $serialized = $this->serializeStandalone($documentary);
+                return new JsonResponse($serialized, 200, $headers);
+            } else {
+                $errors = (string)$form->getErrors(true, false);
+                return new JsonResponse($errors, 200, $headers);
+            }
+        }
+
+    }
+
+    /**
+     * @FOSRest\Patch("/documentary/episodic/{id}", name="partial_update_episodic_documentary", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function editEpisodicDocumentaryAction(int $id, Request $request)
+    {
+        /** @var Documentary $documentary */
+        $documentary = $this->documentaryService->getDocumentaryById($id);
+
+        if ($documentary === null) {
+            return new AccessDeniedException();
+        }
+
+        if (!$documentary->isEpisodic()) {
+            //@todo
+        }
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
+        $form = $this->createForm(DocumentaryEpisodicForm::class, $documentary);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('PATCH')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                if ($poster = $data['poster']) {
+                    $currentPoster = $this->getParameter('postersUrl') . $documentary->getPosterFileName();
+                    if ($poster != $currentPoster) {
+                        $posterFileName = $this->uploadPoster($poster);
+                        $documentary->setPosterFileName($posterFileName);
+                    }
                 }
 
+                if ($wideImage = $data['wideImage']) {
+                    $currentWideImage = $this->getParameter('wideImagesUrl') . $documentary->getWideImage();
+                    if ($wideImage != $currentWideImage) {
+                        $wideImageFileName = $this->uploadWideImage($wideImage);
+                        $documentary->setWideImage($wideImageFileName);
+                    }
+                }
+
+                $this->documentaryService->save($documentary);
+
+                $serialized = $this->serializeEpisodic($documentary);
                 return new JsonResponse($serialized, 200, $headers);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -571,7 +649,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         $episodic = $documentary->getEpisodic();
 
         $serialized = [
-            'id' => $episodic->getId(),
+            'id' => $documentary->getId(),
             'type' => $documentary->getType(),
             'title' => $documentary->getTitle(),
             'slug' => $documentary->getSlug(),

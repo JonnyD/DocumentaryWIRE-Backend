@@ -557,6 +557,17 @@ class Documentary
         return $this;
     }
 
+    /**
+     * @param array $documentaryVideoSources
+     */
+    public function setDocumentaryVideoSources(array $documentaryVideoSources) {
+        $this->documentaryVideoSources = new ArrayCollection();
+
+        foreach ($documentaryVideoSources as $documentaryVideoSource) {
+            $this->addDocumentaryVideoSource($documentaryVideoSource);
+        }
+    }
+
     public function getCommentCount(): ?int
     {
         return $this->comments->count();

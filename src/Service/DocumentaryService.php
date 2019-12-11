@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Criteria\DocumentaryCriteria;
 use App\Entity\Category;
 use App\Entity\Documentary;
+use App\Entity\DocumentaryVideoSource;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\Order;
@@ -20,11 +21,20 @@ class DocumentaryService
     private $documentaryRepository;
 
     /**
-     * @param DocumentaryRepository $documentaryRepository
+     * @var VideoSourceService
      */
-    public function __construct(DocumentaryRepository $documentaryRepository)
+    private $videoSourceService;
+
+    /**
+     * @param DocumentaryRepository $documentaryRepository
+     * @param VideoSourceService $videoSourceService
+     */
+    public function __construct(
+        DocumentaryRepository $documentaryRepository,
+        VideoSourceService $videoSourceService)
     {
         $this->documentaryRepository = $documentaryRepository;
+        $this->videoSourceService = $videoSourceService;
     }
 
     /**
@@ -250,6 +260,41 @@ class DocumentaryService
     public function getDocumentaryById(int $id)
     {
         return $this->documentaryRepository->find($id);
+    }
+
+    /**
+     * @param $seasons
+     * @param Documentary $documentary
+     * @return Documentary
+     */
+    public function addDocumentaryVideoSources($seasons, Documentary $documentary)
+    {
+        $videoSourceIds = [];
+
+        foreach ($seasons as $season) {
+            $episodes = $season['episodes'];
+
+            foreach ($episodes as $episode) {
+                $videoSourceId = $episode['videoSource'];
+
+                $hasVideoSourceId = in_array($videoSourceId, $videoSourceIds);
+                if (!$hasVideoSourceId) {
+                    $videoSourceIds[] = $videoSourceId;
+                }
+            }
+        }
+
+        foreach ($videoSourceIds as $videoSourceId) {
+            $videoSource = $this->videoSourceService->getVideoSourceById($videoSourceId);
+
+            $documentaryVideoSource = new DocumentaryVideoSource();
+            $documentaryVideoSource->setVideoSource($videoSource);
+            $documentaryVideoSource->setDocumentary($documentary);
+
+            $documentary->addDocumentaryVideoSource($documentaryVideoSource);
+        }
+
+        return $documentary;
     }
 
     /**
