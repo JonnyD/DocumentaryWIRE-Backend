@@ -263,41 +263,6 @@ class DocumentaryService
     }
 
     /**
-     * @param $seasons
-     * @param Documentary $documentary
-     * @return Documentary
-     */
-    public function addDocumentaryVideoSources($seasons, Documentary $documentary)
-    {
-        $videoSourceIds = [];
-
-        foreach ($seasons as $season) {
-            $episodes = $season['episodes'];
-
-            foreach ($episodes as $episode) {
-                $videoSourceId = $episode['videoSource'];
-
-                $hasVideoSourceId = in_array($videoSourceId, $videoSourceIds);
-                if (!$hasVideoSourceId) {
-                    $videoSourceIds[] = $videoSourceId;
-                }
-            }
-        }
-
-        foreach ($videoSourceIds as $videoSourceId) {
-            $videoSource = $this->videoSourceService->getVideoSourceById($videoSourceId);
-
-            $documentaryVideoSource = new DocumentaryVideoSource();
-            $documentaryVideoSource->setVideoSource($videoSource);
-            $documentaryVideoSource->setDocumentary($documentary);
-
-            $documentary->addDocumentaryVideoSource($documentaryVideoSource);
-        }
-
-        return $documentary;
-    }
-
-    /**
      * @param Documentary $documentary
      * @param bool $sync
      */

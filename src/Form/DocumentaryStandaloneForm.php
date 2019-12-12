@@ -40,11 +40,6 @@ class DocumentaryStandaloneForm extends AbstractType
             ->add('wideImage', FileType::class, [
                 'mapped' => false,
                 'required' => true
-            ])
-            ->add('documentaryVideoSources', CollectionType::class, [
-                'entry_type' => DocumentaryVideoSourceForm::class,
-                'entry_options' => ['label' => false],
-                'allow_add' => true
             ]);
     }
 

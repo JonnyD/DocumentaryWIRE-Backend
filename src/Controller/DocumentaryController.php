@@ -20,6 +20,7 @@ use App\Form\StandaloneForm;
 use App\Service\CategoryService;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
+use App\Service\DocumentaryVideoSourceService;
 use App\Service\ImageService;
 use App\Service\UserService;
 use App\Service\VideoSourceService;
@@ -75,6 +76,11 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     private $userService;
 
     /**
+     * @var DocumentaryVideoSourceService
+     */
+    private $documentaryVideoSourceService;
+
+    /**
      * @var Request
      */
     private $request;
@@ -86,6 +92,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      * @param ImageService $imageService
      * @param CategoryService $categoryService
      * @param VideoSourceService $videoSourceService
+     * @param DocumentaryVideoSourceService $documentaryVideoSourceService
      * @param RequestStack $requestStack
      * @param DataManager $dataManager
      * @param FilterManager $filterManager
@@ -97,6 +104,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         ImageService $imageService,
         CategoryService $categoryService,
         VideoSourceService $videoSourceService,
+        DocumentaryVideoSourceService $documentaryVideoSourceService,
         RequestStack $requestStack)
     {
         $this->documentaryService = $documentaryService;
@@ -105,6 +113,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         $this->imageService = $imageService;
         $this->categoryService = $categoryService;
         $this->videoSourceService = $videoSourceService;
+        $this->documentaryVideoSourceService = $documentaryVideoSourceService;
         $this->request = $requestStack->getCurrentRequest();
     }
 
@@ -277,16 +286,11 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
 
         if ($request->isMethod('POST')) {
             $data = json_decode($request->getContent(), true);
-
-            $videoSourceId = $data['standalone']['videoSource'];
-            $videoSource = $this->videoSourceService->getVideoSourceById($videoSourceId);
-
-            $documentaryVideoSource = new DocumentaryVideoSource();
-            $documentaryVideoSource->setDocumentary($documentary);
-            $documentaryVideoSource->setVideoSource($videoSource);
-            $documentary->addDocumentaryVideoSource($documentaryVideoSource);
-
             $form->submit($data);
+
+            $documentaryVideoSources = $this->documentaryVideoSourceService
+                ->addDocumentaryVideoSourcesFromStandaloneDocumentary($data['standalone'], $documentary);
+            $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
             if ($form->isSubmitted() && $form->isValid()) {
                 if ($poster = $data['poster']) {
@@ -344,8 +348,10 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
-            $documentary = $this->documentaryService
-                ->addDocumentaryVideoSources($data['seasons'], $documentary);
+            $documentaryVideoSources = $this->documentaryVideoSourceService
+                ->addDocumentaryVideoSourcesFromEpisodicDocumentary($data['seasons'], $documentary);
+            $documentary->setDocumentaryVideoSources($documentaryVideoSources);
+
 
             $this->documentaryService->save($documentary);
 
@@ -386,6 +392,10 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         if ($request->isMethod('PATCH')) {
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
+
+            $documentaryVideoSources = $this->documentaryVideoSourceService
+                ->addDocumentaryVideoSourcesFromStandaloneDocumentary($data['standalone'], $documentary);
+            $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
             if ($form->isSubmitted() && $form->isValid()) {
                 if ($poster = $data['poster']) {
@@ -434,6 +444,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
 
         if (!$documentary->isEpisodic()) {
             //@todo
+            return null;
         }
 
         $headers = [
@@ -449,21 +460,9 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                if ($poster = $data['poster']) {
-                    $currentPoster = $this->getParameter('postersUrl') . $documentary->getPosterFileName();
-                    if ($poster != $currentPoster) {
-                        $posterFileName = $this->uploadPoster($poster);
-                        $documentary->setPosterFileName($posterFileName);
-                    }
-                }
-
-                if ($wideImage = $data['wideImage']) {
-                    $currentWideImage = $this->getParameter('wideImagesUrl') . $documentary->getWideImage();
-                    if ($wideImage != $currentWideImage) {
-                        $wideImageFileName = $this->uploadWideImage($wideImage);
-                        $documentary->setWideImage($wideImageFileName);
-                    }
-                }
+                $documentaryVideoSources = $this->documentaryVideoSourceService
+                    ->addDocumentaryVideoSourcesFromEpisodicDocumentary($data['seasons'], $documentary);
+                $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);
 

@@ -6,6 +6,12 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Table(
+ *    name="documentary_video_source",
+ *    uniqueConstraints={
+ *        @ORM\UniqueConstraint(name="documentary_video_source_unique", columns={"documentary_id", "video_source_id"})
+ *    }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\ActivityRepository")
  * @ORM\HasLifecycleCallbacks
  */
@@ -56,7 +62,6 @@ class DocumentaryVideoSource
     public function setDocumentary(Documentary $documentary): void
     {
         $this->documentary = $documentary;
-        $documentary->addDocumentaryVideoSource($this);
     }
 
     /**
@@ -73,6 +78,5 @@ class DocumentaryVideoSource
     public function setVideoSource(VideoSource $videoSource): void
     {
         $this->videoSource = $videoSource;
-        $videoSource->addDocumentaryVideoSource($this);
     }
 }
