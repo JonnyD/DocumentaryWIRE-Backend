@@ -28,7 +28,9 @@ class DocumentaryEpisodicForm extends AbstractType
             ->add('year', IntegerType::class)
             ->add('length', TextType::class)
             ->add('imdbId', TextType::class)
-            ->add('episodic', EpisodicForm::class)
+            ->add('episodic', EpisodicForm::class, [
+                'required' => true
+            ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'id',

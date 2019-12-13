@@ -348,15 +348,20 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
-            $documentaryVideoSources = $this->documentaryVideoSourceService
-                ->addDocumentaryVideoSourcesFromEpisodicDocumentary($data['seasons'], $documentary);
-            $documentary->setDocumentaryVideoSources($documentaryVideoSources);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $seasons = $data['episodic']['seasons'];
+                $documentaryVideoSources = $this->documentaryVideoSourceService
+                    ->addDocumentaryVideoSourcesFromEpisodicDocumentary($seasons, $documentary);
+                $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
+                $this->documentaryService->save($documentary);
 
-            $this->documentaryService->save($documentary);
-
-            $serialized = $this->serializeEpisodic($documentary);
-            return new JsonResponse($serialized, 200, $headers);
+                $serialized = $this->serializeEpisodic($documentary);
+                return new JsonResponse($serialized, 200, $headers);
+            } else {
+                $errors = (string)$form->getErrors(true, false);
+                return new JsonResponse($errors, 400, $headers);
+            }
         }
 
     }
@@ -625,6 +630,16 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             ];
         }
 
+        if ($documentary->getDocumentaryVideoSources() != null) {
+            $videoSources = [];
+
+            foreach ($documentary->getDocumentaryVideoSources() as $documentaryVideoSource) {
+                $videoSources[] = $documentaryVideoSource->getVideoSource()->getName();
+            }
+
+            $serialized['videoSources'] = $videoSources;
+        }
+
         if ($standalone->getVideoSource() != null) {
             $serialized['standalone']['videoSource'] = [
                 'id' => $standalone->getVideoSource()->getId(),
@@ -666,8 +681,20 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 'id' => $documentary->getCategory()->getId(),
                 'name' => $documentary->getCategory()->getName(),
                 'slug' => $documentary->getCategory()->getSlug()
-            ]
+            ],
+            'createdAt' => $documentary->getCreatedAt(),
+            'updatedAt' => $documentary->getUpdatedAt()
         ];
+
+        if ($documentary->getDocumentaryVideoSources() != null) {
+            $videoSources = [];
+
+            foreach ($documentary->getDocumentaryVideoSources() as $documentaryVideoSource) {
+                $videoSources[] = $documentaryVideoSource->getVideoSource()->getName();
+            }
+
+            $serialized['videoSources'] = $videoSources;
+        }
 
         if ($documentary->getAddedBy() != null) {
             $serialized['addedBy'] = [

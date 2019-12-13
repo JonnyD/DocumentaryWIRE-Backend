@@ -519,7 +519,7 @@ class Documentary
     }
 
     /**
-     * @return Collection
+     * @return Collection|DocumentaryVideoSource[]
      */
     public function getDocumentaryVideoSources(): Collection
     {

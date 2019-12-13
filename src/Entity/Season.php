@@ -37,7 +37,7 @@ class Season
 
     /**
      * @var Episode[] | ArrayCollection
-     * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="season")
+     * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="season", cascade={"persist"})
      */
     private $episodes;
 

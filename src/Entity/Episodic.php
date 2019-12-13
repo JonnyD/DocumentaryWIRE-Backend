@@ -33,7 +33,7 @@ class Episodic
     /**
      * @var ArrayCollection | Season[]
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\Season", mappedBy="episodic"), fetch="EAGER")
+     * @ORM\OneToMany(targetEntity="App\Entity\Season", mappedBy="episodic", cascade={"persist"}), fetch="EAGER")
      */
     private $seasons;
 
