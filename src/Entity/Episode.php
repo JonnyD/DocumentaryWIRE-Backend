@@ -274,6 +274,13 @@ class Episode
     }
 
     /**
+     * @return string
+     */
+    public function getThumbnailImagePath()
+    {
+        return '/uploads/thumbnail/'.$this->getThumbnail();
+    }
+    /**
      * @return Season
      */
     public function getSeason(): Season

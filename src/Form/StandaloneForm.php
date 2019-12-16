@@ -38,11 +38,11 @@ class StandaloneForm extends AbstractType
                 'choice_label' => 'id',
             ])
             ->add('poster', FileType::class, [
-                'mapped' => false,
+                'mapped' => true,
                 'required' => true
             ])
             ->add('wideImage', FileType::class, [
-                'mapped' => false,
+                'mapped' => true,
                 'required' => true
             ]);
     }

@@ -294,21 +294,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                if ($poster = $data['poster']) {
-                    $currentPoster = $this->getParameter('postersUrl') . $documentary->getPosterFileName();
-                    if ($poster != $currentPoster) {
-                        $posterFileName = $this->uploadPoster($poster);
-                        $documentary->setPosterFileName($posterFileName);
-                    }
-                }
-
-                if ($wideImage = $data['wideImage']) {
-                    $currentWideImage = $this->getParameter('wideImagesUrl') . $documentary->getWideImage();
-                    if ($wideImage != $currentWideImage) {
-                        $wideImageFileName = $this->uploadWideImage($wideImage);
-                        $documentary->setWideImage($wideImageFileName);
-                    }
-                }
 
                 $this->documentaryService->save($documentary);
 
@@ -350,23 +335,13 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                /** @var Season[] $seasons */
+                $documentary = $this->imageService->mapEpisodicImages($documentary, $data);
+
                 $seasons = $documentary->getEpisodic()->getSeasons()->toArray();
-
-                foreach ($seasons as $season) {
-                    $season->setDocumentary($episodic);
-
-                    $episodes = $season->getEpisodes();
-                    foreach ($episodes as $episode) {
-                        $thumbnail = $episode->getThumbnail();
-                        $thumbnailFileName = $this->uploadThumbnail($thumbnail);
-                        $episode->setThumbnail($thumbnailFileName);
-                    }
-                }
-
                 $documentaryVideoSources = $this->documentaryVideoSourceService
                     ->addDocumentaryVideoSourcesFromEpisodicDocumentary($seasons, $documentary);
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
+
                 $this->documentaryService->save($documentary);
 
                 $serialized = $this->serializeEpisodic($documentary);
@@ -376,7 +351,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 return new JsonResponse($errors, 400, $headers);
             }
         }
-
     }
 
     /**
@@ -416,21 +390,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                if ($poster = $data['poster']) {
-                    $currentPoster = $this->getParameter('postersUrl') . $documentary->getPosterFileName();
-                    if ($poster != $currentPoster) {
-                        $posterFileName = $this->uploadPoster($poster);
-                        $documentary->setPosterFileName($posterFileName);
-                    }
-                }
 
-                if ($wideImage = $data['wideImage']) {
-                    $currentWideImage = $this->getParameter('wideImagesUrl') . $documentary->getWideImage();
-                    if ($wideImage != $currentWideImage) {
-                        $wideImageFileName = $this->uploadWideImage($wideImage);
-                        $documentary->setWideImage($wideImageFileName);
-                    }
-                }
 
                 $this->documentaryService->save($documentary);
 
@@ -491,64 +451,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 return new JsonResponse($errors, 200, $headers);
             }
         }
-    }
-
-    /**
-     * @param string $poster
-     * @return string
-     */
-    public function uploadPoster(string $poster)
-    {
-        $path = 'uploads/posters/';
-        $posterFileName = $this->uploadImage($poster, $path);
-        return $posterFileName;
-    }
-
-    /**
-     * @param string $wideImage
-     * @return string
-     */
-    public function uploadWideImage(string $wideImage)
-    {
-        $path = 'uploads/wide/';
-        $wideImageFileName = $this->uploadImage($wideImage, $path);
-        return $wideImageFileName;
-    }
-
-    /**
-     * @param string $thumbnail
-     * @return string
-     */
-    public function uploadThumbnail(string $thumbnail)
-    {
-        $path = 'uploads/thumbnail/';
-        $thumbnailFileName = $this->uploadImage($thumbnail, $path);
-        return $thumbnailFileName;
-    }
-
-    /**
-     * @param string $image
-     * @param string $path
-     * @return string
-     */
-    public function uploadImage(string $image, string $path)
-    {
-        $imageFileName = '';
-
-        if ($image) {
-            $outputFileWithoutExtension = uniqid();
-
-            $isBase64 = $this->imageService->isBase64($image);
-            $isUrl = $this->imageService->isUrl($image);
-
-            if ($isBase64) {
-                $imageFileName = $this->imageService->saveBase54Image($image, $outputFileWithoutExtension, $path);
-            } else if ($isUrl) {
-                $imageFileName = $this->imageService->saveFromURL($image, $path);
-            }
-        }
-
-        return $imageFileName;
     }
 
     /**
@@ -633,8 +535,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'updatedAt' => $documentary->getUpdatedAt()
         ];
 
-        if ($documentary->getPosterFileName() != null) {
-            $serialized['poster'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPosterFileName();
+        if ($documentary->getPoster() != null) {
+            $serialized['poster'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPoster();
         } else {
             $serialized['poster'] = null;
         }
@@ -696,8 +598,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'shortUrl' => $documentary->getShortUrl(),
             'featured' => $documentary->getFeatured(),
             'imdbId' => $documentary->getImdbId(),
-            'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPosterFileName(),
-            'wideImage' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/wide/' . $documentary->getWideImage(),
+            'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $documentary->getPosterImagePath(),
+            'wideImage' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $documentary->getWideImagePath(),
             'category' => [
                 'id' => $documentary->getCategory()->getId(),
                 'name' => $documentary->getCategory()->getName(),
@@ -738,7 +640,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                     'year' => $episode->getYear(),
                     'videoSource' => $episode->getVideoSource(),
                     'videoId' => $episode->getVideoId(),
-                    'thumbnail' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/thumbnail/' . $episode->getThumbnail(),
+                    'thumbnail' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $episode->getThumbnailImagePath(),
                 ];
             }
 

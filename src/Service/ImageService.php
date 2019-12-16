@@ -2,8 +2,12 @@
 
 namespace App\Service;
 
+use App\Entity\Documentary;
+use App\Entity\Episodic;
+use App\Entity\Season;
 use Liip\ImagineBundle\Imagine\Data\DataManager;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class ImageService
 {
@@ -17,16 +21,21 @@ class ImageService
      */
     private $filterManager;
 
+    private $params;
+
     /**
      * @param DataManager $dataManager
      * @param FilterManager $filterManager
+     * @param ParameterBagInterface $params
      */
     public function __construct(
         DataManager $dataManager,
-        FilterManager $filterManager)
+        FilterManager $filterManager,
+        ParameterBagInterface $params)
     {
         $this->dataManager = $dataManager;
         $this->filterManager = $filterManager;
+        $this->params = $params;
     }
 
     /**
@@ -104,5 +113,110 @@ class ImageService
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param Documentary $documentary
+     * @param array $data
+     * @return Documentary
+     */
+    public function mapEpisodicImages(Documentary $documentary, array $data)
+    {
+        $episodic = $documentary->getEpisodic();
+
+        $poster = $data['poster'];
+        if ($poster) {
+            $postersUrl = $this->params->get('postersUrl');
+            $currentPoster = $postersUrl . $documentary->getPoster();
+            if ($poster != $currentPoster) {
+                $posterFileName = $this->uploadPoster($poster);
+                $documentary->setPoster($posterFileName);
+            }
+        }
+
+        $wideImage = $data['wideImage'];
+        if ($wideImage) {
+            $wideImagesUrl = $this->params->get('wideImagesUrl');
+            $currentWideImage = $wideImagesUrl . $documentary->getPoster();
+            if ($wideImage != $currentWideImage) {
+                $wideImageFileName = $this->uploadWideImage($wideImage);
+                $documentary->setWideImage($wideImageFileName);
+            }
+        }
+
+        /** @var Season[] $seasons */
+        $seasons = $documentary->getEpisodic()->getSeasons()->toArray();
+
+        foreach ($seasons as $season) {
+            $season->setDocumentary($episodic);
+
+            $episodes = $season->getEpisodes();
+            foreach ($episodes as $episode) {
+                $thumbnail = $episode->getThumbnail();
+                $thumbnailFileName = $this->uploadThumbnail($thumbnail);
+                $episode->setThumbnail($thumbnailFileName);
+            }
+        }
+
+        return $documentary;
+    }
+
+    /**
+     * @param string $poster
+     * @param Documentary $documentary
+     * @return string
+     */
+    public function uploadPoster(string $poster)
+    {
+        $path = 'uploads/wide/';
+        $posterFileName = $this->uploadImage($poster, $path);
+        return $posterFileName;
+    }
+
+    /**
+     * @param string $wideImage
+     * @return string
+     */
+    public function uploadWideImage(string $wideImage)
+    {
+        $path = 'uploads/wide/';
+        $wideImageFileName = $this->uploadImage($wideImage, $path);
+        return $wideImageFileName;
+    }
+
+    /**
+     * @param string $thumbnail
+     * @return string
+     */
+    public function uploadThumbnail(string $thumbnail)
+    {
+        $path = 'uploads/thumbnail/';
+        $thumbnailFileName = $this->uploadImage($thumbnail, $path);
+        return $thumbnailFileName;
+    }
+
+    /**
+     * @param string $image
+     * @param string $path
+     * @return string
+     */
+    public function uploadImage(string $image, string $path)
+    {
+        $imageFileName = '';
+
+        if ($image) {
+            $outputFileWithoutExtension = uniqid();
+
+            $isBase64 = $this->isBase64($image);
+            $isUrl = $this->isUrl($image);
+
+            if ($isBase64) {
+                $imageFileName = $this->saveBase54Image($image, $outputFileWithoutExtension, $path);
+            } else if ($isUrl) {
+                $imageFileName = $this->saveFromURL($image, $path);
+            }
+        }
+
+        return $imageFileName;
     }
 }

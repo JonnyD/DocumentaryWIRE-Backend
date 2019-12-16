@@ -35,12 +35,12 @@ class DocumentaryEpisodicForm extends AbstractType
                 'class' => Category::class,
                 'choice_label' => 'id',
             ])
-            ->add('poster', FileType::class, [
-                'mapped' => false,
+            ->add('poster', TextType::class, [
+                'mapped' => true,
                 'required' => true
             ])
-            ->add('wideImage', FileType::class, [
-                'mapped' => false,
+            ->add('wideImage', TextType::class, [
+                'mapped' => true,
                 'required' => true
             ]);
     }

@@ -116,7 +116,7 @@ class Documentary
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    protected $posterFileName;
+    protected $poster;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -583,17 +583,17 @@ class Documentary
     /**
      * @return mixed
      */
-    public function getPosterFileName()
+    public function getPoster()
     {
-        return $this->posterFileName;
+        return $this->poster;
     }
 
     /**
-     * @param string $posterFileName
+     * @param string $poster
      */
-    public function setPosterFileName(string $posterFileName)
+    public function setPoster(string $poster)
     {
-        $this->posterFileName = $posterFileName;
+        $this->poster = $poster;
     }
 
     /**
@@ -601,7 +601,7 @@ class Documentary
      */
     public function getPosterImagePath()
     {
-        return 'uploads/documentary/posters/'.$this->getPosterFileName();
+        return '/uploads/posters/'.$this->getPoster();
     }
 
     /**
@@ -609,7 +609,7 @@ class Documentary
      */
     public function getWideImagePath()
     {
-        return 'uploads/documentary/wide/'.$this->getWideImage();
+        return '/uploads/wide/'.$this->getWideImage();
     }
 
     /**
