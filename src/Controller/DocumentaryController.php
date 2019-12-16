@@ -6,6 +6,7 @@ use App\Entity\Documentary;
 use App\Entity\DocumentaryVideoSource;
 use App\Entity\Episodic;
 use App\Entity\Poster;
+use App\Entity\Season;
 use App\Entity\Standalone;
 use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
@@ -349,11 +350,23 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                $seasons = $data['episodic']['seasons'];
+                /** @var Season[] $seasons */
+                $seasons = $documentary->getEpisodic()->getSeasons()->toArray();
+
+                foreach ($seasons as $season) {
+                    $season->setDocumentary($episodic);
+
+                    $episodes = $season->getEpisodes();
+                    foreach ($episodes as $episode) {
+                        $thumbnail = $episode->getThumbnail();
+                        $thumbnailFileName = $this->uploadThumbnail($thumbnail);
+                        $episode->setThumbnail($thumbnailFileName);
+                    }
+                }
+
                 $documentaryVideoSources = $this->documentaryVideoSourceService
                     ->addDocumentaryVideoSourcesFromEpisodicDocumentary($seasons, $documentary);
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
-
                 $this->documentaryService->save($documentary);
 
                 $serialized = $this->serializeEpisodic($documentary);
@@ -486,22 +499,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      */
     public function uploadPoster(string $poster)
     {
-        $posterFileName = '';
-
-        if ($poster) {
-            $outputFileWithoutExtension = uniqid();
-            $path = 'uploads/posters/';
-
-            $isBase64 = $this->imageService->isBase64($poster);
-            $isUrl = $this->imageService->isUrl($poster);
-
-            if ($isBase64) {
-                $posterFileName = $this->imageService->saveBase54Image($poster, $outputFileWithoutExtension, $path);
-            } else if ($isUrl) {
-                $posterFileName = $this->imageService->saveFromURL($poster, $path);
-            }
-        }
-
+        $path = 'uploads/posters/';
+        $posterFileName = $this->uploadImage($poster, $path);
         return $posterFileName;
     }
 
@@ -511,23 +510,45 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      */
     public function uploadWideImage(string $wideImage)
     {
-        $wideImageFileName = '';
+        $path = 'uploads/wide/';
+        $wideImageFileName = $this->uploadImage($wideImage, $path);
+        return $wideImageFileName;
+    }
 
-        if ($wideImage) {
+    /**
+     * @param string $thumbnail
+     * @return string
+     */
+    public function uploadThumbnail(string $thumbnail)
+    {
+        $path = 'uploads/thumbnail/';
+        $thumbnailFileName = $this->uploadImage($thumbnail, $path);
+        return $thumbnailFileName;
+    }
+
+    /**
+     * @param string $image
+     * @param string $path
+     * @return string
+     */
+    public function uploadImage(string $image, string $path)
+    {
+        $imageFileName = '';
+
+        if ($image) {
             $outputFileWithoutExtension = uniqid();
-            $path = 'uploads/wide/';
 
-            $isBase64 = $this->imageService->isBase64($wideImage);
-            $isUrl = $this->imageService->isUrl($wideImage);
+            $isBase64 = $this->imageService->isBase64($image);
+            $isUrl = $this->imageService->isUrl($image);
 
             if ($isBase64) {
-                $wideImageFileName = $this->imageService->saveBase54Image($wideImage, $outputFileWithoutExtension, $path);
+                $imageFileName = $this->imageService->saveBase54Image($image, $outputFileWithoutExtension, $path);
             } else if ($isUrl) {
-                $wideImageFileName = $this->imageService->saveFromURL($wideImage, $path);
+                $imageFileName = $this->imageService->saveFromURL($image, $path);
             }
         }
 
-        return $wideImageFileName;
+        return $imageFileName;
     }
 
     /**
@@ -708,7 +729,16 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $episodesArray = [];
             foreach ($season->getEpisodes() as $episode) {
                 $episodesArray[] = [
-                    'number' => $episode->getNumber()
+                    'number' => $episode->getNumber(),
+                    'title' => $episode->getTitle(),
+                    'imdbId' => $episode->getImdbId(),
+                    'storyline' => $episode->getStoryline(),
+                    'summary' => $episode->getSummary(),
+                    'duration' => $episode->getLength(),
+                    'year' => $episode->getYear(),
+                    'videoSource' => $episode->getVideoSource(),
+                    'videoId' => $episode->getVideoId(),
+                    'thumbnail' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/thumbnail/' . $episode->getThumbnail(),
                 ];
             }
 

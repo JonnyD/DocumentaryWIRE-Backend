@@ -35,12 +35,8 @@ class EpisodeForm extends AbstractType
                 'choice_label' => 'id',
             ])
             ->add('videoId', TextType::class)
-            ->add('poster', FileType::class, [
-                'mapped' => false,
-                'required' => true
-            ])
-            ->add('wideImage', FileType::class, [
-                'mapped' => false,
+            ->add('thumbnail', TextType::class, [
+                'mapped' => true,
                 'required' => true
             ]);
     }

@@ -4,7 +4,10 @@ namespace App\Service;
 
 use App\Entity\Documentary;
 use App\Entity\DocumentaryVideoSource;
+use App\Entity\Episode;
+use App\Entity\Season;
 use App\Repository\DocumentaryVideoSourceRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class DocumentaryVideoSourceService
 {
@@ -55,12 +58,12 @@ class DocumentaryVideoSourceService
     }
 
     /**
-     * @param $seasons
+     * @param ArrayCollection | Season[] $seasons
      * @param Documentary $documentary
      * @return array
      * @throws \Doctrine\ORM\ORMException
      */
-    public function addDocumentaryVideoSourcesFromEpisodicDocumentary($seasons, Documentary $documentary)
+    public function addDocumentaryVideoSourcesFromEpisodicDocumentary(array $seasons, Documentary $documentary)
     {
         if (!$documentary->isEpisodic()) {
             throw new \Exception();
@@ -72,11 +75,13 @@ class DocumentaryVideoSourceService
         }
 
         $videoSourceIds = [];
-        foreach ($seasons as $season) {
-            $episodes = $season['episodes'];
 
+        foreach ($seasons as $season) {
+            $episodes = $season->getEpisodes()->toArray();
+
+            /** @var Episode $episode */
             foreach ($episodes as $episode) {
-                $videoSourceId = $episode['videoSource'];
+                $videoSourceId = $episode->getVideoSource()->getId();
 
                 $hasVideoSourceId = in_array($videoSourceId, $videoSourceIds);
                 if (!$hasVideoSourceId) {

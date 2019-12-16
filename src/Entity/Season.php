@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SeasonRepository")
@@ -37,7 +38,7 @@ class Season
 
     /**
      * @var Episode[] | ArrayCollection
-     * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="season", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Episode", mappedBy="season", cascade={"persist"})
      */
     private $episodes;
 
@@ -88,6 +89,7 @@ class Season
     public function setDocumentary(?Episodic $episodic): self
     {
         $this->episodic = $episodic;
+        $episodic->addSeason($this);
 
         return $this;
     }
@@ -95,8 +97,11 @@ class Season
     /**
      * @return ArrayCollection|Episode[]
      */
-    public function getEpisodes(): ArrayCollection
+    public function getEpisodes(): ?ArrayCollection
     {
+        if ($this->episodes instanceof PersistentCollection) {
+            $this->episodes = new ArrayCollection($this->episodes->toArray());
+        }
         return $this->episodes;
     }
 
