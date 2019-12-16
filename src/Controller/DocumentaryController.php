@@ -289,11 +289,12 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
-            $documentaryVideoSources = $this->documentaryVideoSourceService
-                ->addDocumentaryVideoSourcesFromStandaloneDocumentary($data['standalone'], $documentary);
-            $documentary->setDocumentaryVideoSources($documentaryVideoSources);
-
             if ($form->isSubmitted() && $form->isValid()) {
+                $documentary = $this->imageService->mapStandaloneImages($documentary, $data);
+
+                $documentaryVideoSources = $this->documentaryVideoSourceService
+                    ->addDocumentaryVideoSourcesFromStandaloneDocumentary($data['standalone'], $documentary);
+                $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);
 
@@ -385,12 +386,12 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
-            $documentaryVideoSources = $this->documentaryVideoSourceService
-                ->addDocumentaryVideoSourcesFromStandaloneDocumentary($data['standalone'], $documentary);
-            $documentary->setDocumentaryVideoSources($documentaryVideoSources);
-
             if ($form->isSubmitted() && $form->isValid()) {
+                $documentary = $this->imageService->mapStandaloneImages($documentary, $data);
 
+                $documentaryVideoSources = $this->documentaryVideoSourceService
+                    ->addDocumentaryVideoSourcesFromStandaloneDocumentary($data['standalone'], $documentary);
+                $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);
 
@@ -438,8 +439,11 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
+                $documentary = $this->imageService->mapEpisodicImages($documentary, $data);
+
+                $seasons = $documentary->getEpisodic()->getSeasons()->toArray();
                 $documentaryVideoSources = $this->documentaryVideoSourceService
-                    ->addDocumentaryVideoSourcesFromEpisodicDocumentary($data['seasons'], $documentary);
+                    ->addDocumentaryVideoSourcesFromEpisodicDocumentary($seasons, $documentary);
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);

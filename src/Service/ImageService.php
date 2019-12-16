@@ -44,23 +44,23 @@ class ImageService
      * @param string $pathWithEndSlash
      * @return string
      */
-    public function saveBase54Image($base64ImageString, $outputFileWithoutExtension, $pathWithEndSlash = "" ) {
-        $splited = explode(',', substr($base64ImageString , 5 ), 2);
+    public function saveBase54Image($base64ImageString, $outputFileWithoutExtension, $pathWithEndSlash = "")
+    {
+        $splited = explode(',', substr($base64ImageString, 5), 2);
         $mime = $splited[0];
         $data = $splited[1];
 
-        $mimeSplitWithoutBase64 = explode(';', $mime,2);
-        $mimeSplit = explode('/', $mimeSplitWithoutBase64[0],2);
-        if (count($mimeSplit) == 2)
-        {
+        $mimeSplitWithoutBase64 = explode(';', $mime, 2);
+        $mimeSplit = explode('/', $mimeSplitWithoutBase64[0], 2);
+        if (count($mimeSplit) == 2) {
             $extension = $mimeSplit[1];
             if ($extension == 'jpeg') {
                 $extension = 'jpg';
             }
-            $outputFileWithoutExtension = $outputFileWithoutExtension.'.'.$extension;
+            $outputFileWithoutExtension = $outputFileWithoutExtension . '.' . $extension;
         }
 
-        file_put_contents($pathWithEndSlash . $outputFileWithoutExtension, base64_decode($data) );
+        file_put_contents($pathWithEndSlash . $outputFileWithoutExtension, base64_decode($data));
 
         return $outputFileWithoutExtension;
     }
@@ -120,6 +120,32 @@ class ImageService
      * @param array $data
      * @return Documentary
      */
+    public function mapStandaloneImages(Documentary $documentary, array $data)
+    {
+        if ($poster = $data['poster']) {
+            $currentPoster = $this->params->get('postersUrl') . $documentary->getPoster();
+            if ($poster != $currentPoster) {
+                $posterFileName = $this->uploadPoster($poster);
+                $documentary->setPoster($posterFileName);
+            }
+        }
+
+        if ($wideImage = $data['wideImage']) {
+            $currentWideImage = $this->params->get('wideImagesUrl') . $documentary->getWideImage();
+            if ($wideImage != $currentWideImage) {
+                $wideImageFileName = $this->uploadWideImage($wideImage);
+                $documentary->setWideImage($wideImageFileName);
+            }
+        }
+
+        return $documentary;
+    }
+
+    /**
+     * @param Documentary $documentary
+     * @param array $data
+     * @return Documentary
+     */
     public function mapEpisodicImages(Documentary $documentary, array $data)
     {
         $episodic = $documentary->getEpisodic();
@@ -168,7 +194,7 @@ class ImageService
      */
     public function uploadPoster(string $poster)
     {
-        $path = 'uploads/wide/';
+        $path = 'uploads/posters/';
         $posterFileName = $this->uploadImage($poster, $path);
         return $posterFileName;
     }

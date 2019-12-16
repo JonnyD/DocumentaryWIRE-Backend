@@ -126,6 +126,12 @@ security:
             stateless:  false
             anonymous: true
 
+        api_public_uploads:
+            pattern: ^/uploads/posters
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
         api_sync:
             methods: [GET]
             pattern: ^/api/v1/sync
