@@ -51,7 +51,7 @@ class Email
     /**
      * @return int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -59,7 +59,7 @@ class Email
     /**
      * @return string
      */
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -75,7 +75,7 @@ class Email
     /**
      * @return bool
      */
-    public function isSubscribed(): bool
+    public function isSubscribed(): ?bool
     {
         return $this->subscribed;
     }
@@ -91,7 +91,7 @@ class Email
     /**
      * @return string
      */
-    public function getSubscriptionKey(): string
+    public function getSubscriptionKey(): ?string
     {
         return $this->subscriptionKey;
     }

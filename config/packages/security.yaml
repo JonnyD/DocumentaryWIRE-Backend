@@ -27,6 +27,7 @@ security:
             stateless:  false
 
         api_email:
+            methods: [POST, GET, PATCH]
             pattern:    ^/api/v1/email
             fos_oauth:  true
             stateless:  false

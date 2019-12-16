@@ -6,6 +6,7 @@ use App\Criteria\EmailCriteria;
 use App\Entity\Category;
 use App\Entity\Email;
 use App\Form\CategoryForm;
+use App\Form\EmailForm;
 use App\Form\UnsubscribeEmailSubscriptionForm;
 use App\Service\CategoryService;
 use App\Service\EmailService;
@@ -91,6 +92,69 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
             'Access-Control-Allow-Origin' => '*'
         ];
         return new JsonResponse($data, 200, $headers);
+    }
+
+    /**
+     * @FOSRest\Get("/email/{id}", name="get_email", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @return Email|null
+     */
+    public function getEmailAction(int $id)
+    {
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+
+        $email = $this->emailService->getEmailById($id);
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Headers' => '*',
+            'Access-Control-Allow-Methods: GET, POST',
+            'Access-Control-Allow-Credentials: true',
+            'Access-Control-Max-Age: 86400',
+            'Access-Control-Request-Headers' => [' X-Requested-With'],
+        ];
+
+        $serialized = $this->serializeEmail($email);;
+
+        return new JsonResponse($serialized, 200, $headers);
+    }
+
+    /**
+     * @FOSRest\Post("/email", name="create_email", options={ "method_prefix" = false })
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function createEmailAction(Request $request)
+    {
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+
+        $email = new Email();
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
+        $form = $this->createForm(EmailForm::class, $email);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $this->emailService->save($email);
+
+                $serialized = $this->serializeEmail($email);
+                return new JsonResponse($serialized, 200, $headers);
+            } else {
+                $errors = (string)$form->getErrors(true, false);
+                return new JsonResponse($errors, 400, $headers);
+            }
+        }
     }
 
     /**

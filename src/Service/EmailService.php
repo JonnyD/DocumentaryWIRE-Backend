@@ -45,6 +45,15 @@ class EmailService
     }
 
     /**
+     * @param int $id
+     * @return null|Email
+     */
+    public function getEmailById(int $id)
+    {
+        return $this->emailRepository->find($id);
+    }
+
+    /**
      * @param string $emailAddress
      * @return null|Email
      */
