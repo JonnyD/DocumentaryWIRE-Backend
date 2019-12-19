@@ -143,9 +143,13 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
 
         if ($request->isMethod('POST')) {
             $data = json_decode($request->getContent(), true);
+            $subscribed = $data['subscribed'] == "true";
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
+                $subscriptionKey = sha1(mt_rand(10000,99999).time().$email->getEmail());
+                $email->setSubscriptionKey($subscriptionKey);
+                $email->setSubscribed($subscribed);
                 $this->emailService->save($email);
 
                 $serialized = $this->serializeEmail($email);
@@ -155,6 +159,50 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
                 return new JsonResponse($errors, 400, $headers);
             }
         }
+    }
+
+    /**
+     * @FOSRest\Patch("/email/{id}", name="partial_update_email", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function editEmailAction(int $id, Request $request)
+    {
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+
+        $email = $this->emailService->getEmailById($id);
+
+        if ($email === null) {
+            return new AccessDeniedException();
+        }
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*'
+        ];
+
+        $form = $this->createForm(EmailForm::class, $email);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('PATCH')) {
+            $data = json_decode($request->getContent(), true);
+            $subscribed = $data['subscribed'] == "true";
+            $form->submit($data);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $email->setSubscribed($subscribed);
+                $this->emailService->save($email);
+
+                $serialized = $this->serializeEmail($email);
+                return new JsonResponse($serialized, 200, $headers);
+            } else {
+                $errors = (string)$form->getErrors(true, false);
+                return new JsonResponse($errors, 400, $headers);
+            }
+        }
+
     }
 
     /**

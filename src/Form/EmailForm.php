@@ -23,8 +23,7 @@ class EmailForm extends AbstractType
     {
         $builder
             ->add('email', TextType::class)
-            ->add('subscribed', CheckboxType::class)
-            ->add('subscriptionKey', TextType::class);
+            ->add('subscribed', TextType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)
