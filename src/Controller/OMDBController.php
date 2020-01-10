@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use aharen\OMDbAPI;
 use App\Enum\DocumentaryType;
 use App\Object\DTO\Episode;
 use App\Object\DTO\Season;
@@ -22,10 +21,10 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
      *
      * @param Request $request
      */
-    public function searchOMDBAction(Request $request)
+    public function searchOMDBStandaloneAction(Request $request)
     {
         $omdb = new OMDb();
-        $omdb->setParams(['plot' => 'full', 'apikey' => $_ENV['OMDB_KEY']]);
+        $omdb->setParams(['type' => 'movie', 'plot' => 'full', 'apikey' => $_ENV['OMDB_KEY']]);
 
         $headers = [
             'Content-Type' => 'application/json',
@@ -144,7 +143,8 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
             'imdbRating' => $result['imdbRating'],
             'imdbVotes' => $result['imdbVotes'],
             'imdbId' => $result['imdbID'],
-            'type' => $result['Type']
+            'type' => $result['Type'],
+            'poster' => $result['Poster']
         ];
     }
 

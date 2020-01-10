@@ -32,6 +32,7 @@ use Liip\ImagineBundle\Imagine\Data\DataManager;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use PhpParser\Comment\Doc;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -288,6 +289,18 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         if ($request->isMethod('POST')) {
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
+
+            $poster = $request->request->get('poster');
+            if ($poster == null) {
+                $formError = new FormError("Poster is required");
+                $form->addError($formError);
+            }
+
+            $wideImage = $request->request->get('wideImage');
+            if ($wideImage) {
+                $formError = new FormError("WIde image is required");
+                $form->addError($formError);
+            }
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $documentary = $this->imageService->mapStandaloneImages($documentary, $data);
