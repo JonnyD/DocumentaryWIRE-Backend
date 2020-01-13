@@ -24,7 +24,11 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
     public function searchOMDBStandaloneAction(Request $request)
     {
         $omdb = new OMDb();
-        $omdb->setParams(['type' => 'movie', 'plot' => 'full', 'apikey' => $_ENV['OMDB_KEY']]);
+        $omdb->setParams([
+            'type' => 'movie',
+            'plot' => 'full',
+            'apikey' => $_ENV['OMDB_KEY']
+        ]);
 
         $headers = [
             'Content-Type' => 'application/json',
@@ -41,10 +45,15 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
             return new JsonResponse(null, 400, $headers);
         }
 
-        $documentaries = $omdb->search($title);
+        $searchedDocumentaries = $omdb->search($title);
+        $documentaries = $searchedDocumentaries['Search'];
 
+        $serialized = [];
+        foreach ($documentaries as $documentary) {
+            $serialized[] = $this->serializeStandalone($documentary);
+        }
 
-        return new JsonResponse($documentaries, 200, $headers);
+        return new JsonResponse($serialized, 200, $headers);
     }
     /**
      *
@@ -77,9 +86,20 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         ];
 
         $result = $omdb->get_by_id($imdbId);
-        $result = $this->serializeStandalone($result);
+        if ($result['Response'] == false) {
+            $error = $result['Error'];
+            return new JsonResponse($error, 404, $headers);
+        }
 
-        $type = $request->query->get('type');
+        $typeFromAPI = $result['Type'];
+        if ($typeFromAPI === 'movie') {
+            $type = DocumentaryType::STANDALONE;
+        } else if ($typeFromAPI === 'series') {
+            $type = DocumentaryType::EPISODIC;
+        } else {
+            return new JsonResponse(null, 400, $headers);
+        }
+
         if ($type === DocumentaryType::EPISODIC) {
             $seriesDTO = new Series();
             $seriesDTO->setTitle($result['Title']);
@@ -124,6 +144,10 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
             }
 
             $result = $this->serializeSeries($seriesDTO);
+        } else if ($type === DocumentaryType::STANDALONE) {
+            $result = $this->serializeStandalone($result);
+        } else {
+            return new JsonResponse(null, 400, $headers);
         }
 
         return new JsonResponse($result, 200, $headers);
@@ -135,17 +159,31 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
      */
     public function serializeStandalone(array $result)
     {
-        return [
+        $serialized = [
             'title' => $result['Title'],
             'year' => $result['Year'],
-            'duration' => $result['Runtime'],
-            'storyline' => $result['Plot'],
-            'imdbRating' => $result['imdbRating'],
-            'imdbVotes' => $result['imdbVotes'],
             'imdbId' => $result['imdbID'],
             'type' => $result['Type'],
             'poster' => $result['Poster']
         ];
+
+        if (isset($result['imdbVotes'])) {
+            $serialized['imdbVotes'] = $result['imdbVotes'];
+        }
+
+        if (isset($result['imdbRating'])) {
+            $serialized['imdbRating'] = $result['imdbRating'];
+        }
+
+        if (isset($result['Plot'])) {
+            $serialized['storyline'] = $result['Plot'];
+        }
+
+        if (isset($result['Runtime'])) {
+            $serialized['duration'] = $result['Runtime'];
+        }
+
+        return $serialized;
     }
 
     /**
