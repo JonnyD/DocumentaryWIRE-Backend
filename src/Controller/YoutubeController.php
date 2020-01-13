@@ -39,4 +39,27 @@ class YoutubeController extends AbstractFOSRestController implements ClassResour
 
         return new JsonResponse($video, 200, array('Access-Control-Allow-Origin'=> '*'));
     }
+
+    /**
+     * @FOSRest\Get("/youtube/{id}", name="get_youtube_by_id", options={ "method_prefix" = false })
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function getByIdAction(Request $request, string $id)
+    {
+        $apiKey = $_ENV['YOUTUBE_KEY'];
+
+        $link = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=".urlencode($id)."&key=" . $apiKey;
+
+        $video = file_get_contents($link);
+
+        $video = json_decode($video, true);
+
+        if ($video['pageInfo']['totalResults'] === 0) {
+            return new JsonResponse(null, 404, array('Access-Control-Allow-Origin'=> '*'));
+        }
+
+        return new JsonResponse($video, 200, array('Access-Control-Allow-Origin'=> '*'));
+    }
 }
