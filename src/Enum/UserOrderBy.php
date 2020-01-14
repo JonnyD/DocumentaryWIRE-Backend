@@ -4,6 +4,6 @@ namespace App\Enum;
 
 class UserOrderBy
 {
-    const ACTIVATED = "activated";
+    const ENABLED = "enabled";
     const LAST_LOGIN = "lastLogin";
 }

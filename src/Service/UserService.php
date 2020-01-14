@@ -162,6 +162,19 @@ class UserService
         return $this->userRepository->findUsersByCriteriaQueryBuilder($criteria);
     }
 
+    /**
+     * @param UserCriteria $criteria
+     * @return User[]
+     */
+    public function getUsersByCriteria(UserCriteria $criteria)
+    {
+        return $this->userRepository->findUsersByCriteria($criteria);
+    }
+
+    /**
+     * @param User $user
+     * @throws \Doctrine\ORM\ORMException
+     */
     public function confirmUser(User $user)
     {
         $user->setActivatedAt(new \DateTime());

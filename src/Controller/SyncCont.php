@@ -4,20 +4,23 @@ namespace App\Controller;
 
 use App\Criteria\ActivityCriteria;
 use App\Criteria\CommentCriteria;
+use App\Criteria\UserCriteria;
 use App\Entity\Activity;
 use App\Enum\ActivityOrderBy;
 use App\Enum\CommentOrderBy;
 use App\Enum\CommentStatus;
 use App\Enum\Order;
+use App\Enum\UserOrderBy;
 use App\Service\ActivityService;
 use App\Service\CommentService;
+use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Symfony\Component\HttpFoundation\Request;
 
-class SyncController extends AbstractFOSRestController implements ClassResourceInterface
+class SyncCont extends AbstractFOSRestController implements ClassResourceInterface
 {
     /**
      * @var ActivityService
@@ -29,12 +32,19 @@ class SyncController extends AbstractFOSRestController implements ClassResourceI
      */
     private $commentService;
 
+    /**
+     * @var UserService
+     */
+    private $userService;
+
     public function __construct(
         ActivityService $activityService,
-        CommentService $commentService)
+        CommentService $commentService,
+        UserService $userService)
     {
         $this->activityService = $activityService;
         $this->commentService = $commentService;
+        $this->userService = $userService;
     }
 
     /**
@@ -49,36 +59,43 @@ class SyncController extends AbstractFOSRestController implements ClassResourceI
         $watchlistService = $this->getWatchlistService();
         $criteria = new WatchlistCriteria();
         $watchlistService->getWatchlistedByCriteria($criteria);
-**/
-/**
+         **/
+        /**
         $criteria = new CommentCriteria();
         $criteria->setSort([
-            CommentOrderBy::CREATED_AT => Order::ASC
+        CommentOrderBy::CREATED_AT => Order::ASC
         ]);
         $criteria->setStatus(CommentStatus::PUBLISH);
         $comments = $this->commentService->getCommentsByCriteria($criteria);
         foreach ($comments as $comment) {
-            $this->activityService->addCommentActivity($comment, $comment->getCreatedAt());
+        $this->activityService->addCommentActivity($comment, $comment->getCreatedAt());
         }
-**/
-        /**
+         **/
+
+        //$this->updateJoinedActivity();
+        $this->fixActivity();
+
+    }
+
+    public function updateJoinedActivity()
+    {
         $criteria = new UserCriteria();
-        $criteria->setIsActivated(true);
+        $criteria->setEnabled(true);
         $criteria->setSort([
-        UserOrderBy::ACTIVATED_AT => Order::ASC
+            UserOrderBy::ENABLED => Order::ASC
         ]);
-        $userService = $this->getUserService();
-        $users = $userService->getUsersByCritria($criteria);
+        $users = $this->userService->getUsersByCriteria($criteria);
 
         foreach ($users as $user) {
-        $activityService->addJoinedActivity($user, $user->getCreatedAt());
-        }**/
+            $this->activityService->addJoinedActivity($user);
+        }
+    }
 
-        $page = $request->query->get('page', 1);
-
+    public function fixActivity()
+    {
         $criteria = new ActivityCriteria();
         $criteria->setSort([
-        ActivityOrderBy::CREATED_AT => Order::ASC
+            ActivityOrderBy::CREATED_AT => Order::ASC
         ]);
 
         $activity = $this->activityService->getAllActivityByCriteria($criteria);
@@ -111,30 +128,30 @@ class SyncController extends AbstractFOSRestController implements ClassResourceI
             }
 
             if ($type == 'comment') {
-            $increment = true;
+                $increment = true;
             }
 
             if ($type == 'like') {
-            if ($previousType == 'like' && $previousUserId == $userId) {
-            $increment = false;
-            } else {
-            $increment = true;
-            }
+                if ($previousType == 'like' && $previousUserId == $userId) {
+                    $increment = false;
+                } else {
+                    $increment = true;
+                }
             }
 
             $previousType = $type;
             $previousUserId = $userId;
 
             if ($increment) {
-            $groupNumber++;
-            $act->setGroupNumber($groupNumber);
+                $groupNumber++;
+                $act->setGroupNumber($groupNumber);
             } else {
-            $act->setGroupNumber($groupNumber);
+                $act->setGroupNumber($groupNumber);
             }
 
             $this->activityService->save($act, false);
-            }
+        }
 
-            $this->activityService->flush();
+        $this->activityService->flush();
     }
 }

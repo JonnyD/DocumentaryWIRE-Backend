@@ -157,7 +157,7 @@ class ActivityService
             $groupNumber = 1;
         }
 
-        $this->addActivity($user, $user->getId(), ActivityType::JOINED, ComponentType::USER, [], $groupNumber);
+        $this->addActivity($user, $user->getId(), ActivityType::JOINED, ComponentType::USER, [], $groupNumber, $user->getActivatedAt());
     }
 
     /**

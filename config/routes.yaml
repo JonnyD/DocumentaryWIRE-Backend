@@ -44,7 +44,7 @@ api_activity:
 api_sync:
   type:     rest
   prefix:   api/v1
-  resource: App\Controller\SyncController
+  resource: App\Controller\SyncCont
 
 api_year:
   type:     rest
