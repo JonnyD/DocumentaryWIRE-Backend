@@ -290,15 +290,15 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
-            $poster = $request->request->get('poster');
+            $poster = $data['poster'];
             if ($poster == null) {
                 $formError = new FormError("Poster is required");
                 $form->addError($formError);
             }
 
-            $wideImage = $request->request->get('wideImage');
-            if ($wideImage) {
-                $formError = new FormError("WIde image is required");
+            $wideImage = $data['wideImage'];
+            if ($wideImage == null) {
+                $formError = new FormError("Wide image is required");
                 $form->addError($formError);
             }
 
