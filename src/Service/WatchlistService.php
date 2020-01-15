@@ -45,6 +45,15 @@ class WatchlistService
 
     /**
      * @param WatchlistCriteria $criteria
+     * @return Watchlist[]|ArrayCollection
+     */
+    public function getWatchlistsByCriteria(WatchlistCriteria $criteria)
+    {
+        return $this->watchlistRepository->findWatchlistsByCriteria($criteria);
+    }
+
+    /**
+     * @param WatchlistCriteria $criteria
      * @return QueryBuilder
      */
     public function getWatchlistByCriteriaQueryBuilder(WatchlistCriteria $criteria)
