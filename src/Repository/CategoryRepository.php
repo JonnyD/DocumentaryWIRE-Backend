@@ -54,7 +54,7 @@ class CategoryRepository extends ServiceEntityRepository
     public function findAllCategoriesOrderedByName()
     {
         return $this->createQueryBuilder('c')
-            ->where('c.count > 0')
+            ->where('c.documentaryCount > 0')
             ->orderBy('c.name', 'ASC')
             ->getQuery()
             ->getResult();

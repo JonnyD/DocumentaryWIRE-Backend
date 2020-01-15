@@ -89,7 +89,10 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
          **/
 
         //$this->updateJoinedActivity();
-        $this->fixActivity();
+        //$this->fixActivity();
+        $this->updateCommentCountForDocumentaries();
+        //$this->updateDocumentaryCountForCategories();
+        //$this->updateWatchlistCountForDocumentaries();
 
     }
 
@@ -124,6 +127,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
 
         $count = 1;
         foreach ($activity as $act) {
+            echo $count;
             $increment = true;
 
             $type = $act->getType();
@@ -201,22 +205,21 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
 
         $updatedDocumentaries = [];
         foreach ($documentaries as $documentary) {
-            $comments = $documentary->getComments();
+            $commentCriteria = new CommentCriteria();
+            $commentCriteria->setDocumentary($documentary);
+            $commentCriteria->setStatus(CommentStatus::PUBLISH);
+            $comments = $this->commentService->getCommentsByCriteria($commentCriteria);
 
-            $commentCount = 0;
-            foreach ($comments as $comment) {
-                if ($comment->isPublished()) {
-                    $commentCount++;
-                }
-            }
-
+            $commentCount = count($comments);
             $documentary->setCommentCount($commentCount);
             $updatedDocumentaries[] = $documentary;
         }
 
         foreach ($updatedDocumentaries as $updatedDocumentary) {
-            $this->documentaryService->save($updatedDocumentary);
+            $this->documentaryService->save($updatedDocumentary, false);
         }
+
+        $this->documentaryService->flush();
     }
 
     public function updateWatchlistCountForDocumentaries()

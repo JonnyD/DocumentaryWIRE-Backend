@@ -278,4 +278,9 @@ class DocumentaryService
     {
         $this->documentaryRepository->save($documentary, $sync);
     }
+
+    public function flush()
+    {
+        $this->documentaryRepository->flush();
+    }
 }

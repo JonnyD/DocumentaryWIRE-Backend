@@ -101,7 +101,7 @@ class CommentRepository extends ServiceEntityRepository
 
         if ($criteria->getDocumentary()) {
             $qb->andWhere('comment.documentary = :documentary')
-                ->setParameter('documentary;', $criteria->getDocumentary());
+                ->setParameter('documentary', $criteria->getDocumentary());
         }
 
         if ($criteria->getUser()) {
