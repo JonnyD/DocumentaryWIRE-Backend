@@ -154,6 +154,12 @@ class Documentary
     protected $imdbId;
 
     /**
+     * @ORM\Column(type="integer")
+     * @Gedmo\Versioned
+     */
+    protected $commentCount;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="documentary")
      * @ORM\JoinColumn(nullable=false)
      * @Gedmo\Versioned
@@ -593,9 +599,20 @@ class Documentary
         }
     }
 
+    /**
+     * @return int|null
+     */
     public function getCommentCount(): ?int
     {
-        return $this->comments->count();
+        return $this->commentCount;
+    }
+
+    /**
+     * @param int $commentCount
+     */
+    public function setCommentCount(int $commentCount)
+    {
+        $this->commentCount = $commentCount;
     }
 
     public function serialize()

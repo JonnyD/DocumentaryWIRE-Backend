@@ -14,6 +14,7 @@ use App\Enum\UserOrderBy;
 use App\Service\ActivityService;
 use App\Service\CategoryService;
 use App\Service\CommentService;
+use App\Service\DocumentaryService;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -43,16 +44,23 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
      */
     private $categoryService;
 
+    /**
+     * @var DocumentaryService
+     */
+    private $documentaryService;
+
     public function __construct(
         ActivityService $activityService,
         CommentService $commentService,
         UserService $userService,
-        CategoryService $categoryService)
+        CategoryService $categoryService,
+        DocumentaryService $documentaryService)
     {
         $this->activityService = $activityService;
         $this->commentService = $commentService;
         $this->userService = $userService;
         $this->categoryService = $categoryService;
+        $this->documentaryService = $documentaryService;
     }
 
     /**
@@ -184,6 +192,30 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
 
         foreach ($updatedCategories as $updatedCategory) {
             $this->categoryService->save($updatedCategory);
+        }
+    }
+
+    public function updateCommentCountForDocumentaries()
+    {
+        $documentaries = $this->documentaryService->getAllDocumentaries();
+
+        $updatedDocumentaries = [];
+        foreach ($documentaries as $documentary) {
+            $comments = $documentary->getComments();
+
+            $commentCount = 0;
+            foreach ($comments as $comment) {
+                if ($comment->isPublished()) {
+                    $commentCount++;
+                }
+            }
+
+            $documentary->setCommentCount($commentCount);
+            $updatedDocumentaries[] = $documentary;
+        }
+
+        foreach ($updatedDocumentaries as $updatedDocumentary) {
+            $this->documentaryService->save($updatedDocumentary);
         }
     }
 }

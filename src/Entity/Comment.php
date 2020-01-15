@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Enum\CommentStatus;
 use App\Traits\Timestampable;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\Blameable;
@@ -93,6 +94,22 @@ class Comment
         $this->status = $status;
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPublished()
+    {
+        return ($this->status === CommentStatus::PUBLISH);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPending()
+    {
+        return ($this->status === CommentStatus::PENDING);
     }
 
     public function getAuthor(): ?string

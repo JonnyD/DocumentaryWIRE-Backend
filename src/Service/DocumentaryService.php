@@ -38,6 +38,14 @@ class DocumentaryService
     }
 
     /**
+     * @return Documentary[]
+     */
+    public function getAllDocumentaries()
+    {
+        return $this->documentaryRepository->findAll();
+    }
+
+    /**
      * @param string $slug
      * @return Documentary|null
      */
