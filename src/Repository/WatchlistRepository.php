@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Criteria\WatchlistCriteria;
 use App\Entity\Watchlist;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -49,6 +50,22 @@ class WatchlistRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param WatchlistCriteria $criteria
+     * @return ArrayCollection|Watchlist[]
+     */
+    public function findWatchlistsByCriteria(WatchlistCriteria $criteria)
+    {
+        $qb = $this->findWatchlistByCriteriaQueryBuilder($criteria);
+
+        $query = $qb->getQuery();
+        $query->useResultCache(true, 3600, 'my_region')
+            ->useQueryCache(true);
+        $result = $query->getResult();
+
+        return $result;
+    }
 
     /**
      * @param WatchlistCriteria $criteria
