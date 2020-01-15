@@ -4,11 +4,14 @@ namespace App\Controller;
 
 use App\Criteria\ActivityCriteria;
 use App\Criteria\CommentCriteria;
+use App\Criteria\DocumentaryCriteria;
 use App\Criteria\UserCriteria;
+use App\Criteria\WatchlistCriteria;
 use App\Entity\Activity;
 use App\Enum\ActivityOrderBy;
 use App\Enum\CommentOrderBy;
 use App\Enum\CommentStatus;
+use App\Enum\DocumentaryStatus;
 use App\Enum\Order;
 use App\Enum\UserOrderBy;
 use App\Service\ActivityService;
@@ -16,6 +19,7 @@ use App\Service\CategoryService;
 use App\Service\CommentService;
 use App\Service\DocumentaryService;
 use App\Service\UserService;
+use App\Service\WatchlistService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -49,18 +53,25 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
      */
     private $documentaryService;
 
+    /**
+     * @var WatchlistService
+     */
+    private $watchlistService;
+
     public function __construct(
         ActivityService $activityService,
         CommentService $commentService,
         UserService $userService,
         CategoryService $categoryService,
-        DocumentaryService $documentaryService)
+        DocumentaryService $documentaryService,
+        WatchlistService $watchlistService)
     {
         $this->activityService = $activityService;
         $this->commentService = $commentService;
         $this->userService = $userService;
         $this->categoryService = $categoryService;
         $this->documentaryService = $documentaryService;
+        $this->watchlistService = $watchlistService;
     }
 
     /**
@@ -90,7 +101,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
 
         //$this->updateJoinedActivity();
         //$this->fixActivity();
-        $this->updateCommentCountForDocumentaries();
+        //$this->updateCommentCountForDocumentaries();
         //$this->updateDocumentaryCountForCategories();
         //$this->updateWatchlistCountForDocumentaries();
 
@@ -181,15 +192,12 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
 
         $updatedCategories = [];
         foreach ($categories as $category) {
-            $documentaries = $category->getDocumentaries();
+            $documentaryCriteria = new DocumentaryCriteria();
+            $documentaryCriteria->setStatus(DocumentaryStatus::PUBLISH);
+            $documentaryCriteria->setCategory($category);
+            $documentaries = $this->documentaryService->getDocumentariesByCriteria($documentaryCriteria);
 
-            $documentaryCount = 0;
-            foreach ($documentaries as $documentary) {
-                if ($documentary->isPublished()) {
-                    $documentaryCount++;
-                }
-            }
-
+            $documentaryCount = count($documentaries);
             $category->setDocumentaryCount($documentaryCount);
             $updatedCategories[] = $category;
         }
@@ -228,13 +236,11 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
 
         $updatedDocumentaries = [];
         foreach ($documentaries as $documentary) {
-            $watchlists = $documentary->getWatchlists();
+            $watchlistCriteria = new WatchlistCriteria();
+            $watchlistCriteria->setDocumentary($documentary);
+            $watchlists = $this->watchlistService->getWatchlistsByCriteria($watchlistCriteria);
 
-            $watchlistCount = 0;
-            foreach ($watchlists as $watchlist) {
-                $watchlistCount++;
-            }
-
+            $watchlistCount = count($watchlists);
             $documentary->setWatchlistCount($watchlistCount);
             $updatedDocumentaries[] = $documentary;
         }
