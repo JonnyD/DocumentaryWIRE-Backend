@@ -44,9 +44,17 @@ class CategoryService
      * @return Category[]|null
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function getAllCategories()
+    public function getAllCategoriesOrderedByName()
     {
         return $this->categoryRepository->findAllCategoriesOrderedByName();
+    }
+
+    /**
+     * @return Category[]
+     */
+    public function getAllCategories()
+    {
+        return $this->categoryRepository->findAll();
     }
 
     /**
