@@ -58,6 +58,15 @@ class DocumentaryService
 
     /**
      * @param DocumentaryCriteria $criteria
+     * @return Documentary[]|ArrayCollection
+     */
+    public function getDocumentariesByCriteria(DocumentaryCriteria $criteria)
+    {
+        return $this->documentaryRepository->findDocumentariesByCriteria($criteria);
+    }
+
+    /**
+     * @param DocumentaryCriteria $criteria
      * @return QueryBuilder
      */
     public function getDocumentariesByCriteriaQueryBuilder(DocumentaryCriteria $criteria)
