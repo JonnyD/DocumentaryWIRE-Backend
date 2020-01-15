@@ -23,9 +23,11 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
      */
     public function searchOMDBStandaloneAction(Request $request)
     {
+        $type = $request->query->get('type');
+
         $omdb = new OMDb();
         $omdb->setParams([
-            'type' => 'movie',
+            'type' => $type,
             'plot' => 'full',
             'apikey' => $_ENV['OMDB_KEY']
         ]);
