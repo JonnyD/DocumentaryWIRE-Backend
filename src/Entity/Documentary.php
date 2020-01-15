@@ -160,6 +160,12 @@ class Documentary
     protected $commentCount;
 
     /**
+     * @ORM\Column(type="integer")
+     * @Gedmo\Versioned
+     */
+    protected $watchlistCount;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="documentary")
      * @ORM\JoinColumn(nullable=false)
      * @Gedmo\Versioned
@@ -613,6 +619,22 @@ class Documentary
     public function setCommentCount(int $commentCount)
     {
         $this->commentCount = $commentCount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWatchlistCount()
+    {
+        return $this->watchlistCount;
+    }
+
+    /**
+     * @param int $watchlistCount
+     */
+    public function setWatchlistCount(int $watchlistCount)
+    {
+        $this->watchlistCount = $watchlistCount;
     }
 
     public function serialize()

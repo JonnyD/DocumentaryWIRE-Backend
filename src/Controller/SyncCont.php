@@ -218,4 +218,26 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
             $this->documentaryService->save($updatedDocumentary);
         }
     }
+
+    public function updateWatchlistCountForDocumentaries()
+    {
+        $documentaries = $this->documentaryService->getAllDocumentaries();
+
+        $updatedDocumentaries = [];
+        foreach ($documentaries as $documentary) {
+            $watchlists = $documentary->getWatchlists();
+
+            $watchlistCount = 0;
+            foreach ($watchlists as $watchlist) {
+                $watchlistCount++;
+            }
+
+            $documentary->setWatchlistCount($watchlistCount);
+            $updatedDocumentaries[] = $documentary;
+        }
+
+        foreach ($updatedDocumentaries as $updatedDocumentary) {
+            $this->documentaryService->save($updatedDocumentary);
+        }
+    }
 }
