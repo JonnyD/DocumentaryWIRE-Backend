@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiProperty;
+use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
 use App\Traits\Timestampable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -303,6 +304,30 @@ class Documentary
         $this->status = $status;
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPublished()
+    {
+        return ($this->status === DocumentaryStatus::PUBLISH);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDraft()
+    {
+        return ($this->status === DocumentaryStatus::DRAFT);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPending()
+    {
+        return ($this->status === DocumentaryStatus::PENDING);
     }
 
     public function getViews(): ?int

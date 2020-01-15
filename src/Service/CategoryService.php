@@ -41,7 +41,7 @@ class CategoryService
     }
 
     /**
-     * @return Category|null
+     * @return Category[]|null
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getAllCategories()

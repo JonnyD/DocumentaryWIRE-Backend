@@ -12,6 +12,7 @@ use App\Enum\CommentStatus;
 use App\Enum\Order;
 use App\Enum\UserOrderBy;
 use App\Service\ActivityService;
+use App\Service\CategoryService;
 use App\Service\CommentService;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -37,14 +38,21 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
      */
     private $userService;
 
+    /**
+     * @var CategoryService
+     */
+    private $categoryService;
+
     public function __construct(
         ActivityService $activityService,
         CommentService $commentService,
-        UserService $userService)
+        UserService $userService,
+        CategoryService $categoryService)
     {
         $this->activityService = $activityService;
         $this->commentService = $commentService;
         $this->userService = $userService;
+        $this->categoryService = $categoryService;
     }
 
     /**
@@ -153,5 +161,29 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         }
 
         $this->activityService->flush();
+    }
+
+    public function updateDocumentaryCountForCategories()
+    {
+        $categories = $this->categoryService->getAllCategories();
+
+        $updatedCategories = [];
+        foreach ($categories as $category) {
+            $documentaries = $category->getDocumentaries();
+
+            $documentaryCount = 0;
+            foreach ($documentaries as $documentary) {
+                if ($documentary->isPublished()) {
+                    $documentaryCount++;
+                }
+            }
+
+            $category->setDocumentaryCount($documentaryCount);
+            $updatedCategories[] = $category;
+        }
+
+        foreach ($updatedCategories as $updatedCategory) {
+            $this->categoryService->save($updatedCategory);
+        }
     }
 }

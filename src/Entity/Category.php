@@ -67,20 +67,21 @@ class Category
     private $slug;
 
     /**
-     * @ORM\Column(type="integer")
-     *
-     * @var int
-     */
-    private $count;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="category")
      */
     private $documentaries;
 
+    /**
+     * @ORM\Column(type="integer")
+     *
+     * @var int
+     */
+    private $documentaryCount;
+
     public function __construct()
     {
         $this->documentaries = new ArrayCollection();
+        $this->documentaryCount = 0;
     }
 
     public function getId(): ?int
@@ -163,5 +164,21 @@ class Category
         }
 
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDocumentaryCount()
+    {
+        return $this->documentaryCount;
+    }
+
+    /**
+     * @param int $documentaryCount
+     */
+    public function setDocumentaryCount(int $documentaryCount)
+    {
+        $this->documentaryCount = $documentaryCount;
     }
 }
