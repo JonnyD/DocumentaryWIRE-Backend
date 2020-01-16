@@ -10,12 +10,12 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\EpisodicRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\SeriesRepository")
  * @ORM\HasLifecycleCallbacks
  *
  * @Gedmo\Loggable
  */
-class Episodic
+class Series
 {
     /**
      * @ORM\Id()
@@ -25,7 +25,7 @@ class Episodic
     private $id;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Documentary", inversedBy="episodic")
+     * @ORM\OneToOne(targetEntity="App\Entity\Documentary", inversedBy="series")
      * @ORM\JoinColumn(name="documentary_id", referencedColumnName="id")
      */
     private $documentary;
@@ -33,7 +33,7 @@ class Episodic
     /**
      * @var ArrayCollection | Season[]
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\Season", mappedBy="episodic", cascade={"persist"}), fetch="EAGER")
+     * @ORM\OneToMany(targetEntity="App\Entity\Season", mappedBy="series", cascade={"persist"}), fetch="EAGER")
      */
     private $seasons;
 

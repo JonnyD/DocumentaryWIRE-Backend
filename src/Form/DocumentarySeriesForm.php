@@ -14,7 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class DocumentaryEpisodicForm extends AbstractType
+class DocumentarySeriesForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -28,7 +28,7 @@ class DocumentaryEpisodicForm extends AbstractType
             ->add('year', IntegerType::class)
             ->add('length', TextType::class)
             ->add('imdbId', TextType::class)
-            ->add('episodic', EpisodicForm::class, [
+            ->add('episodic', SeriesForm::class, [
                 'required' => true
             ])
             ->add('category', EntityType::class, [
@@ -56,6 +56,6 @@ class DocumentaryEpisodicForm extends AbstractType
 
     public function getName()
     {
-        return "standalone_documentary";
+        return "series_documentary";
     }
 }

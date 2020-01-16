@@ -4,9 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Documentary;
 use App\Entity\DocumentaryVideoSource;
-use App\Entity\Episodic;
 use App\Entity\Poster;
 use App\Entity\Season;
+use App\Entity\Series;
 use App\Entity\Standalone;
 use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
@@ -14,9 +14,9 @@ use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
 use App\Enum\Order;
 use App\Form\AdminDocumentaryForm;
-use App\Form\DocumentaryEpisodicForm;
+use App\Form\DocumentarySeriesForm;
 use App\Form\DocumentaryStandaloneForm;
-use App\Form\EpisodicForm;
+use App\Form\SeriesForm;
 use App\Form\StandaloneForm;
 use App\Service\CategoryService;
 use App\Service\DocumentaryService;
@@ -213,8 +213,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         foreach ($items as $item) {
             if ($item->isStandalone()) {
                 $serialized[] = $this->serializeStandalone($item);
-            } else if ($item->isEpisodic()) {
-                $serialized[] = $this->serializeEpisodic($item);
+            } else if ($item->isSeries()) {
+                $serialized[] = $this->serializeSeries($item);
             } else {
                 //@TODO throw exception
             }
@@ -255,8 +255,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
 
         if ($documentary->isStandalone()) {
             $serialized = $this->serializeStandalone($documentary);
-        } else if ($documentary->isEpisodic()) {
-            $serialized = $this->serializeEpisodic($documentary);
+        } else if ($documentary->isSeries()) {
+            $serialized = $this->serializeSeries($documentary);
         }
 
         return new JsonResponse($serialized, 200, $headers);
@@ -321,18 +321,18 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @FOSRest\Post("/documentary/episodic", name="create_series_ocumentary", options={ "method_prefix" = false })
+     * @FOSRest\Post("/documentary/series", name="create_series_ocumentary", options={ "method_prefix" = false })
      *
      * @param Request $request
      * @return JsonResponse
      */
-    public function createEpisodicDocumentaryAction(Request $request)
+    public function createSeriesDocumentaryAction(Request $request)
     {
         $documentary = new Documentary();
 
-        $episodic = new Episodic();
-        $documentary->setEpisodic($episodic);
-        $documentary->setType(DocumentaryType::EPISODIC);
+        $series = new Series();
+        $documentary->setSeries($series);
+        $documentary->setType(DocumentaryType::SERIES);
         $documentary->setAddedBy($this->getLoggedInUser());
         $documentary->setStatus(DocumentaryStatus::PENDING);
 
@@ -341,7 +341,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        $form = $this->createForm(DocumentaryEpisodicForm::class, $documentary);
+        $form = $this->createForm(DocumentarySeriesForm::class, $documentary);
         $form->handleRequest($request);
 
         if ($request->isMethod('POST')) {
@@ -349,16 +349,16 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                $documentary = $this->imageService->mapEpisodicImages($documentary, $data);
+                $documentary = $this->imageService->mapSeriesImages($documentary, $data);
 
-                $seasons = $documentary->getEpisodic()->getSeasons()->toArray();
+                $seasons = $documentary->getSeries()->getSeasons()->toArray();
                 $documentaryVideoSources = $this->documentaryVideoSourceService
-                    ->addDocumentaryVideoSourcesFromEpisodicDocumentary($seasons, $documentary);
+                    ->addDocumentaryVideoSourcesFroSeriesDocumentary($seasons, $documentary);
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);
 
-                $serialized = $this->serializeEpisodic($documentary);
+                $serialized = $this->serializeSeries($documentary);
                 return new JsonResponse($serialized, 200, $headers);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -419,13 +419,13 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @FOSRest\Patch("/documentary/episodic/{id}", name="partial_update_episodic_documentary", options={ "method_prefix" = false })
+     * @FOSRest\Patch("/documentary/series/{id}", name="partial_update_series_documentary", options={ "method_prefix" = false })
      *
      * @param int $id
      * @param Request $request
      * @return JsonResponse
      */
-    public function editEpisodicDocumentaryAction(int $id, Request $request)
+    public function editSeriesDocumentaryAction(int $id, Request $request)
     {
         /** @var Documentary $documentary */
         $documentary = $this->documentaryService->getDocumentaryById($id);
@@ -434,7 +434,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             return new AccessDeniedException();
         }
 
-        if (!$documentary->isEpisodic()) {
+        if (!$documentary->isSeries()) {
             //@todo
             return null;
         }
@@ -444,7 +444,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        $form = $this->createForm(DocumentaryEpisodicForm::class, $documentary);
+        $form = $this->createForm(DocumentarySeriesForm::class, $documentary);
         $form->handleRequest($request);
 
         if ($request->isMethod('PATCH')) {
@@ -452,16 +452,16 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                $documentary = $this->imageService->mapEpisodicImages($documentary, $data);
+                $documentary = $this->imageService->mapSeriesImages($documentary, $data);
 
-                $seasons = $documentary->getEpisodic()->getSeasons()->toArray();
+                $seasons = $documentary->getSeries()->getSeasons()->toArray();
                 $documentaryVideoSources = $this->documentaryVideoSourceService
-                    ->addDocumentaryVideoSourcesFromEpisodicDocumentary($seasons, $documentary);
+                    ->addDocumentaryVideoSourcesFroSeriesDocumentary($seasons, $documentary);
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);
 
-                $serialized = $this->serializeEpisodic($documentary);
+                $serialized = $this->serializeSeries($documentary);
                 return new JsonResponse($serialized, 200, $headers);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -598,9 +598,9 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      * @param Documentary $documentary
      * @return array
      */
-    private function serializeEpisodic(Documentary $documentary)
+    private function serializeSeries(Documentary $documentary)
     {
-        $episodic = $documentary->getEpisodic();
+        $series = $documentary->getSeries();
 
         $serialized = [
             'id' => $documentary->getId(),
@@ -643,7 +643,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         }
 
         $seasonsArray = [];
-        foreach ($episodic->getSeasons() as $season) {
+        foreach ($series->getSeasons() as $season) {
 
             $episodesArray = [];
             foreach ($season->getEpisodes() as $episode) {

@@ -63,9 +63,9 @@ class DocumentaryVideoSourceService
      * @return array
      * @throws \Doctrine\ORM\ORMException
      */
-    public function addDocumentaryVideoSourcesFromEpisodicDocumentary(array $seasons, Documentary $documentary)
+    public function addDocumentaryVideoSourcesFroSeriesDocumentary(array $seasons, Documentary $documentary)
     {
-        if (!$documentary->isEpisodic()) {
+        if (!$documentary->isSeries()) {
             throw new \Exception();
         }
 

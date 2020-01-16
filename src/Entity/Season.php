@@ -29,12 +29,12 @@ class Season
     private $number;
 
     /**
-     * @var Episodic
+     * @var Series
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Episodic", inversedBy="seasons")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Series", inversedBy="seasons")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $episodic;
+    private $series;
 
     /**
      * @var Episode[] | ArrayCollection
@@ -75,21 +75,21 @@ class Season
     }
 
     /**
-     * @return Episodic
+     * @return Series
      */
-    public function getEpisodic(): ?Episodic
+    public function getSeries(): ?Series
     {
-        return $this->episodic;
+        return $this->series;
     }
 
     /**
-     * @param Episodic $episodic
+     * @param Series $series
      * @return Season
      */
-    public function setDocumentary(?Episodic $episodic): self
+    public function setDocumentary(?Series $series): self
     {
-        $this->episodic = $episodic;
-        $episodic->addSeason($this);
+        $this->series = $series;
+        $series->addSeason($this);
 
         return $this;
     }

@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Documentary;
-use App\Entity\Episodic;
 use App\Entity\Season;
 use Liip\ImagineBundle\Imagine\Data\DataManager;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
@@ -146,9 +145,9 @@ class ImageService
      * @param array $data
      * @return Documentary
      */
-    public function mapEpisodicImages(Documentary $documentary, array $data)
+    public function mapSeriesImages(Documentary $documentary, array $data)
     {
-        $episodic = $documentary->getEpisodic();
+        $series = $documentary->getSeries();
 
         $poster = $data['poster'];
         if ($poster) {
@@ -171,10 +170,10 @@ class ImageService
         }
 
         /** @var Season[] $seasons */
-        $seasons = $documentary->getEpisodic()->getSeasons()->toArray();
+        $seasons = $documentary->getSeries()->getSeasons()->toArray();
 
         foreach ($seasons as $season) {
-            $season->setDocumentary($episodic);
+            $season->setDocumentary($series);
 
             $episodes = $season->getEpisodes();
             foreach ($episodes as $episode) {

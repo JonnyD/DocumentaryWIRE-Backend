@@ -5,5 +5,6 @@ namespace App\Enum;
 class DocumentaryType
 {
     const STANDALONE = "standalone";
-    const EPISODIC = "episodic";
+    const SERIES = "series";
+    const EPISODE = "episode";
 }

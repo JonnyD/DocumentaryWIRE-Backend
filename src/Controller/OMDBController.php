@@ -9,6 +9,7 @@ use App\Object\DTO\Series;
 use App\Object\OMDb;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
+use PhpParser\Comment\Doc;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,11 +49,21 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         }
 
         $searchedDocumentaries = $omdb->search($title);
-        $documentaries = $searchedDocumentaries['Search'];
+        $documentaries = $searchedDocumentaries;
+
+        var_dump($documentaries); die();
 
         $serialized = [];
         foreach ($documentaries as $documentary) {
-            $serialized[] = $this->serializeStandalone($documentary);
+            var_dump($documentary); die();
+            switch($type) {
+                case DocumentaryType::STANDALONE:
+                    $serialized[] = $this->serializeStandalone($documentary);
+                break;
+                case DocumentaryType::SERIES:
+                    $serialized[] = $this->serializeSeries($documentary);
+                break;
+            }
         }
 
         return new JsonResponse($serialized, 200, $headers);
@@ -97,62 +108,72 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         if ($typeFromAPI === 'movie') {
             $type = DocumentaryType::STANDALONE;
         } else if ($typeFromAPI === 'series') {
-            $type = DocumentaryType::EPISODIC;
+            $type = DocumentaryType::SERIES;
+        } else if ($typeFromAPI == DocumentaryType::EPISODE) {
+            $type = DocumentaryType::EPISODE;
         } else {
             return new JsonResponse(null, 400, $headers);
         }
 
-        if ($type === DocumentaryType::EPISODIC) {
-            $seriesDTO = new Series();
-            $seriesDTO->setTitle($result['Title']);
-            $seriesDTO->setPlot($result['Plot']);
-            $seriesDTO->setPoster($result['Poster']);
-            $seriesDTO->setImdbId($result['imdbID']);
-            $seriesDTO->setImdbRating($result['imdbRating']);
-            $seriesDTO->setImdbVotes($result['imdbVotes']);
-
-            $totalSeasons = $result['totalSeasons'];
-
-            for ($i = 1; $i < $totalSeasons; $i++) {
-                $season = $omdb->get_by_id($imdbId, $i);
-                $seasonDTO = new Season();
-                $seasonDTO->setNumber($i);
-
-                $seriesDTO->addSeason($seasonDTO);
-
-                $episodeSummaries = $season['Episodes'];
-                for ($j = 0; $j < count($episodeSummaries); $j++) {
-                    $episodeSummary = $episodeSummaries[$j];
-                    $episodeIMDbID = $episodeSummary['imdbID'];
-
-                    $episode = $omdb->get_by_id($episodeIMDbID);
-                    if ($episode['Response'] === false) {
-                        continue;
-                    }
-
-                    $episodeDTO = new Episode();
-                    $episodeDTO->setNumber($episode['Episode']);
-                    $episodeDTO->setTitle($episode['Title']);
-                    $episodeDTO->setYear($episode['Year']);
-                    $episodeDTO->setDuration($episode['Runtime']);
-                    $episodeDTO->setPlot($episode['Plot']);
-                    $episodeDTO->setThumbnail($episode['Poster']);
-                    $episodeDTO->setIMDbID($episode['imdbID']);
-                    $episodeDTO->setImdbRating($episode['imdbRating']);
-                    $episodeDTO->setImdbVotes($episode['imdbVotes']);
-
-                    $seasonDTO->addEpisode($episodeDTO);
-                }
-            }
-
+        if ($type === DocumentaryType::SERIES) {
+            $seriesDTO = $this->createSeriesDTO($result, $omdb, $imdbId);
             $result = $this->serializeSeries($seriesDTO);
         } else if ($type === DocumentaryType::STANDALONE) {
             $result = $this->serializeStandalone($result);
+        } else if ($type === DocumentaryType::EPISODE) {
+            $result = $this->serializeEpisode($result);
         } else {
             return new JsonResponse(null, 400, $headers);
         }
 
         return new JsonResponse($result, 200, $headers);
+    }
+
+    private function createSeriesDTO(array $result, $omdb, $imdbId)
+    {
+        $seriesDTO = new Series();
+        $seriesDTO->setTitle($result['Title']);
+        $seriesDTO->setPlot($result['Plot']);
+        $seriesDTO->setPoster($result['Poster']);
+        $seriesDTO->setImdbId($result['imdbID']);
+        $seriesDTO->setImdbRating($result['imdbRating']);
+        $seriesDTO->setImdbVotes($result['imdbVotes']);
+
+        $totalSeasons = $result['totalSeasons'];
+
+        for ($i = 1; $i < $totalSeasons; $i++) {
+            $season = $omdb->get_by_id($imdbId, $i);
+            $seasonDTO = new Season();
+            $seasonDTO->setNumber($i);
+
+            $seriesDTO->addSeason($seasonDTO);
+
+            $episodeSummaries = $season['Episodes'];
+            for ($j = 0; $j < count($episodeSummaries); $j++) {
+                $episodeSummary = $episodeSummaries[$j];
+                $episodeIMDbID = $episodeSummary['imdbID'];
+
+                $episode = $omdb->get_by_id($episodeIMDbID);
+                if ($episode['Response'] === false) {
+                    continue;
+                }
+
+                $episodeDTO = new Episode();
+                $episodeDTO->setNumber($episode['Episode']);
+                $episodeDTO->setTitle($episode['Title']);
+                $episodeDTO->setYear($episode['Year']);
+                $episodeDTO->setDuration($episode['Runtime']);
+                $episodeDTO->setPlot($episode['Plot']);
+                $episodeDTO->setThumbnail($episode['Poster']);
+                $episodeDTO->setIMDbID($episode['imdbID']);
+                $episodeDTO->setImdbRating($episode['imdbRating']);
+                $episodeDTO->setImdbVotes($episode['imdbVotes']);
+
+                $seasonDTO->addEpisode($episodeDTO);
+            }
+        }
+
+        return $seriesDTO;
     }
 
     /**
@@ -234,5 +255,25 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         $seriesArray['seasons'] = $seasonsArray;
 
         return $seriesArray;
+    }
+
+    /**
+     * @param array $result
+     * @return array
+     */
+    public function serializeEpisode(array $result)
+    {
+        $serialized = [
+            'title' => $result['Title'],
+            'year' => $result['Year'],
+            'seasonNumber' => $result['Season'],
+            'episodeNumber' => $result['Episode'],
+            'length' => $result['Runtime'],
+            'storyline' => $result['Plot'],
+            'poster' => $result['Poster'],
+            'imdbId' => $result['imdbID']
+        ];
+
+        return $serialized;
     }
 }

@@ -140,12 +140,12 @@ class Documentary
     protected $standalone;
 
     /**
-     * @var Episodic
+     * @var Series
      *
-     * @ORM\OneToOne(targetEntity="App\Entity\Episodic", mappedBy="documentary", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="App\Entity\Series", mappedBy="documentary", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
-    protected $episodic;
+    protected $series;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -426,20 +426,20 @@ class Documentary
     }
 
     /**
-     * @return Episodic|null
+     * @return Series|null
      */
-    public function getEpisodic(): ?Episodic
+    public function getSeries(): ?Series
     {
-        return $this->episodic;
+        return $this->series;
     }
 
     /**
-     * @param Episodic $episodic
+     * @param Series $series
      */
-    public function setEpisodic(Episodic $episodic)
+    public function setSeries(Series $series)
     {
-        $this->episodic = $episodic;
-        $episodic->setDocumentary($this);
+        $this->series = $series;
+        $series->setDocumentary($this);
     }
 
     /**
@@ -453,9 +453,9 @@ class Documentary
     /**
      * @return bool
      */
-    public function isEpisodic(): bool
+    public function isSeries(): bool
     {
-        return ($this->type === DocumentaryType::EPISODIC);
+        return ($this->type === DocumentaryType::SERIES);
     }
 
     /**
