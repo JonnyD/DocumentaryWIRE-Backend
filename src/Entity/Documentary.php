@@ -132,12 +132,12 @@ class Documentary
     protected $type;
 
     /**
-     * @var Standalone
+     * @var Movie
      *
-     * @ORM\OneToOne(targetEntity="App\Entity\Standalone", mappedBy="documentary", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="App\Entity\Movie", mappedBy="documentary", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
-    protected $standalone;
+    protected $movie;
 
     /**
      * @var Series
@@ -409,20 +409,20 @@ class Documentary
     }
 
     /**
-     * @return Standalone|null
+     * @return Movie|null
      */
-    public function getStandalone(): ?Standalone
+    public function getMovie(): ?Movie
     {
-        return $this->standalone;
+        return $this->movie;
     }
 
     /**
-     * @param Standalone $standalone
+     * @param Movie $movie
      */
-    public function setStandalone(Standalone $standalone)
+    public function setMovie(Movie $movie)
     {
-        $this->standalone = $standalone;
-        $standalone->setDocumentary($this);
+        $this->movie = $movie;
+        $movie->setDocumentary($this);
     }
 
     /**
@@ -445,9 +445,9 @@ class Documentary
     /**
      * @return bool
      */
-    public function isStandalone(): bool
+    public function isMovie(): bool
     {
-        return ($this->type === DocumentaryType::STANDALONE);
+        return ($this->type === DocumentaryType::MOVIE);
     }
 
     /**

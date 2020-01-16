@@ -4,20 +4,20 @@ namespace App\Controller;
 
 use App\Entity\Documentary;
 use App\Entity\DocumentaryVideoSource;
+use App\Entity\Movie;
 use App\Entity\Poster;
 use App\Entity\Season;
 use App\Entity\Series;
-use App\Entity\Standalone;
 use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
 use App\Enum\Order;
 use App\Form\AdminDocumentaryForm;
+use App\Form\DocumentaryMovieForm;
 use App\Form\DocumentarySeriesForm;
-use App\Form\DocumentaryStandaloneForm;
 use App\Form\SeriesForm;
-use App\Form\StandaloneForm;
+use App\Form\MovieForm;
 use App\Service\CategoryService;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
@@ -211,8 +211,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         $serialized = [];
         /** @var Documentary $item */
         foreach ($items as $item) {
-            if ($item->isStandalone()) {
-                $serialized[] = $this->serializeStandalone($item);
+            if ($item->isMovie()) {
+                $serialized[] = $this->serializeMovie($item);
             } else if ($item->isSeries()) {
                 $serialized[] = $this->serializeSeries($item);
             } else {
@@ -253,8 +253,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Access-Control-Request-Headers' => [' X-Requested-With'],
         ];
 
-        if ($documentary->isStandalone()) {
-            $serialized = $this->serializeStandalone($documentary);
+        if ($documentary->isMovie()) {
+            $serialized = $this->serializeMovie($documentary);
         } else if ($documentary->isSeries()) {
             $serialized = $this->serializeSeries($documentary);
         }
@@ -263,18 +263,18 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @FOSRest\Post("/documentary/standalone", name="create_standalone_documentary", options={ "method_prefix" = false })
+     * @FOSRest\Post("/documentary/movie", name="create_movie_documentary", options={ "method_prefix" = false })
      *
      * @param Request $request
      * @return JsonResponse
      */
-    public function createStandaloneDocumentaryAction(Request $request)
+    public function createMovieocumentaryAction(Request $request)
     {
         $documentary = new Documentary();
 
-        $standalone = new Standalone();
-        $documentary->setStandalone($standalone);
-        $documentary->setType(DocumentaryType::STANDALONE);
+        $movie = new Movie();
+        $documentary->setMovie($movie);
+        $documentary->setType(DocumentaryType::MOVIE);
         $documentary->setStatus(DocumentaryStatus::PENDING);
         $documentary->setAddedBy($this->getLoggedInUser());
 
@@ -283,7 +283,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        $form = $this->createForm(DocumentaryStandaloneForm::class, $documentary);
+        $form = $this->createForm(DocumentaryMovieForm::class, $documentary);
         $form->handleRequest($request);
 
         if ($request->isMethod('POST')) {
@@ -303,15 +303,15 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             }
 
             if ($form->isSubmitted() && $form->isValid()) {
-                $documentary = $this->imageService->mapStandaloneImages($documentary, $data);
+                $documentary = $this->imageService->mapMovieImages($documentary, $data);
 
                 $documentaryVideoSources = $this->documentaryVideoSourceService
-                    ->addDocumentaryVideoSourcesFromStandaloneDocumentary($data['standalone'], $documentary);
+                    ->addDocumentaryVideoSourcesFromMovieDocumentary($data['movie'], $documentary);
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);
 
-                $serialized = $this->serializeStandalone($documentary);
+                $serialized = $this->serializeMovie($documentary);
                 return new JsonResponse($serialized, 200, $headers);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -368,13 +368,13 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     }
 
     /**
-     * @FOSRest\Patch("/documentary/standalone/{id}", name="partial_update_standalone_documentary", options={ "method_prefix" = false })
+     * @FOSRest\Patch("/documentary/movie/{id}", name="partial_update_movie_documentary", options={ "method_prefix" = false })
      *
      * @param int $id
      * @param Request $request
      * @return JsonResponse
      */
-    public function editStandaloneDocumentaryAction(int $id, Request $request)
+    public function editMovieDocumentaryAction(int $id, Request $request)
     {
         /** @var Documentary $documentary */
         $documentary = $this->documentaryService->getDocumentaryById($id);
@@ -383,8 +383,10 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             return new AccessDeniedException();
         }
 
-        if (!$documentary->isStandalone()) {
+        if (!$documentary->isMovie()) {
             //@todo
+
+            throw new \Exception();
         }
 
         $headers = [
@@ -392,7 +394,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'Access-Control-Allow-Origin' => '*'
         ];
 
-        $form = $this->createForm(DocumentaryStandaloneForm::class, $documentary);
+        $form = $this->createForm(DocumentaryMovieForm::class, $documentary);
         $form->handleRequest($request);
 
         if ($request->isMethod('PATCH')) {
@@ -400,15 +402,15 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                $documentary = $this->imageService->mapStandaloneImages($documentary, $data);
+                $documentary = $this->imageService->mapMovieImages($documentary, $data);
 
                 $documentaryVideoSources = $this->documentaryVideoSourceService
-                    ->addDocumentaryVideoSourcesFromStandaloneDocumentary($data['standalone'], $documentary);
+                    ->addDocumentaryVideoSourcesFromMovieDocumentary($data['movie'], $documentary);
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);
 
-                $serialized = $this->serializeStandalone($documentary);
+                $serialized = $this->serializeMovie($documentary);
                 return new JsonResponse($serialized, 200, $headers);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -525,9 +527,9 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
      * @param Documentary $documentary
      * @return array
      */
-    private function serializeStandalone(Documentary $documentary)
+    private function serializeMovie(Documentary $documentary)
     {
-        $standalone = $documentary->getStandalone();
+        $movie = $documentary->getMovie();
 
         $serialized = [
             'id' => $documentary->getId(),
@@ -580,15 +582,15 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $serialized['videoSources'] = $videoSources;
         }
 
-        if ($standalone->getVideoSource() != null) {
-            $serialized['standalone']['videoSource'] = [
-                'id' => $standalone->getVideoSource()->getId(),
-                'name' => $standalone->getVideoSource()->getName()
+        if ($movie->getVideoSource() != null) {
+            $serialized['movie']['videoSource'] = [
+                'id' => $movie->getVideoSource()->getId(),
+                'name' => $movie->getVideoSource()->getName()
             ];
         }
 
-        if ($standalone->getVideoId() != null) {
-            $serialized['standalone']['videoId'] = $standalone->getVideoId();
+        if ($movie->getVideoId() != null) {
+            $serialized['movie']['videoId'] = $movie->getVideoId();
         }
 
         return $serialized;

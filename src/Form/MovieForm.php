@@ -4,7 +4,7 @@ namespace App\Form;
 
 use App\Entity\Category;
 use App\Entity\Documentary;
-use App\Entity\Standalone;
+use App\Entity\Movie;
 use App\Entity\VideoSource;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -14,7 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class StandaloneForm extends AbstractType
+class MovieForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -52,12 +52,12 @@ class StandaloneForm extends AbstractType
         $resolver->setDefaults([
             'csrf_protection' => false,
             'allow_extra_fields' => true,
-            'data_class' => Standalone::class,
+            'data_class' => Movie::class,
         ]);
     }
 
     public function getName()
     {
-        return "standalone_documentary";
+        return "movie_documentary";
     }
 }

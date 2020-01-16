@@ -22,9 +22,14 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
      *
      * @param Request $request
      */
-    public function searchOMDBStandaloneAction(Request $request)
+    public function searchOMDBAction(Request $request)
     {
         $type = $request->query->get('type');
+        $hasType = DocumentaryType::hasType($type);
+        if (!$hasType) {
+            //@TODO
+            throw new \Exception();
+        }
 
         $omdb = new OMDb();
         $omdb->setParams([
@@ -49,16 +54,13 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         }
 
         $searchedDocumentaries = $omdb->search($title);
-        $documentaries = $searchedDocumentaries;
-
-        var_dump($documentaries); die();
+        var_dump($searchedDocumentaries['Search']); die();
 
         $serialized = [];
-        foreach ($documentaries as $documentary) {
-            var_dump($documentary); die();
+        foreach ($searchedDocumentaries as $documentary) {
             switch($type) {
-                case DocumentaryType::STANDALONE:
-                    $serialized[] = $this->serializeStandalone($documentary);
+                case DocumentaryType::MOVIE:
+                    $serialized[] = $this->serializeMovie($documentary);
                 break;
                 case DocumentaryType::SERIES:
                     $serialized[] = $this->serializeSeries($documentary);
@@ -106,7 +108,7 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
 
         $typeFromAPI = $result['Type'];
         if ($typeFromAPI === 'movie') {
-            $type = DocumentaryType::STANDALONE;
+            $type = DocumentaryType::MOVIE;
         } else if ($typeFromAPI === 'series') {
             $type = DocumentaryType::SERIES;
         } else if ($typeFromAPI == DocumentaryType::EPISODE) {
@@ -118,8 +120,8 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         if ($type === DocumentaryType::SERIES) {
             $seriesDTO = $this->createSeriesDTO($result, $omdb, $imdbId);
             $result = $this->serializeSeries($seriesDTO);
-        } else if ($type === DocumentaryType::STANDALONE) {
-            $result = $this->serializeStandalone($result);
+        } else if ($type === DocumentaryType::MOVIE) {
+            $result = $this->serializeMovie($result);
         } else if ($type === DocumentaryType::EPISODE) {
             $result = $this->serializeEpisode($result);
         } else {
@@ -180,7 +182,7 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
      * @param array $result
      * @return array
      */
-    public function serializeStandalone(array $result)
+    public function serializeMovie(array $result)
     {
         $serialized = [
             'title' => $result['Title'],

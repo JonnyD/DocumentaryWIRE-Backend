@@ -119,7 +119,7 @@ class ImageService
      * @param array $data
      * @return Documentary
      */
-    public function mapStandaloneImages(Documentary $documentary, array $data)
+    public function mapMovieImages(Documentary $documentary, array $data)
     {
         if ($poster = $data['poster']) {
             $currentPoster = $this->params->get('postersUrl') . $documentary->getPoster();

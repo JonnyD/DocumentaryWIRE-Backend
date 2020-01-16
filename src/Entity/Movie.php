@@ -8,12 +8,12 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\StandaloneRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\MovieRepository")
  * @ORM\HasLifecycleCallbacks
  *
  * @Gedmo\Loggable
  */
-class Standalone
+class Movie
 {
     /**
      * @ORM\Id()
@@ -23,7 +23,7 @@ class Standalone
     private $id;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Documentary", inversedBy="standalone")
+     * @ORM\OneToOne(targetEntity="App\Entity\Documentary", inversedBy="movie")
      * @ORM\JoinColumn(name="documentary_id", referencedColumnName="id")
      */
     private $documentary;
@@ -71,7 +71,7 @@ class Standalone
 
     /**
      * @param string $videoId
-     * @return Standalone
+     * @return Movie
      */
     public function setVideoId(string $videoId): self
     {
@@ -90,7 +90,7 @@ class Standalone
 
     /**
      * @param VideoSource|null $videoSource
-     * @return Standalone
+     * @return Movie
      */
     public function setVideoSource(?VideoSource $videoSource): self
     {

@@ -33,9 +33,9 @@ class DocumentaryVideoSourceService
         $this->videoSourceService = $videoSourceService;
     }
 
-    public function addDocumentaryVideoSourcesFromStandaloneDocumentary($standalone, Documentary $documentary)
+    public function addDocumentaryVideoSourcesFromMovieDocumentary($movie, Documentary $documentary)
     {
-        if (!$documentary->isStandalone()) {
+        if (!$documentary->isMovie()) {
             return new \Exception();
         }
 
@@ -44,7 +44,7 @@ class DocumentaryVideoSourceService
             $this->remove($currentDocumentaryVideoSource);
         }
 
-        $videoSourceId = $standalone['videoSource'];
+        $videoSourceId = $movie['videoSource'];
         $videoSource = $this->videoSourceService->getVideoSourceById($videoSourceId);
 
         $documentaryVideoSource = new DocumentaryVideoSource();
