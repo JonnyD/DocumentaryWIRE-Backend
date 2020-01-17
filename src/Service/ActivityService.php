@@ -2,6 +2,12 @@
 
 namespace App\Service;
 
+use App\Object\Activity\ActivityChild;
+use App\Object\Activity\ActivityParent;
+use App\Object\Activity\Data\AddedData;
+use App\Object\Activity\CommentData;
+use App\Object\Activity\Data\WatchlistData;
+use App\Object\Activity\Strategy\ActivityItemStrategyContext;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
 use App\Criteria\ActivityCriteria;
@@ -30,14 +36,30 @@ class ActivityService
     private $request;
 
     /**
+     * @var DocumentaryService
+     */
+    private $documentaryService;
+
+    /**
+     * @var CommentService
+     */
+    private $commentService;
+
+    /**
      * @param ActivityRepository $activityRepository
+     * @param DocumentaryService $documentaryService
+     * @param CommentService $commentService
      * @param RequestStack $requestStack
      */
     public function __construct(
         ActivityRepository $activityRepository,
+        DocumentaryService $documentaryService,
+        CommentService $commentService,
         RequestStack $requestStack)
     {
         $this->activityRepository = $activityRepository;
+        $this->documentaryService = $documentaryService;
+        $this->commentService = $commentService;
         $this->request = $requestStack->getCurrentRequest();
     }
 
@@ -332,58 +354,21 @@ class ActivityService
     {
         $activityArray = array();
 
-        $previousGroupNumber = null;
-        /** @var Activity $activityItem */
-        foreach ($activity as $activityItem) {
-            $type = $activityItem->getType();
-            $groupNumber = $activityItem->getGroupNumber();
-            $user = $activityItem->getUser();
-            $name = $user->getName();
-            $avatar = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar();
-            $data = $activityItem->getData();
-            $created = $activityItem->getCreatedAt();
+        $previousGroupNumber = 0;
+        /** @var Activity $activityEntity */
+        foreach ($activity as $activityEntity) {
+            $type = $activityEntity->getType();
+            $groupNumber = $activityEntity->getGroupNumber();
+            $createdAt = $activityEntity->getCreatedAt();
 
             $activityArray[$groupNumber]['type'] = $type;
-            $activityArray[$groupNumber]['created'] = $created;
+            $activityArray[$groupNumber]['created'] = $createdAt;
 
-            if ($type == "like") {
-                if ($groupNumber != $previousGroupNumber) {
-                    $data['documentaryThumbnail'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $data['documentaryThumbnail'];
-                    $activityArray[$groupNumber]['parent']['data'] = $data;
-                    $activityArray[$groupNumber]['parent']['user']['name'] = $name;
-                    $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
-                } else {
-                    $data['documentaryThumbnail'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $data['documentaryThumbnail'];
-                    $child['data'] = $data;
-                    $child['user']['name'] = $name;
-                    $child['user']['avatar'] = $avatar;
-                    $activityArray[$groupNumber]['child'][] = $child;
-                }
-            } else if ($type == "comment") {
-                $activityArray[$groupNumber]['parent']['user']['name'] = $name;
-                $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
-                $activityArray[$groupNumber]['parent']['data'] = $data;
-            } else if ($type == "joined") {
-                if ($groupNumber != $previousGroupNumber) {
-                    $activityArray[$groupNumber]['parent']['user']['name'] = $name;
-                    $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
-                } else {
-                    $child['user']['name'] = $name;
-                    $child['user']['avatar'] = $avatar;#
-                    $activityArray[$groupNumber]['child'][] = $child;
-                }
-            } else if ($type == "added") {
-                if ($groupNumber != $previousGroupNumber) {
-                    $activityArray[$groupNumber]['parent']['data'] = $data;
-                    $activityArray[$groupNumber]['parent']['user']['name'] = $name;
-                    $activityArray[$groupNumber]['parent']['user']['avatar'] = $avatar;
-                } else {
-                    $child['data'] = $data;
-                    $child['user']['name'] = $name;
-                    $child['user']['avatar'] = $avatar;
-                    $activityArray[$groupNumber]['child'][] = $child;
-                }
-            }
+            $activityItemStrategyContext = new ActivityItemStrategyContext(
+                $type,
+                $this->documentaryService, $this->commentService,
+                $groupNumber, $previousGroupNumber);
+            $activityArray[$groupNumber][] = $activityItemStrategyContext->createActivity($activityEntity);
 
             $previousGroupNumber = $groupNumber;
         }
