@@ -31,7 +31,7 @@ class YoutubeController extends AbstractFOSRestController implements ClassResour
 
         $apiKey = $_ENV['YOUTUBE_KEY'];
 
-        $link = "https://www.googleapis.com/youtube/v3/search?part=id%2C%20snippet&maxResults=50&order=relevance&q=". urlencode($search) . "&key=" . $apiKey;
+        $link = "https://www.googleapis.com/youtube/v3/search?part=id%2C%20snippet&maxResults=50&order=relevance&type=video&q=". urlencode($search) . "&key=" . $apiKey;
 
         $video = file_get_contents($link);
 
