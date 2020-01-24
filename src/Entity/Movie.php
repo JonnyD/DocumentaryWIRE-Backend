@@ -23,6 +23,16 @@ class Movie
     private $id;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(type="integer", nullable=true)
+     * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
+     */
+    protected $year;
+
+    /**
      * @ORM\OneToOne(targetEntity="App\Entity\Documentary", inversedBy="movie")
      * @ORM\JoinColumn(name="documentary_id", referencedColumnName="id")
      */
@@ -46,6 +56,22 @@ class Movie
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getYear(): ?int
+    {
+        return $this->year;
+    }
+
+    /**
+     * @param int $year
+     */
+    public function setYear(int $year): void
+    {
+        $this->year = $year;
     }
 
     public function getDocumentary(): ?Documentary

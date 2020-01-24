@@ -22,6 +22,16 @@ class Series
     private $poster;
 
     /**
+     * @var int
+     */
+    private $yearFrom;
+
+    /**
+     * @var int
+     */
+    private $yearTo;
+
+    /**
      * @var string
      */
     private $imdbId;
@@ -92,6 +102,38 @@ class Series
     public function setPoster(string $poster): void
     {
         $this->poster = $poster;
+    }
+
+    /**
+     * @return int
+     */
+    public function getYearFrom(): ?int
+    {
+        return $this->yearFrom;
+    }
+
+    /**
+     * @param int $yearFrom
+     */
+    public function setYearFrom(int $yearFrom): void
+    {
+        $this->yearFrom = $yearFrom;
+    }
+
+    /**
+     * @return int
+     */
+    public function getYearTo(): ?int
+    {
+        return $this->yearTo;
+    }
+
+    /**
+     * @param int $yearTo
+     */
+    public function setYearTo(int $yearTo): void
+    {
+        $this->yearTo = $yearTo;
     }
 
     /**

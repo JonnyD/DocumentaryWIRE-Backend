@@ -75,14 +75,6 @@ class Documentary
     /**
      * @ORM\Column(type="integer", nullable=true)
      * @Gedmo\Versioned
-     *
-     * @Assert\NotBlank
-     */
-    protected $year;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     * @Gedmo\Versioned
      */
     protected $length;
 
@@ -211,6 +203,8 @@ class Documentary
         $this->documentaryVideoSources = new ArrayCollection();
         $this->featured = false;
         $this->views = 0;
+        $this->commentCount = 0;
+        $this->watchlistCount = 0;
     }
 
     public function getId(): ?int
@@ -278,18 +272,6 @@ class Documentary
     public function setSummary(string $summary): self
     {
         $this->summary = $summary;
-
-        return $this;
-    }
-
-    public function getYear(): ?int
-    {
-        return $this->year;
-    }
-
-    public function setYear(int $year): self
-    {
-        $this->year = $year;
 
         return $this;
     }
