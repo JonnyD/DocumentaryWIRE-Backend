@@ -94,8 +94,12 @@ class ImageService
      */
     public function isBase64(string $string)
     {
+        $extensions = [];
+        array_push($extensions, 'data:image/jpeg;base64');
+        array_push($extensions,'data:image/png;base64');
+
         $exploded = explode(',', $string);
-        if ($exploded[0] === 'data:image/png;base64') {
+        if (in_array($exploded[0], $extensions)) {
             return true;
         }
         return false;
@@ -151,18 +155,14 @@ class ImageService
 
         $poster = $data['poster'];
         if ($poster) {
-            $postersUrl = $this->params->get('postersUrl');
-            $currentPoster = $postersUrl . $documentary->getPoster();
-            if ($poster != $currentPoster) {
-                $posterFileName = $this->uploadPoster($poster);
-                $documentary->setPoster($posterFileName);
-            }
+            $posterFileName = $this->uploadPoster($poster);
+            $documentary->setPoster($posterFileName);
         }
 
         $wideImage = $data['wideImage'];
         if ($wideImage) {
             $wideImagesUrl = $this->params->get('wideImagesUrl');
-            $currentWideImage = $wideImagesUrl . $documentary->getPoster();
+            $currentWideImage = $wideImagesUrl . $documentary->getWideImage();
             if ($wideImage != $currentWideImage) {
                 $wideImageFileName = $this->uploadWideImage($wideImage);
                 $documentary->setWideImage($wideImageFileName);
@@ -231,7 +231,6 @@ class ImageService
 
         if ($image) {
             $outputFileWithoutExtension = uniqid();
-
             $isBase64 = $this->isBase64($image);
             $isUrl = $this->isUrl($image);
 
