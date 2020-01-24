@@ -611,7 +611,8 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'slug' => $documentary->getSlug(),
             'storyline' => $documentary->getStoryline(),
             'summary' => $documentary->getSummary(),
-            'year' => $documentary->getYear(),
+            'yearFrom' => $series->getYearFrom(),
+            'yearTo' => $series->getYearTo(),
             'status' => $documentary->getStatus(),
             'views' => $documentary->getViews(),
             'shortUrl' => $documentary->getShortUrl(),
@@ -657,14 +658,13 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                     'summary' => $episode->getSummary(),
                     'duration' => $episode->getLength(),
                     'year' => $episode->getYear(),
-                    'videoSource' => $episode->getVideoSource(),
+                    'videoSource' => $episode->getVideoSource()->getName(),
                     'videoId' => $episode->getVideoId(),
                     'thumbnail' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $episode->getThumbnailImagePath(),
                 ];
             }
 
-            $seasonArray = [];
-            $seasonArray[] = [
+            $seasonArray = [
                 'number' => $season->getNumber(),
                 'episodes' => $episodesArray
             ];
