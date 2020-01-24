@@ -9,6 +9,7 @@ use App\Criteria\UserCriteria;
 use App\Criteria\WatchlistCriteria;
 use App\Entity\Activity;
 use App\Enum\ActivityOrderBy;
+use App\Enum\ActivityType;
 use App\Enum\CommentOrderBy;
 use App\Enum\CommentStatus;
 use App\Enum\DocumentaryStatus;
@@ -104,7 +105,6 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         //$this->updateCommentCountForDocumentaries();
         //$this->updateDocumentaryCountForCategories();
         //$this->updateWatchlistCountForDocumentaries();
-
     }
 
     public function updateJoinedActivity()
@@ -247,6 +247,36 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
 
         foreach ($updatedDocumentaries as $updatedDocumentary) {
             $this->documentaryService->save($updatedDocumentary);
+        }
+    }
+
+
+
+    /**
+     * @TODO tombstone
+     */
+    private function fixActivityData()
+    {
+        $criteria = new ActivityCriteria();
+        $activities = $this->activityService->getAllActivityByCriteria($criteria);
+
+        foreach ($activities as $activity) {
+            $data = $activity->getData();
+
+            if ($activity->getType() === ActivityType::LIKE) {
+                $oldThumbnailPath = $data['documentaryThumbnail'];
+
+                if (strpos($oldThumbnailPath, "documentary/")) {
+                    $exploded = explode("documentary/", $oldThumbnailPath);
+                    $data['documentaryThumbnail'] = $exploded[1];
+                } else if (strpos($oldThumbnailPath, "/") != null) {
+                    $exploded = explode("/", $oldThumbnailPath);
+                    $data['documentaryThumbnail'] = $exploded[1];
+                }
+
+                $activity->setData($data);
+                $this->activityService->save($activity);
+            }
         }
     }
 }
