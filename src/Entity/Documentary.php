@@ -106,6 +106,26 @@ class Documentary
     protected $featured;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(type="integer", nullable=false)
+     * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
+     */
+    protected $yearFrom;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(type="integer", nullable=true)
+     * @Gedmo\Versioned
+     *
+     * @Assert\NotBlank
+     */
+    protected $yearTo;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
@@ -624,6 +644,38 @@ class Documentary
         return serialize(array(
             $this->title
         ));
+    }
+
+    /**
+     * @return int
+     */
+    public function getYearFrom(): int
+    {
+        return $this->yearFrom;
+    }
+
+    /**
+     * @param int $yearFrom
+     */
+    public function setYearFrom(int $yearFrom): void
+    {
+        $this->yearFrom = $yearFrom;
+    }
+
+    /**
+     * @return int
+     */
+    public function getYearTo(): ?int
+    {
+        return $this->yearTo;
+    }
+
+    /**
+     * @param int $yearTo
+     */
+    public function setYearTo(int $yearTo): void
+    {
+        $this->yearTo = $yearTo;
     }
 
     /**

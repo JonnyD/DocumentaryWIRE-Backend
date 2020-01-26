@@ -25,27 +25,6 @@ class Series
     private $id;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(type="integer", nullable=true)
-     * @Gedmo\Versioned
-     *
-     * @Assert\NotBlank
-     */
-    protected $yearFrom;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(type="integer", nullable=true)
-     * @Gedmo\Versioned
-     *
-     * @Assert\NotBlank
-     */
-    protected $yearTo;
-
-
-    /**
      * @ORM\OneToOne(targetEntity="App\Entity\Documentary", inversedBy="series")
      * @ORM\JoinColumn(name="documentary_id", referencedColumnName="id")
      */
@@ -69,38 +48,6 @@ class Series
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @return int
-     */
-    public function getYearFrom(): ?int
-    {
-        return $this->yearFrom;
-    }
-
-    /**
-     * @param int $yearFrom
-     */
-    public function setYearFrom(int $yearFrom): void
-    {
-        $this->yearFrom = $yearFrom;
-    }
-
-    /**
-     * @return int
-     */
-    public function getYearTo(): ?int
-    {
-        return $this->yearTo;
-    }
-
-    /**
-     * @param int $yearTo
-     */
-    public function setYearTo(int $yearTo): void
-    {
-        $this->yearTo = $yearTo;
     }
 
     /**
