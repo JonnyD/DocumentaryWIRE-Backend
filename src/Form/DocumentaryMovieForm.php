@@ -25,7 +25,7 @@ class DocumentaryMovieForm extends AbstractType
                 'empty_data' => '',
                 'required' => true
             ])
-            ->add('year', IntegerType::class)
+            ->add('yearFrom', IntegerType::class)
             ->add('length', TextType::class)
             ->add('imdbId', TextType::class)
             ->add('movie', MovieType::class)

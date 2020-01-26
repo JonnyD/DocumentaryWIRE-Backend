@@ -120,8 +120,6 @@ class Documentary
      *
      * @ORM\Column(type="integer", nullable=true)
      * @Gedmo\Versioned
-     *
-     * @Assert\NotBlank
      */
     protected $yearTo;
 
@@ -649,7 +647,7 @@ class Documentary
     /**
      * @return int
      */
-    public function getYearFrom(): int
+    public function getYearFrom(): ?int
     {
         return $this->yearFrom;
     }
