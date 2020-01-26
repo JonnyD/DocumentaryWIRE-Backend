@@ -152,11 +152,15 @@ class ImageService
     public function mapSeriesImages(Documentary $documentary, array $data)
     {
         $series = $documentary->getSeries();
-
+        
         $poster = $data['poster'];
         if ($poster) {
-            $posterFileName = $this->uploadPoster($poster);
-            $documentary->setPoster($posterFileName);
+            $postersUrl = $this->params->get('postersUrl');
+            $currentPoster = $postersUrl . $documentary->getPoster();
+            if ($poster != $currentPoster) {
+                $posterFileName = $this->uploadPoster($poster);
+                $documentary->setPoster($posterFileName);
+            }
         }
 
         $wideImage = $data['wideImage'];
