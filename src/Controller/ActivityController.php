@@ -140,32 +140,4 @@ class ActivityController extends AbstractFOSRestController implements ClassResou
             'updatedAt' => $activity->getUpdatedAt()
         ];
     }
-
-    /**
-     * @TODO tombstone
-     */
-    private function sync()
-    {
-        $criteria = new ActivityCriteria();
-        $activities = $this->activityService->getAllActivityByCriteria($criteria);
-
-        foreach ($activities as $activity) {
-            $data = $activity->getData();
-
-            if ($activity->getType() === ActivityType::LIKE) {
-                $oldThumbnailPath = $data['documentaryThumbnail'];
-
-                if (strpos($oldThumbnailPath, "documentary/")) {
-                    $exploded = explode("documentary/", $oldThumbnailPath);
-                    $data['documentaryThumbnail'] = $exploded[1];
-                } else if (strpos($oldThumbnailPath, "/") != null) {
-                    $exploded = explode("/", $oldThumbnailPath);
-                    $data['documentaryThumbnail'] = $exploded[1];
-                }
-
-                $activity->setData($data);
-                $this->activityService->save($activity);
-            }
-        }
-    }
 }
