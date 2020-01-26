@@ -14,8 +14,6 @@ class SeriesForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('yearFrom', IntegerType::class)
-            ->add('yearTo', IntegerType::class)
             ->add('seasons', CollectionType::class, [
                 'entry_type' => SeasonForm::class,
                 'entry_options' => ['label' => false],
