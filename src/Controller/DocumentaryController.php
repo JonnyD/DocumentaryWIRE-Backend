@@ -611,13 +611,13 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'slug' => $documentary->getSlug(),
             'storyline' => $documentary->getStoryline(),
             'summary' => $documentary->getSummary(),
-            'yearFrom' => $series->getYearFrom(),
-            'yearTo' => $series->getYearTo(),
             'status' => $documentary->getStatus(),
             'views' => $documentary->getViews(),
             'shortUrl' => $documentary->getShortUrl(),
             'featured' => $documentary->getFeatured(),
             'imdbId' => $documentary->getImdbId(),
+            'yearFrom' => $documentary->getYearFrom(),
+            'yearTo' => $documentary->getYearTo(),
             'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $documentary->getPosterImagePath(),
             'wideImage' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $documentary->getWideImagePath(),
             'category' => [
@@ -656,7 +656,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                     'imdbId' => $episode->getImdbId(),
                     'storyline' => $episode->getStoryline(),
                     'summary' => $episode->getSummary(),
-                    'duration' => $episode->getLength(),
+                    'length' => $episode->getLength(),
                     'year' => $episode->getYear(),
                     'videoSource' => $episode->getVideoSource()->getName(),
                     'videoId' => $episode->getVideoId(),
@@ -672,7 +672,9 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $seasonsArray[] = $seasonArray;
         }
 
-        $serialized['seasons'] = $seasonsArray;
+        $serialized['series'] = [
+            'seasons' => $seasonsArray
+        ];
 
         return $serialized;
     }
