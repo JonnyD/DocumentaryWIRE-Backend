@@ -36,7 +36,7 @@ class EpisodeForm extends AbstractType
             ])
             ->add('videoId', TextType::class)
             ->add('thumbnail', TextType::class, [
-                'mapped' => true,
+                'mapped' => false,
                 'required' => true
             ]);
     }

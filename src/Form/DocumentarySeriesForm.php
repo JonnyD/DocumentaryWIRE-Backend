@@ -37,11 +37,11 @@ class DocumentarySeriesForm extends AbstractType
                 'choice_label' => 'id',
             ])
             ->add('poster', TextType::class, [
-                'mapped' => true,
+                'mapped' => false,
                 'required' => true
             ])
             ->add('wideImage', TextType::class, [
-                'mapped' => true,
+                'mapped' => false,
                 'required' => true
             ]);
     }
