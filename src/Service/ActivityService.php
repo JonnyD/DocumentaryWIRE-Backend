@@ -365,6 +365,9 @@ class ActivityService
             $username = $user->getUsername();
             $created = $activityItem->getCreatedAt();
 
+            $activityArray[$groupNumber]['type'] = $type;
+            $activityArray[$groupNumber]['created'] = $created;
+
             $dataStrategyContext = new DataStrategyContext(
                 $type,
                 $this->request,
@@ -372,10 +375,8 @@ class ActivityService
                 $this->commentService);
             $data = $dataStrategyContext->createData($activityItem);
 
-            $activityArray[$groupNumber]['type'] = $type;
-            $activityArray[$groupNumber]['created'] = $created;
-
-            if ($type == "like") {
+            $hasChildren = ActivityType::hasChildren($type);
+            if ($hasChildren) {
                 if ($groupNumber != $previousGroupNumber) {
                     $activityParent = new ActivityParent();
                     $activityParent->setName($name);
@@ -394,7 +395,7 @@ class ActivityService
 
                     $activityArray[$groupNumber]['child'][] = $activityChild->toArray();
                 }
-            } else if ($type == "comment") {
+            } else {
                 $activityParent = new ActivityParent();
                 $activityParent->setName($name);
                 $activityParent->setUsername($username);
@@ -402,43 +403,6 @@ class ActivityService
                 $activityParent->setData($data);
 
                 $activityArray[$groupNumber]['parent'] = $activityParent->toArray();
-            } else if ($type == "joined") {
-                if ($groupNumber != $previousGroupNumber) {
-                    $activityParent = new ActivityParent();
-                    $activityParent->setData($data);
-                    $activityParent->setName($name);
-                    $activityParent->setUsername($username);
-                    $activityParent->setAvatar($avatar);
-
-                    $activityArray[$groupNumber]['parent'] = $activityParent->toArray();
-                } else {
-                    $activityChild = new ActivityChild();
-                    $activityChild->setData($data);
-                    $activityChild->setUsername($username);
-                    $activityChild->setName($name);
-                    $activityChild->setAvatar($avatar);
-
-                    $activityArray[$groupNumber]['child'][] = $activityChild->toArray();
-                }
-            } else if ($type == "added") {
-                if ($groupNumber != $previousGroupNumber) {
-                    $activityParent = new ActivityParent();
-                    $activityParent->setData($data);
-                    $activityParent->setName($name);
-                    $activityParent->setUsername($username);
-                    $activityParent->setAvatar($avatar);
-
-                    $activityArray[$groupNumber]['parent'] = $activityParent->toArray();
-                } else {
-
-                    $activityChild = new ActivityChild();
-                    $activityChild->setData($data);
-                    $activityChild->setUsername($username);
-                    $activityChild->setName($name);
-                    $activityChild->setAvatar($avatar);
-
-                    $activityArray[$groupNumber]['child'][] = $activityChild->toArray();
-                }
             }
 
             $previousGroupNumber = $groupNumber;
