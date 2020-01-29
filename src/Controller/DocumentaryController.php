@@ -168,7 +168,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         }
 
         $yearFrom = $request->query->get('yearFrom');
-        if (isset($year)) {
+        if (isset($yearFrom)) {
             $criteria->setYear($yearFrom);
         }
 
@@ -216,7 +216,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             } else if ($item->isSeries()) {
                 $serialized[] = $this->serializeSeries($item);
             } else {
-                //@TODO throw exception
+                throw new \Exception();
             }
         }
 
