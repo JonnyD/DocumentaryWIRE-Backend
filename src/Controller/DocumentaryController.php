@@ -167,9 +167,9 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             $criteria->setCategory($category);
         }
 
-        $year = $request->query->get('year');
+        $yearFrom = $request->query->get('yearFrom');
         if (isset($year)) {
-            $criteria->setYear($year);
+            $criteria->setYear($yearFrom);
         }
 
         $duration = $request->query->get('duration');
@@ -538,7 +538,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'slug' => $documentary->getSlug(),
             'storyline' => $documentary->getStoryline(),
             'summary' => $documentary->getSummary(),
-            'year' => $documentary->getYear(),
+            'year' => $documentary->getYearFrom(),
             'length' => $documentary->getLength(),
             'status' => $documentary->getStatus(),
             'views' => $documentary->getViews(),

@@ -60,7 +60,7 @@ class DocumentaryRepository extends ServiceEntityRepository
     {
         $rsm = new ResultSetMapping();
 
-        $sql = "SELECT DISTINCT(year) FROM documentary WHERE year IS NOT NULL ORDER BY year";
+        $sql = "SELECT DISTINCT(year_from) FROM documentary WHERE year_from IS NOT NULL ORDER BY year_from";
 
         $stmt = $this->getEntityManager()->getConnection()->prepare($sql);
         $stmt->execute();
@@ -139,8 +139,8 @@ class DocumentaryRepository extends ServiceEntityRepository
         }
         
         if ($criteria->getYear()) {
-            $qb->andWhere('documentary.year = :year')
-                ->setParameter('year', $criteria->getYear());
+            $qb->andWhere('documentary.yearFrom = :yearFrom')
+                ->setParameter('yearFrom', $criteria->getYear());
         }
 
         if ($criteria->getType()) {
