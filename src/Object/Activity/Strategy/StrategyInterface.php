@@ -6,5 +6,5 @@ use App\Entity\Activity;
 
 interface StrategyInterface
 {
-    public function createActivity(Activity $activityEntity);
+    public function createData(Activity $activity);
 }

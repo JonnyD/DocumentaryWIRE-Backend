@@ -6,20 +6,17 @@ use App\Entity\Activity;
 use App\Object\Activity\ActivityChild;
 use App\Object\Activity\ActivityParent;
 use App\Object\Activity\Data\CommentData;
+use App\Object\Activity\Data\Data;
 use App\Object\Activity\Strategy\StrategyInterface;
 use App\Service\CommentService;
+use Symfony\Component\HttpFoundation\Request;
 
 class StrategyComment implements StrategyInterface
 {
     /**
-     * @var int
+     * @var Request
      */
-    private $groupNumber;
-
-    /**
-     * @var int
-     */
-    private $previousGroupNumber;
+    private $request;
 
     /**
      * @var CommentService
@@ -27,33 +24,24 @@ class StrategyComment implements StrategyInterface
     private $commentService;
 
     /**
-     * @param int $groupNumber
-     * @param int $previousGroupNumber
+     * StrategyComment constructor.
+     * @param Request $request
      * @param CommentService $commentService
      */
     public function __construct(
-        int $groupNumber,
-        int $previousGroupNumber,
+        Request $request,
         CommentService $commentService)
     {
-        $this->groupNumber = $groupNumber;
-        $this->previousGroupNumber = $previousGroupNumber;
         $this->commentService = $commentService;
     }
 
     /**
      * @param Activity $activityEntity
-     * @return array
+     * @return Data
      */
-    public function createActivity(Activity $activityEntity)
+    public function createData(Activity $activityEntity)
     {
         $commentId = $activityEntity->getObjectId();
-
-        $user = $activityEntity->getUser();
-        $name = $user->getName();
-        $avatar = $user->getAvatar();
-        $username = $user->getUsername();
-
         $comment = $this->commentService->getCommentById($commentId);
         $documentary = $comment->getDocumentary();
 
@@ -61,28 +49,10 @@ class StrategyComment implements StrategyInterface
         $commentData->setCommentId($comment->getId());
         $commentData->setCommentText($comment->getCommentText());
         $commentData->setDocumentaryId($documentary->getId());
-        $commentData->setDocumentaryPoster($documentary->getPoster());
+        $poster = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPoster();
+        $commentData->setDocumentaryPoster($poster);
         $commentData->setDocumentarySlug($documentary->getSlug());
 
-        $tempActivityArray = [];
-        if ($this->groupNumber != $this->previousGroupNumber) {
-            $parent = new ActivityParent();
-            $parent->setData($commentData);
-            $parent->setName($name);
-            $parent->setAvatar($avatar);
-            $parent->setUsername($username);
-
-            $tempActivityArray['parent'] = $parent->toArray();
-        } else {
-            $child = new ActivityChild();
-            $child->setData($commentData);
-            $child->setName($name);
-            $child->setAvatar($avatar);
-            $child->setUsername($username);
-
-            $tempActivityArray['child'][] = $child->toArray();
-        }
-
-        return $tempActivityArray;
+        return $commentData;
     }
 }

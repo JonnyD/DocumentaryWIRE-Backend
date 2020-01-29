@@ -5,21 +5,18 @@ namespace App\Object\Activity\Strategy\Concrete;
 use App\Entity\Activity;
 use App\Object\Activity\ActivityChild;
 use App\Object\Activity\ActivityParent;
+use App\Object\Activity\Data\Data;
 use App\Object\Activity\Data\WatchlistData;
 use App\Object\Activity\Strategy\StrategyInterface;
 use App\Service\DocumentaryService;
+use Symfony\Component\HttpFoundation\Request;
 
 class StrategyWatchlist implements StrategyInterface
 {
     /**
-     * @var int
+     * @var Request
      */
-    private $groupNumber;
-
-    /**
-     * @var int
-     */
-    private $previousGroupNumber;
+    private $request;
 
     /**
      * @var DocumentaryService
@@ -27,33 +24,24 @@ class StrategyWatchlist implements StrategyInterface
     private $documentaryService;
 
     /**
-     * @param int $groupNumber
-     * @param int $previousGroupNumber
+     * @param Request $request
      * @param DocumentaryService $documentaryService
      */
     public function __construct(
-        int $groupNumber,
-        int $previousGroupNumber,
+        Request $request,
         DocumentaryService $documentaryService)
     {
-        $this->groupNumber = $groupNumber;
-        $this->previousGroupNumber = $previousGroupNumber;
+        $this->request = $request;
         $this->documentaryService = $documentaryService;
     }
 
     /**
      * @param Activity $activityEntity
-     * @return array
+     * @return Data
      */
-    public function createActivity(Activity $activityEntity)
+    public function createData(Activity $activityEntity)
     {
         $documentaryId = $activityEntity->getObjectId();
-
-        $user = $activityEntity->getUser();
-        $name = $user->getName();
-        $avatar = $user->getAvatar();
-        $username = $user->getUsername();
-
         $documentary = $this->documentaryService->getDocumentaryById($documentaryId);
 
         $watchlistData = new WatchlistData();
@@ -61,28 +49,9 @@ class StrategyWatchlist implements StrategyInterface
         $watchlistData->setDocumentaryTitle($documentary->getTitle());
         $watchlistData->setDocumentarySlug($documentary->getSlug());
         $watchlistData->setDocumentarySummary($documentary->getSummary());
-        //$poster = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPoster();
-        //$watchlistData->setDocumentaryPoster($poster);
+        $poster = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPoster();
+        $watchlistData->setDocumentaryPoster($poster);
 
-        $tempActivityArray = [];
-        if ($this->groupNumber != $this->previousGroupNumber) {
-            $parent = new ActivityParent();
-            $parent->setData($watchlistData);
-            $parent->setName($name);
-            $parent->setAvatar($avatar);
-            $parent->setUsername($username);
-
-            $tempActivityArray['parent'] = $parent->toArray();
-        } else {
-            $child = new ActivityChild();
-            $child->setData($watchlistData);
-            $child->setName($name);
-            $child->setAvatar($avatar);
-            $child->setUsername($username);
-
-            $tempActivityArray['child'][] = $child->toArray();
-        }
-
-        return $tempActivityArray;
+        return $watchlistData;
     }
 }

@@ -10,51 +10,41 @@ use App\Object\Activity\Strategy\Concrete\StrategyJoined;
 use App\Object\Activity\Strategy\Concrete\StrategyWatchlist;
 use App\Service\CommentService;
 use App\Service\DocumentaryService;
+use Symfony\Component\HttpFoundation\Request;
 
-class ActivityItemStrategyContext
+class DataStrategyContext
 {
     /**
      * @var StrategyInterface|null
      */
     private $strategy = null;
 
-    /**
-     * @param string $type
-     * @param DocumentaryService $documentaryService
-     * @param CommentService $commentService
-     * @param int $groupNumber
-     * @param int $previousGroupNumber
-     */
     public function __construct(
         string $type,
+        Request $request,
         DocumentaryService $documentaryService,
-        CommentService $commentService,
-        int $groupNumber = 0,
-        int $previousGroupNumber = 0)
+        CommentService $commentService)
     {
         switch ($type) {
             case ActivityType::LIKE:
                 $this->strategy = new StrategyWatchlist(
-                    $groupNumber,
-                    $previousGroupNumber,
-                    $documentaryService);
+                    $request,
+                    $documentaryService
+                );
             break;
             case ActivityType::COMMENT:
                 $this->strategy = new StrategyComment(
-                    $groupNumber,
-                    $previousGroupNumber,
-                    $commentService);
+                    $request,
+                    $commentService
+                );
             break;
             case ActivityType::JOINED:
-                $this->strategy = new StrategyJoined(
-                    $groupNumber,
-                    $previousGroupNumber);
+                $this->strategy = new StrategyJoined();
             break;
             case ActivityType::ADDED:
                 $this->strategy = new StrategyAdded(
-                    $groupNumber,
-                    $previousGroupNumber,
-                    $documentaryService);
+                    $documentaryService
+                );
             break;
         }
     }
@@ -63,8 +53,8 @@ class ActivityItemStrategyContext
      * @param Activity $activityEntity
      * @return mixed
      */
-    public function createActivity(Activity $activityEntity)
+    public function createData(Activity $activityEntity)
     {
-        return $this->strategy->createActivity($activityEntity);
+        return $this->strategy->createData($activityEntity);
     }
 }

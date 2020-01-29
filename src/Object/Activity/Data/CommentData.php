@@ -22,6 +22,11 @@ class CommentData implements Data
     /**
      * @var string
      */
+    private $documentaryTitle;
+
+    /**
+     * @var string
+     */
     private $documentaryPoster;
 
     /**
@@ -80,6 +85,22 @@ class CommentData implements Data
     /**
      * @return string
      */
+    public function getDocumentaryTitle(): string
+    {
+        return $this->documentaryTitle;
+    }
+
+    /**
+     * @param string $documentaryTitle
+     */
+    public function setDocumentaryTitle(string $documentaryTitle): void
+    {
+        $this->documentaryTitle = $documentaryTitle;
+    }
+
+    /**
+     * @return string
+     */
     public function getDocumentaryPoster(): string
     {
         return $this->documentaryPoster;
@@ -115,6 +136,7 @@ class CommentData implements Data
             'commentId' => $this->commentId,
             'commentText' => $this->commentText,
             'documentaryId' => $this->documentaryId,
+            'documentaryTitle' => $this->documentaryTitle,
             'documentarySlug' => $this->documentarySlug,
             'documentaryPoster' => $this->documentaryPoster
         ];

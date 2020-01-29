@@ -7,7 +7,7 @@ use App\Object\Activity\ActivityParent;
 use App\Object\Activity\Data\AddedData;
 use App\Object\Activity\CommentData;
 use App\Object\Activity\Data\WatchlistData;
-use App\Object\Activity\Strategy\ActivityItemStrategyContext;
+use App\Object\Activity\Strategy\DataStrategyContext;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
 use App\Criteria\ActivityCriteria;
@@ -352,23 +352,94 @@ class ActivityService
      */
     private function convertActivityToArray(array $activity)
     {
-        $activityArray = array();
+        $activityArray = [];
 
         $previousGroupNumber = 0;
         /** @var Activity $activityEntity */
-        foreach ($activity as $activityEntity) {
-            $type = $activityEntity->getType();
-            $groupNumber = $activityEntity->getGroupNumber();
-            $createdAt = $activityEntity->getCreatedAt();
+        foreach ($activity as $activityItem) {
+            $type = $activityItem->getType();
+            $groupNumber = $activityItem->getGroupNumber();
+            $user = $activityItem->getUser();
+            $name = $user->getName();
+            $avatar = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar();
+            $username = $user->getUsername();
+            $created = $activityItem->getCreatedAt();
+
+            $dataStrategyContext = new DataStrategyContext(
+                $type,
+                $this->request,
+                $this->documentaryService,
+                $this->commentService);
+            $data = $dataStrategyContext->createData($activityItem);
 
             $activityArray[$groupNumber]['type'] = $type;
-            $activityArray[$groupNumber]['created'] = $createdAt;
+            $activityArray[$groupNumber]['created'] = $created;
 
-            $activityItemStrategyContext = new ActivityItemStrategyContext(
-                $type,
-                $this->documentaryService, $this->commentService,
-                $groupNumber, $previousGroupNumber);
-            $activityArray[$groupNumber][] = $activityItemStrategyContext->createActivity($activityEntity);
+            if ($type == "like") {
+                if ($groupNumber != $previousGroupNumber) {
+                    $activityParent = new ActivityParent();
+                    $activityParent->setName($name);
+                    $activityParent->setUsername($username);
+                    $activityParent->setAvatar($avatar);
+                    $activityParent->setData($data);
+
+                    $activityArray[$groupNumber]['parent'] = $activityParent->toArray();
+
+                } else {
+                    $activityChild = new ActivityChild();
+                    $activityChild->setData($data);
+                    $activityChild->setUsername($username);
+                    $activityChild->setName($name);
+                    $activityChild->setAvatar($avatar);
+
+                    $activityArray[$groupNumber]['child'][] = $activityChild->toArray();
+                }
+            } else if ($type == "comment") {
+                $activityParent = new ActivityParent();
+                $activityParent->setName($name);
+                $activityParent->setUsername($username);
+                $activityParent->setAvatar($avatar);
+                $activityParent->setData($data);
+
+                $activityArray[$groupNumber]['parent'] = $activityParent->toArray();
+            } else if ($type == "joined") {
+                if ($groupNumber != $previousGroupNumber) {
+                    $activityParent = new ActivityParent();
+                    $activityParent->setData($data);
+                    $activityParent->setName($name);
+                    $activityParent->setUsername($username);
+                    $activityParent->setAvatar($avatar);
+
+                    $activityArray[$groupNumber]['parent'] = $activityParent->toArray();
+                } else {
+                    $activityChild = new ActivityChild();
+                    $activityChild->setData($data);
+                    $activityChild->setUsername($username);
+                    $activityChild->setName($name);
+                    $activityChild->setAvatar($avatar);
+
+                    $activityArray[$groupNumber]['child'][] = $activityChild->toArray();
+                }
+            } else if ($type == "added") {
+                if ($groupNumber != $previousGroupNumber) {
+                    $activityParent = new ActivityParent();
+                    $activityParent->setData($data);
+                    $activityParent->setName($name);
+                    $activityParent->setUsername($username);
+                    $activityParent->setAvatar($avatar);
+
+                    $activityArray[$groupNumber]['parent'] = $activityParent->toArray();
+                } else {
+
+                    $activityChild = new ActivityChild();
+                    $activityChild->setData($data);
+                    $activityChild->setUsername($username);
+                    $activityChild->setName($name);
+                    $activityChild->setAvatar($avatar);
+
+                    $activityArray[$groupNumber]['child'][] = $activityChild->toArray();
+                }
+            }
 
             $previousGroupNumber = $groupNumber;
         }

@@ -94,7 +94,7 @@
       */
      public function toArray()
      {
-         return [
+ {}        return [
              'data' => $this->data->toArray(),
              'name' => $this->name,
              'avatar' => $this->avatar,
