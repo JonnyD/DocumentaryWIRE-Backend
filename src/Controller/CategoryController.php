@@ -36,7 +36,7 @@ class CategoryController extends AbstractFOSRestController implements ClassResou
      */
     public function listAction()
     {
-        $categories = $this->categoryService->getAllCategories();
+        $categories = $this->categoryService->getAllCategoriesOrderedByName();
 
         $headers = [
             'Content-Type' => 'application/json',
