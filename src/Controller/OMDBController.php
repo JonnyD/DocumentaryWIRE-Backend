@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 
-class OMDBController extends AbstractFOSRestController implements ClassResourceInterface
+class OMDBController extends BaseController implements ClassResourceInterface
 {
     /**
      * @FOSRest\Get("/omdb/search", name="get_documentaries_from_omdb", options={ "method_prefix" = false })
@@ -38,28 +38,18 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
             'apikey' => $_ENV['OMDB_KEY']
         ]);
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Headers' => '*',
-            'Access-Control-Allow-Methods: GET, POST',
-            'Access-Control-Allow-Credentials: true',
-            'Access-Control-Max-Age: 86400',
-            'Access-Control-Request-Headers' => [' X-Requested-With'],
-        ];
 
         $title = $request->query->get('title');
         if (!isset($title)) {
-            return new JsonResponse(null, 400, $headers);
+            return $this->createApiResponse(null, 400);
         }
 
-        /**
         $searchedMovies = [];
         $searchedMovies = $omdb->search($title);
 
         if ($searchedMovies['Response'] == false) {
             $error = $searchedMovies['Error'];
-            return new JsonResponse($error, 404, $headers);
+            return $this->createApiResponse($error, 404);
         }
 
         if ($type != DocumentaryType::EPISODE) {
@@ -70,9 +60,8 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         foreach ($searchedMovies as $movie) {
             $serialized[] = $this->serializeSearchResult($movie);
         }
-**/
 
-        $json = '[
+        /**$json = '[
     {
         "title": "Ancient Aliens",
         "year": "2009–",
@@ -94,8 +83,8 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         "type": "series",
         "poster": null
     }
-]';
-        return new JsonResponse(json_decode($json), 200, $headers);
+]';**/
+        return $this->createApiResponse($serialized, 200);
     }
     /**
      *
@@ -125,24 +114,13 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
             throw new AccessDeniedException();
         }
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Headers' => '*',
-            'Access-Control-Allow-Methods: GET, POST',
-            'Access-Control-Allow-Credentials: true',
-            'Access-Control-Max-Age: 86400',
-            'Access-Control-Request-Headers' => [' X-Requested-With'],
-        ];
-
-        /**
         $season = $request->query->get('season');
         $episode = $request->query->get('episode');
 
         $result = $omdb->get_by_id($imdbId, $season, $episode);
         if ($result['Response'] == false) {
             $error = $result['Error'];
-            return new JsonResponse($error, 404, $headers);
+            return $this->createApiResponse($error, 404);
         }
 
         $typeFromAPI = $result['Type'];
@@ -153,7 +131,7 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         } else if ($typeFromAPI == DocumentaryType::EPISODE) {
             $type = DocumentaryType::EPISODE;
         } else {
-            return new JsonResponse(null, 400, $headers);
+            return $this->createApiResponse(null, 400);
         }
 
         if ($type === DocumentaryType::SERIES) {
@@ -164,11 +142,10 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         } else if ($type === DocumentaryType::EPISODE) {
             $result = $this->serializeEpisode($result);
         } else {
-            return new JsonResponse(null, 400, $headers);
+            return $this->createApiResponse(null, 400);
         }
-**/
 
-        $json = '{
+        /**$json = '{
     "imdbId": "tt1643266",
     "title": "Ancient Aliens",
     "storyline": "Science and mythology - and how they are the same thing.",
@@ -2007,8 +1984,8 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
             ]
         }
     ]
-}';
-        return new JsonResponse(json_decode($json), 200, $headers);
+}';**/
+        return new JsonResponse($result, 200, $headers);
     }
 
     /**
@@ -2028,6 +2005,19 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
         $seriesDTO->setImdbId($result['imdbID']);
         $seriesDTO->setImdbRating($result['imdbRating']);
         $seriesDTO->setImdbVotes($result['imdbVotes']);
+
+        $year = $result['Year'];
+        $years = explode('–', $year);
+
+        $yearFrom = intval($years[0]);
+        $seriesDTO->setYearFrom($yearFrom);
+
+        if (isset($years[1])) {
+            if ($years[1] != null) {
+                $yearTo = intval($years[1]);
+                $seriesDTO->setYearTo($yearTo);
+            }
+        }
 
         $totalSeasons = $result['totalSeasons'];
 
@@ -2110,6 +2100,9 @@ class OMDBController extends AbstractFOSRestController implements ClassResourceI
             'title' => $series->getTitle(),
             'storyline' => $series->getPlot(),
             'poster' => $series->getPoster(),
+            'year' => $series->getYearFrom() . "-" . $series->getYearTo(),
+            'yearFrom' => $series->getYearFrom(),
+            'yearTo' => $series->getYearTo(),
             'imdbRating' => $series->getImdbRating(),
             'imdbVotes' => $series->getImdbVotes()
         ];

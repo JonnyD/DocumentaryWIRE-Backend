@@ -45,7 +45,7 @@ use Symfony\Component\Serializer\Normalizer\DataUriNormalizer;
 use Hshn\Base64EncodedFile\HttpFoundation\File\Base64EncodedFile;
 use Symfony\Component\HttpFoundation\File\File;
 
-class DocumentaryController extends AbstractFOSRestController implements ClassResourceInterface
+class DocumentaryController extends BaseController implements ClassResourceInterface
 {
     /**
      * @var DocumentaryService
@@ -230,7 +230,7 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             'paginate'          => $pagerfanta->haveToPaginate(),
         ];
 
-        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
+        return $this->createApiResponse($data, 200);
     }
 
     /**
@@ -243,23 +243,13 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
     {
         $documentary = $this->documentaryService->getDocumentaryBySlug($slug);
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Headers' => '*',
-            'Access-Control-Allow-Methods: GET, POST',
-            'Access-Control-Allow-Credentials: true',
-            'Access-Control-Max-Age: 86400',
-            'Access-Control-Request-Headers' => [' X-Requested-With'],
-        ];
-
         if ($documentary->isMovie()) {
             $serialized = $this->serializeMovie($documentary);
         } else if ($documentary->isSeries()) {
             $serialized = $this->serializeSeries($documentary);
         }
 
-        return new JsonResponse($serialized, 200, $headers);
+        return $this->createApiResponse($serialized, 200);
     }
 
     /**
@@ -277,11 +267,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         $documentary->setType(DocumentaryType::MOVIE);
         $documentary->setStatus(DocumentaryStatus::PENDING);
         $documentary->setAddedBy($this->getLoggedInUser());
-
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
 
         $form = $this->createForm(DocumentaryMovieForm::class, $documentary);
         $form->handleRequest($request);
@@ -312,10 +297,10 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 $this->documentaryService->save($documentary);
 
                 $serialized = $this->serializeMovie($documentary);
-                return new JsonResponse($serialized, 200, $headers);
+                return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 400, $headers);
+                return $this->createApiResponse($errors, 400);
             }
         }
     }
@@ -336,11 +321,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         $documentary->setAddedBy($this->getLoggedInUser());
         $documentary->setStatus(DocumentaryStatus::PENDING);
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $form = $this->createForm(DocumentarySeriesForm::class, $documentary);
         $form->handleRequest($request);
 
@@ -359,10 +339,10 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 $this->documentaryService->save($documentary);
 
                 $serialized = $this->serializeSeries($documentary);
-                return new JsonResponse($serialized, 200, $headers);
+                return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 400, $headers);
+                return $this->createApiResponse($errors, 400,);
             }
         }
     }
@@ -389,11 +369,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             throw new \Exception();
         }
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $form = $this->createForm(DocumentaryMovieForm::class, $documentary);
         $form->handleRequest($request);
 
@@ -411,10 +386,10 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 $this->documentaryService->save($documentary);
 
                 $serialized = $this->serializeMovie($documentary);
-                return new JsonResponse($serialized, 200, $headers);
+                return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 200, $headers);
+                return $this->createApiResponse($errors, 200);
             }
         }
 
@@ -441,11 +416,6 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
             return null;
         }
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $form = $this->createForm(DocumentarySeriesForm::class, $documentary);
         $form->handleRequest($request);
 
@@ -464,10 +434,10 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
                 $this->documentaryService->save($documentary);
 
                 $serialized = $this->serializeSeries($documentary);
-                return new JsonResponse($serialized, 200, $headers);
+                return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 200, $headers);
+                return $this->createApiResponse($errors, 200);
             }
         }
     }
@@ -677,13 +647,5 @@ class DocumentaryController extends AbstractFOSRestController implements ClassRe
         ];
 
         return $serialized;
-    }
-
-    /**
-     * @return User
-     */
-    private function getLoggedInUser()
-    {
-        return $this->tokenStorage->getToken()->getUser();
     }
 }

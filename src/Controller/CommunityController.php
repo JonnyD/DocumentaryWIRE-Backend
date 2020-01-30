@@ -18,7 +18,7 @@ use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class CommunityController extends AbstractFOSRestController implements ClassResourceInterface
+class CommunityController extends BaseController implements ClassResourceInterface
 {
     /**
      * @var ActivityService
@@ -110,7 +110,7 @@ class CommunityController extends AbstractFOSRestController implements ClassReso
             'paginate'          => $pagerfanta->haveToPaginate(),
         ];
 
-        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
+        return $this->createApiResponse($data, 200);
     }
 
     /**

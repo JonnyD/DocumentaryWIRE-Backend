@@ -32,12 +32,7 @@ class YearController extends AbstractFOSRestController implements ClassResourceI
     {
         $years = $this->yearService->getYears();
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
-        return new JsonResponse($years, 200, $headers);
+        return $this->createApiResponse($years, 200);
     }
 
     public function getYearAction(int $id)

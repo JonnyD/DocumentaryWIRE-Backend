@@ -58,13 +58,8 @@ class VideoSourceController extends AbstractFOSRestController implements ClassRe
         foreach ($videoSources as $videoSource) {
             $formatted[] = $videoSource->jsonSerialize();
         }
-
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
         
-        return new JsonResponse($formatted, 200,  $headers);
+        return $this->createApiResponse($formatted, 200);
     }
 
     /**
@@ -82,7 +77,7 @@ class VideoSourceController extends AbstractFOSRestController implements ClassRe
         }
 
         $data = $this->serializeVideoSource($videoSource);
-        $response = new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
+        $response = $this->createApiResponse($data, 200);
 
         return $response;
     }
@@ -118,7 +113,7 @@ class VideoSourceController extends AbstractFOSRestController implements ClassRe
         }
 
         $data = $this->serializeVideoSource($videoSource);
-        $response = new JsonResponse($data, 200, array('Access-Control-Allow-Origin' => '*'));
+        $response = $this->createApiResponse($data, 200);
 
         return $response;
     }

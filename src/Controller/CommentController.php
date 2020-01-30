@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 
-class CommentController extends AbstractFOSRestController implements ClassResourceInterface
+class CommentController extends BaseController implements ClassResourceInterface
 {
     /**
      * @var CommentService
@@ -109,7 +109,7 @@ class CommentController extends AbstractFOSRestController implements ClassResour
             'paginate'          => $pagerfanta->haveToPaginate(),
         ];
 
-        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
+        return $this->createApiResponse($data, 200);
     }
 
     /**
@@ -122,19 +122,9 @@ class CommentController extends AbstractFOSRestController implements ClassResour
     {
         $comment = $this->commentService->getCommentById($id);
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Headers' => '*',
-            'Access-Control-Allow-Methods: GET, POST',
-            'Access-Control-Allow-Credentials: true',
-            'Access-Control-Max-Age: 86400',
-            'Access-Control-Request-Headers' => [' X-Requested-With'],
-        ];
-
         $serialized = $this->serialiseComment($comment);
 
-        return new JsonResponse($serialized, 200, $headers);
+        return $this->createApiResponse($serialized, 200);
     }
 
     /**
@@ -153,11 +143,6 @@ class CommentController extends AbstractFOSRestController implements ClassResour
             return new AccessDeniedException();
         }
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $form = $this->createForm(CommentForm::class, $comment);
         $form->handleRequest($request);
 
@@ -168,10 +153,10 @@ class CommentController extends AbstractFOSRestController implements ClassResour
             if ($form->isValid()) {
                 $this->commentService->save($comment);
                 $serializedComment = $this->serialiseComment($comment);
-                return new JsonResponse($serializedComment, 200, $headers);
+                return $this->createApiResponse($serializedComment, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 200, $headers);
+                return $this->createApiResponse($errors, 200);
             }
         }
     }

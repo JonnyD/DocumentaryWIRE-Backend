@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Symfony\Component\HttpFoundation\Request;
 
-class CategoryController extends AbstractFOSRestController implements ClassResourceInterface
+class CategoryController extends BaseController implements ClassResourceInterface
 {
     /**
      * @var CategoryService
@@ -21,7 +21,6 @@ class CategoryController extends AbstractFOSRestController implements ClassResou
 
     /**
      * @param CategoryService $categoryService
-     * @param Serializer $serializer
      */
     public function __construct(
         CategoryService $categoryService)
@@ -38,14 +37,9 @@ class CategoryController extends AbstractFOSRestController implements ClassResou
     {
         $categories = $this->categoryService->getAllCategoriesOrderedByName();
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $serialized = $this->serializeCategories($categories);
 
-        return new JsonResponse($serialized, 200, $headers);
+        return $this->createApiResponse($serialized, 200);
     }
 
     /**
@@ -58,19 +52,9 @@ class CategoryController extends AbstractFOSRestController implements ClassResou
     {
         $category = $this->categoryService->getCategoryBySlug($slug);
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Headers' => '*',
-            'Access-Control-Allow-Methods: GET, POST',
-            'Access-Control-Allow-Credentials: true',
-            'Access-Control-Max-Age: 86400',
-            'Access-Control-Request-Headers' => [' X-Requested-With'],
-        ];
-
         $serialized = $this->serializeCategory($category);
 
-        return new JsonResponse($serialized, 200, $headers);
+        return $this->createApiResponse($serialized, 200);
     }
 
     /**
@@ -89,11 +73,6 @@ class CategoryController extends AbstractFOSRestController implements ClassResou
             return new AccessDeniedException();
         }
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $form = $this->createForm(CategoryForm::class, $category);
         $form->handleRequest($request);
 
@@ -104,10 +83,10 @@ class CategoryController extends AbstractFOSRestController implements ClassResou
             if ($form->isValid()) {
                 $this->categoryService->save($category);
                 $serializedCategory = $this->serializeCategory($category);
-                return new JsonResponse($serializedCategory, 200, $headers);
+                return $this->createApiResponse($serializedCategory, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 200, $headers);
+                return $this->createApiResponse($errors, 200);
             }
         }
     }

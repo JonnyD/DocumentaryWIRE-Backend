@@ -36,7 +36,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 
-class UserController extends AbstractFOSRestController implements ClassResourceInterface
+class UserController extends BaseController implements ClassResourceInterface
 {
     /**
      * @var TokenStorageInterface
@@ -100,11 +100,6 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
      */
     public function registerAction(Request $request)
     {
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $user = new User();
         $form = $this->createForm(RegisterForm::class, $user);
         $data = json_decode($request->getContent(), true);
@@ -118,12 +113,12 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
             $emailAlreadyExists = $this->userManager->findUserByEmail($email);
             if ($emailAlreadyExists){
-                return new JsonResponse("Email ".$email." already exists", 200, $headers);
+                return $this->createApiResponse("Email ".$email." already exists", 200);
             }
 
             $usernameAlreadyExists = $this->userManager->findUserByUsername($username);
             if ($usernameAlreadyExists){
-                return new JsonResponse("Username ".$username." already exists", 200, $headers);
+                return $this->createApiResponse("Username ".$username." already exists", 200);
             }
 
             $user->setName($name);
@@ -142,10 +137,10 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
             //@TODO send activation code email
 
-            return new JsonResponse($this->serializeUser($user));
+            return $this->createApiResponse($this->serializeUser($user), 200);
         } else {
             $errors = (string)$form->getErrors(true, false);
-            return new JsonResponse($errors, 400, $headers);
+            return $this->createApiResponse($errors, 400);
         }
     }
 
@@ -160,7 +155,7 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
         $loggedInUser = $this->getLoggedInUser();
         $data = $this->serializeUser($loggedInUser);
 
-        return new JsonResponse($data, 200);
+        return $this->createApiResponse($data, 200);
     }
 
     /**
@@ -173,30 +168,31 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
     {
         $username = $request->query->get('username');
         if ($username == null || $username == 'undefined') {
-            return new JsonResponse("Username not found", 404);
+            return $this->createApiResponse("Username not found", 404);
         }
 
         $confirmationToken = $request->query->get('confirmation_token');
         if ($confirmationToken == null || $confirmationToken == 'undefined') {
-            return new JsonResponse("Confirmation Token not found", 404);
+            return $this->createApiResponse("Confirmation Token not found", 404);
         }
 
         $userInDatabase = $this->userService->getUserByUsername($username);
         if ($userInDatabase === null) {
-            return new JsonResponse("User not found", 404);
+            return $this->createApiResponse("User not found", 404);
         }
 
         if ($userInDatabase->isActivated()) {
-            return new JsonResponse("Already confirmed", 200);
+            return $this->createApiResponse("Already confirmed", 200);
         }
 
         if ($confirmationToken === $userInDatabase->getConfirmationToken()) {
             $this->userService->confirmUser($userInDatabase);
 
-            return new JsonResponse("Successfully confirmed", 200);
+            return $this->createApiResponse("Successfully confirmed", 200);
         }
 
-        return new JsonResponse('TODO', 200);
+        //@TODO
+        return $this->createApiResponse('TODO', 200);
     }
 
     /**
@@ -207,29 +203,24 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
      */
     public function resendAction(Request $request)
     {
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $email = $request->query->get('email');
 
         if ($email == null || $email == 'undefined') {
-            return new JsonResponse("Email not entered", 404, $headers);
+            return $this->createApiResponse("Email not entered", 404);
         }
 
         $userInDatabase = $this->userService->getUserByEmail($email);
         if ($userInDatabase === null) {
-            return new JsonResponse("Email not found", 404, $headers);
+            return $this->createApiResponse("Email not found", 404);
         }
 
         if ($userInDatabase->isActivated()) {
-            return new JsonResponse("Already confirmed", 200, $headers);
+            return $this->createApiResponse("Already confirmed", 200);
         }
 
         //@TODO send email
 
-        return new JsonResponse('We have resent a new confirmation email', 200, $headers);
+        return $this->createApiResponse('We have resent a new confirmation email', 200);
     }
 
     /**
@@ -240,11 +231,6 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
      */
     public function resetPasswordAction(Request $request)
     {
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $data = [];
         $form = $this->createForm(ResetPasswordForm::class, $data);
 
@@ -254,26 +240,26 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
             $resetKey = $data['reset_key'];
             if ($resetKey === null) {
-                return new JsonResponse("Reset key not found", 400, $headers);
+                return $this->createApiResponse("Reset key not found", 400);
             }
 
             $username = $data['username'];
             if ($username === null) {
-                return new JsonResponse("Username not found", 400, $headers);
+                return $this->createApiResponse("Username not found", 400);
             }
 
             $newPassword = $data['password'];
             if ($newPassword === null) {
-                return new JsonResponse("Password not found", 400, $headers);
+                return $this->createApiResponse("Password not found", 400);
             }
 
             $userFromDatabase = $this->userService->getUserByUsername($username);
             if ($userFromDatabase === null) {
-                return new JsonResponse("User does not exist", 403, $headers);
+                return $this->createApiResponse("User does not exist", 403);
             }
 
             if ($resetKey !== $userFromDatabase->getResetKey()) {
-                return new JsonResponse("Reset key does not exist", 403, $headers);
+                return $this->createApiResponse("Reset key does not exist", 403);
             }
 
             $now = new \DateTime();
@@ -281,7 +267,7 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
                     ->diff($now)->format('H') > 24;
 
             if ($isGreaterThan24Hours) {
-                return new JsonResponse("Reset key expired", 403, $headers);
+                return $this->createApiResponse("Reset key expired", 403);
             }
 
             if ($form->isSubmitted() && $form->isValid()) {
@@ -290,10 +276,10 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
                 $this->userService->resetPassword($userFromDatabase);
 
-                return new JsonResponse("New password set", 200, $headers);
+                return $this->createApiResponse("New password set", 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 400, $headers);
+                return $this->createApiResponse($errors, 400);
             }
         }
     }
@@ -306,11 +292,6 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
      */
     public function forgotUsernameAction(Request $request)
     {
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $data = [];
         $form = $this->createForm(ForgotUsernameForm::class, $data);
 
@@ -320,20 +301,20 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
             $email = $data['email'];
             if ($email === null) {
-                return new JsonResponse("Email not found", 400, $headers);
+                return new JsonResponse("Email not found", 400);
             }
 
             $user = $this->userService->getUserByEmail($email);
             if ($user === null) {
-                return new JsonResponse("User not found", 400, $headers);
+                return $this->createApiResponse("User not found", 400);
             }
 
             if ($form->isSubmitted() && $form->isValid()) {
                 //@TODO send email with username
-                return new JsonResponse("Email has been sent", 200, $headers);
+                return $this->createApiResponse("Email has been sent", 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 400, $headers);
+                return $this->createApiResponse($errors, 400);
             }
         }
     }
@@ -391,7 +372,7 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
             'paginate'          => $pagerfanta->haveToPaginate(),
         ];
 
-        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
+        return $this->createApiResponse($data, 200);
     }
 
     /**
@@ -405,10 +386,10 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
         $user = $this->userService->getUserByUsername($username);
         if (!$user) {
             $data = null;
-            return new JsonResponse($data, 404);
+            return $this->createApiResponse($data, 404);
         } else {
             $data = $this->serializeUser($user);
-            return new JsonResponse($data, 200);
+            return $this->createApiResponse($data, 200);
         }
     }
 
@@ -443,18 +424,13 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
                 $form->addError(new FormError('Username already exists'));
             }
 
-            $headers = [
-                'Content-Type' => 'application/json',
-                'Access-Control-Allow-Origin' => '*'
-            ];
-
             if ($form->isSubmitted() && $form->isValid()) {
                 $this->userService->save($user);
                 $serialized = $this->serializeUser($user);
-                return new JsonResponse($serialized, 200, $headers);
+                return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 400, $headers);
+                return $this->createApiResponse($errors, 400);
             }
         }
     }
@@ -485,11 +461,6 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
         $form = $this->createForm(ChangePasswordForm::class, $userInfo);
         $form->handleRequest($request);
-
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
 
         if ($request->isMethod('POST')) {
             $form->submit($userInfo);
@@ -522,13 +493,13 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
                     $this->userService->save($user);
 
                     $serialized = $this->serializeUser($user);
-                    return new JsonResponse($serialized, 200, $headers);
+                    return $this->createApiResponse($serialized, 200);
                 }
             }
         }
 
         $errors = (string)$form->getErrors(true, false);
-        return new JsonResponse($errors, 400, $headers);
+        return $this->createApiResponse($errors, 400);
     }
 
     /**
@@ -545,11 +516,6 @@ class UserController extends AbstractFOSRestController implements ClassResourceI
 
         $form = $this->createForm(ForgotPasswordForm::class, $userInfo);
         $form->handleRequest($request);
-
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
 
         if ($request->isMethod('POST')) {
             $data = json_decode($request->getContent(), true);
@@ -585,21 +551,13 @@ To reset your password, visit the following address: " . $url</p>');
 
                     $this->mailer->send($email);
 
-                    return new JsonResponse("An email has been sent", 200, $headers);
+                    return $this->createApiResponse("An email has been sent", 200, $headers);
                 }
             }
         }
 
         $errors = (string)$form->getErrors(true, false);
-        return new JsonResponse($errors, 400, $headers);
-    }
-
-    /**
-     * @return User
-     */
-    private function getLoggedInUser()
-    {
-        return $this->tokenStorage->getToken()->getUser();
+        return $this->createApiResponse($errors, 400);
     }
 
     /**

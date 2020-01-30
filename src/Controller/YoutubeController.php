@@ -18,7 +18,7 @@ use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class YoutubeController extends AbstractFOSRestController implements ClassResourceInterface
+class YoutubeController extends BaseController implements ClassResourceInterface
 {
     /**
      * @FOSRest\Get("/youtube/search", name="get_youtube", options={ "method_prefix" = false })
@@ -37,7 +37,7 @@ class YoutubeController extends AbstractFOSRestController implements ClassResour
 
         $video = json_decode($video, true);
 
-        return new JsonResponse($video, 200, array('Access-Control-Allow-Origin'=> '*'));
+        return $this->createApiResponse($video, 200);
     }
 
     /**
@@ -57,9 +57,9 @@ class YoutubeController extends AbstractFOSRestController implements ClassResour
         $video = json_decode($video, true);
 
         if ($video['pageInfo']['totalResults'] === 0) {
-            return new JsonResponse(null, 404, array('Access-Control-Allow-Origin'=> '*'));
+            return $this->createApiResponse(null, 404);
         }
 
-        return new JsonResponse($video, 200, array('Access-Control-Allow-Origin'=> '*'));
+        return $this->createApiResponse($video, 200);
     }
 }

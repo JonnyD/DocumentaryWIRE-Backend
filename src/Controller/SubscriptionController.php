@@ -19,7 +19,7 @@ use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class SubscriptionController extends AbstractFOSRestController implements ClassResourceInterface
+class SubscriptionController extends BaseController implements ClassResourceInterface
 {
     /**
      * @var SubscriptionService
@@ -61,18 +61,8 @@ class SubscriptionController extends AbstractFOSRestController implements ClassR
     {
         $subscription = $this->subscriptionService->getSubscriptionById($id);
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Headers' => '*',
-            'Access-Control-Allow-Methods: GET, POST',
-            'Access-Control-Allow-Credentials: true',
-            'Access-Control-Max-Age: 86400',
-            'Access-Control-Request-Headers' => [' X-Requested-With'],
-        ];
-
         $serialized = $this->serializeSubscription($subscription);
-        return new JsonResponse($serialized, 200, $headers);
+        return $this->createApiResponse($serialized, 200);
     }
 
     /**
@@ -114,18 +104,13 @@ class SubscriptionController extends AbstractFOSRestController implements ClassR
                 $form->addError(new FormError("Subscription already exists"));
             }
 
-            $headers = [
-                'Content-Type' => 'application/json',
-                'Access-Control-Allow-Origin' => '*'
-            ];
-
             if ($form->isSubmitted() && $form->isValid()) {
                 $this->subscriptionService->save($subscription);
                 $subscription = $this->serializeSubscription($subscription);
-                return new JsonResponse($subscription, 200, $headers);
+                return $this->createApiResponse($subscription, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 200, $headers);
+                return $this->createApiResponse($errors, 200,);
             }
         }
     }
@@ -199,7 +184,7 @@ class SubscriptionController extends AbstractFOSRestController implements ClassR
             'paginate'          => $pagerfanta->haveToPaginate(),
         ];
 
-        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
+        return $this->createApiResponse($data, 200);
     }
 
     /**
@@ -210,16 +195,6 @@ class SubscriptionController extends AbstractFOSRestController implements ClassR
      */
     public function removeSubscriptionAction(int $id)
     {
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Headers' => '*',
-            'Access-Control-Allow-Methods: GET, POST',
-            'Access-Control-Allow-Credentials: true',
-            'Access-Control-Max-Age: 86400',
-            'Access-Control-Request-Headers' => [' X-Requested-With'],
-        ];
-
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
 
         $subscription = $this->subscriptionService->getSubscriptionById($id);
@@ -232,15 +207,7 @@ class SubscriptionController extends AbstractFOSRestController implements ClassR
             $this->subscriptionService->remove($subscription);
         }
 
-        return new JsonResponse("Deleted", 200, $headers);
-    }
-
-    /**
-     * @return User
-     */
-    private function getLoggedInUser()
-    {
-        return $this->tokenStorage->getToken()->getUser();
+        return $this->createApiResponse("Deleted", 200);
     }
 
     /**

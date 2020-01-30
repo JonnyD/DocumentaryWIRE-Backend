@@ -118,7 +118,7 @@ class WatchlistController extends AbstractFOSRestController implements ClassReso
             'paginate'          => $pagerfanta->haveToPaginate(),
         ];
 
-        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
+        return $this->createApiResponse($data, 200);
     }
 
     private function serializeWatchlist(Watchlist $watchlist)

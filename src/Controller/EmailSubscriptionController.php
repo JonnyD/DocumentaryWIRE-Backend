@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Symfony\Component\HttpFoundation\Request;
 
-class EmailSubscriptionController extends AbstractFOSRestController implements ClassResourceInterface
+class EmailSubscriptionController extends BaseController implements ClassResourceInterface
 {
     /**
      * @var EmailService
@@ -87,11 +87,7 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
             'paginate'          => $pagerfanta->haveToPaginate(),
         ];
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-        return new JsonResponse($data, 200, $headers);
+        return $this->createApiResponse($data, 200);
     }
 
     /**
@@ -106,19 +102,9 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
 
         $email = $this->emailService->getEmailById($id);
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Headers' => '*',
-            'Access-Control-Allow-Methods: GET, POST',
-            'Access-Control-Allow-Credentials: true',
-            'Access-Control-Max-Age: 86400',
-            'Access-Control-Request-Headers' => [' X-Requested-With'],
-        ];
-
         $serialized = $this->serializeEmail($email);;
 
-        return new JsonResponse($serialized, 200, $headers);
+        return $this->createApiResponse($serialized, 200);
     }
 
     /**
@@ -132,11 +118,6 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
         $this->denyAccessUnlessGranted("ROLE_ADMIN");
 
         $email = new Email();
-
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
 
         $form = $this->createForm(EmailForm::class, $email);
         $form->handleRequest($request);
@@ -153,10 +134,10 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
                 $this->emailService->save($email);
 
                 $serialized = $this->serializeEmail($email);
-                return new JsonResponse($serialized, 200, $headers);
+                return $this->createApiResponse($serialized, 200,);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 400, $headers);
+                return $this->createApiResponse($errors, 400);
             }
         }
     }
@@ -178,11 +159,6 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
             return new AccessDeniedException();
         }
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $form = $this->createForm(EmailForm::class, $email);
         $form->handleRequest($request);
 
@@ -196,10 +172,10 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
                 $this->emailService->save($email);
 
                 $serialized = $this->serializeEmail($email);
-                return new JsonResponse($serialized, 200, $headers);
+                return $this->createApiResponse($serialized, 200,);
             } else {
                 $errors = (string)$form->getErrors(true, false);
-                return new JsonResponse($errors, 400, $headers);
+                return $this->createApiResponse($errors, 400);
             }
         }
 
@@ -213,28 +189,23 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
      */
     public function unsubscribeAction(Request $request)
     {
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
         $emailAddress = $request->query->get('email');
         if (!$emailAddress) {
-            return new JsonResponse("Email not found", 400, $headers);
+            return $this->createApiResponse("Email not found", 400,);
         } else {
             $existingEmail = $this->emailService->getEmailByEmailAddress($emailAddress);
             if (!$existingEmail) {
-                return new JsonResponse("Email not found", 400, $headers);
+                return $this->createApiResponse("Email not found", 400,);
             }
         }
 
         $subscriptionKey = $request->query->get('subscription_key');
         if (!$subscriptionKey) {
-            return new JsonResponse("Subscription key not found", 400, $headers);
+            return $this->createApiResponse("Subscription key not found", 400);
         } else {
             $existingEmail = $this->emailService->getEmailByEmailAddressAndSubscriptionKey($emailAddress, $subscriptionKey);
             if (!$existingEmail) {
-                return new JsonResponse("Subscription key not found", 400, $headers);
+                return $this->createApiResponse("Subscription key not found", 400);
             }
         }
         $unsubscribeData = [
@@ -250,13 +221,13 @@ class EmailSubscriptionController extends AbstractFOSRestController implements C
         if ($form->isSubmitted() && $form->isValid()) {
             $unsubscribed = $this->emailService->unsubscribe($emailAddress);
             if ($unsubscribed) {
-                return new JsonResponse("Email Unsubscribed", 200, $headers);
+                return $this->createApiResponse("Email Unsubscribed", 200);
             } else {
-                return new JsonResponse("An error occurred", 400, $headers);
+                return $this->createApiResponse("An error occurred", 400);
             }
         } else {
             $errors = (string)$form->getErrors(true, false);
-            return new JsonResponse($errors, 400, $headers);
+            return new JsonResponse($errors, 400);
         }
     }
 

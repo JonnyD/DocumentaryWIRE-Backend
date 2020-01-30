@@ -18,7 +18,7 @@ use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class ActivityController extends AbstractFOSRestController implements ClassResourceInterface
+class ActivityController extends BaseController implements ClassResourceInterface
 {
     /**
      * @var ActivityService
@@ -103,7 +103,7 @@ class ActivityController extends AbstractFOSRestController implements ClassResou
             'paginate'          => $pagerfanta->haveToPaginate(),
         ];
 
-        return new JsonResponse($data, 200, array('Access-Control-Allow-Origin'=> '*'));
+        return $this->createApiResponse($data, 200);
     }
 
     /**
@@ -114,13 +114,7 @@ class ActivityController extends AbstractFOSRestController implements ClassResou
     public function listForWidgetAction()
     {
         $activities = $this->activityService->getRecentActivityForWidget();
-
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-
-        return new JsonResponse($activities, 200, $headers);
+        return $this->createApiResponse($activities, 200);
     }
 
     private function serializeActivity(Activity $activity)

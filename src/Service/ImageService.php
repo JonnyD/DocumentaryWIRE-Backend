@@ -171,21 +171,53 @@ class ImageService
             }
         }
 
-        /** @var Season[] $seasons */
-        $seasons = $documentary->getSeries()->getSeasons()->toArray();
-
+        $seasons = $data['series']['seasons'];
         foreach ($seasons as $season) {
-            $season->setDocumentary($series);
+            $seasonNumber = $season['number'];
 
-            $episodes = $season->getEpisodes();
+            $episodes = $season['episodes'];
             foreach ($episodes as $episode) {
-                $thumbnail = $episode->getThumbnail();
-                $thumbnailFileName = $this->uploadThumbnail($thumbnail);
-                $episode->setThumbnail($thumbnailFileName);
+                $episodeNumber = $episode['number'];
+                $episodeObject = $this->getEpisodeFromDocumentaryObject($documentary, $seasonNumber, $episodeNumber);
+                $currentThumbnail = $episodeObject->getThumbnail();
+
+                $newThumbnail = $episode['thumbnail'];
+                if ($currentThumbnail != $newThumbnail) {
+                    $thumbnailFileName = $this->uploadThumbnail($newThumbnail);
+                    $episodeObject->setThumbnail($thumbnailFileName);
+                }
             }
         }
 
         return $documentary;
+    }
+
+    /**
+     * @param Documentary $documentary
+     * @param int $seasonNumber
+     * @param int $episodeNumber
+     * @return \App\Entity\Episode|mixed|null
+     */
+    public function getEpisodeFromDocumentaryObject(Documentary $documentary, int $seasonNumber, int $episodeNumber)
+    {
+        $currentEpisode = null;
+
+        foreach ($documentary->getSeries()->getSeasons() as $season) {
+            if ($season->getNumber() === $seasonNumber) {
+                foreach ($season->getEpisodes() as $episode) {
+                    if ($episode->getNumber() === $episodeNumber) {
+                        $currentEpisode = $episode;
+                    }
+                }
+            }
+        }
+
+        return $currentEpisode;
+    }
+
+    public function getThumbnailFromDataBySeasonAndEpisode(array $data, int $seasonIndex, int $episodeIndex)
+    {
+        return $data['series']['seasons'][$seasonIndex]['episodes'][$episodeIndex]['thumbnail'];
     }
 
     /**
