@@ -2,11 +2,7 @@
 
 namespace App\Service;
 
-use App\Object\Activity\ActivityChild;
-use App\Object\Activity\ActivityParent;
-use App\Object\Activity\Data\AddedData;
-use App\Object\Activity\CommentData;
-use App\Object\Activity\Data\WatchlistData;
+use App\Object\Activity\Activity as ActivityObject;
 use App\Object\Activity\Strategy\DataStrategyContext;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
@@ -375,34 +371,21 @@ class ActivityService
                 $this->commentService);
             $data = $dataStrategyContext->createData($activityItem);
 
+            $activityObject = new ActivityObject();
+            $activityObject->setName($name);
+            $activityObject->setUsername($username);
+            $activityObject->setAvatar($avatar);
+            $activityObject->setData($data);
+
             $hasChildren = ActivityType::hasChildren($type);
             if ($hasChildren) {
                 if ($groupNumber != $previousGroupNumber) {
-                    $activityParent = new ActivityParent();
-                    $activityParent->setName($name);
-                    $activityParent->setUsername($username);
-                    $activityParent->setAvatar($avatar);
-                    $activityParent->setData($data);
-
-                    $activityArray[$groupNumber]['parent'] = $activityParent->toArray();
-
+                    $activityArray[$groupNumber]['parent'] = $activityObject->toArray();
                 } else {
-                    $activityChild = new ActivityChild();
-                    $activityChild->setData($data);
-                    $activityChild->setUsername($username);
-                    $activityChild->setName($name);
-                    $activityChild->setAvatar($avatar);
-
-                    $activityArray[$groupNumber]['child'][] = $activityChild->toArray();
+                    $activityArray[$groupNumber]['child'][] = $activityObject->toArray();
                 }
             } else {
-                $activityParent = new ActivityParent();
-                $activityParent->setName($name);
-                $activityParent->setUsername($username);
-                $activityParent->setAvatar($avatar);
-                $activityParent->setData($data);
-
-                $activityArray[$groupNumber]['parent'] = $activityParent->toArray();
+                $activityArray[$groupNumber]['parent'] = $activityObject->toArray();
             }
 
             $previousGroupNumber = $groupNumber;

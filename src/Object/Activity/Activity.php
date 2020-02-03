@@ -3,7 +3,7 @@
 
  use App\Object\Activity\Data\Data;
 
- abstract class Activity
+class Activity
  {
      /**
       * @var Data
