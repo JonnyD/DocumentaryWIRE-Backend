@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Symfony\Component\HttpFoundation\Request;
 
-class YearController extends AbstractFOSRestController implements ClassResourceInterface
+class YearController extends BaseController implements ClassResourceInterface
 {
     /**
      * @var YearService
