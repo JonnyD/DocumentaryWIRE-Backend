@@ -24,6 +24,11 @@ class UserService
     private $emailService;
 
     /**
+     * @var ActivityService
+     */
+    private $activityService;
+
+    /**
      * @var UserPasswordEncoderInterface
      */
     private $encoder;
@@ -31,15 +36,18 @@ class UserService
     /**
      * @param UserRepository $userRepository
      * @param EmailService $emailService
+     * @param ActivityService $activityService
      * @param UserPasswordEncoderInterface $encoder
      */
     public function __construct(
         UserRepository $userRepository,
         EmailService $emailService,
+        ActivityService $activityService,
         UserPasswordEncoderInterface $encoder)
     {
         $this->userRepository = $userRepository;
         $this->emailService = $emailService;
+        $this->activityService = $activityService;
         $this->encoder = $encoder;
     }
 
@@ -183,6 +191,8 @@ class UserService
         $this->emailService->subscribe($user->getEmailCanonical());
 
         $this->save($user);
+
+        $this->activityService->addJoinedActivity($user);
     }
     /**
      * @param User $user
