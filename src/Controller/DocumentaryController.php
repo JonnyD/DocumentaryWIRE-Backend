@@ -194,7 +194,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             ]);
         }
 
-        $amountPerPage = $request->query->get('amountPerPage', 12);
+        $amountPerPage = $request->query->get('amountPerPage', 20);
         if (isset($amountPerPage) && $amountPerPage > 50) {
             throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException();
         }
