@@ -60,7 +60,7 @@ class DocumentaryRepository extends ServiceEntityRepository
     {
         $rsm = new ResultSetMapping();
 
-        $sql = "SELECT DISTINCT(year_from) FROM documentary WHERE year_from IS NOT NULL ORDER BY year_from";
+        $sql = "SELECT DISTINCT(year_from) FROM documentary WHERE status = 'publish' AND year_from IS NOT NULL ORDER BY year_from";
 
         $stmt = $this->getEntityManager()->getConnection()->prepare($sql);
         $stmt->execute();
