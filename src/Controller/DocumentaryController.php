@@ -249,8 +249,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
     public function getDocumentaryAction(string $slug)
     {
         $documentary = $this->documentaryService->getDocumentaryBySlug($slug);
-        $documentary->incrementViews();
-        $this->documentaryService->save($documentary);
+
+        $this->documentaryService->updateViews($documentary);
 
         if ($documentary->isMovie()) {
             $serialized = $this->serializeMovie($documentary);

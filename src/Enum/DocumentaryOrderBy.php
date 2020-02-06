@@ -10,4 +10,5 @@ class DocumentaryOrderBy
     const COMMENT_COUNT = "commentCount";
     const WATCHLIST_COUNT = "watchlistCount";
     const YEAR = "year";
+    const TODAY_VIEWS = "todayViews";
 }

@@ -281,6 +281,26 @@ class DocumentaryService
 
     /**
      * @param Documentary $documentary
+     */
+    public function updateViews(Documentary $documentary)
+    {
+        $documentary->incrementViews();
+
+        $today = new \DateTime();
+        $viewsDate = $documentary->getViewsDate();
+
+        if ($today->diff($viewsDate)->d >= 1) {
+            $documentary->setViewsDate($today);
+            $documentary->incrementTodayViews();
+        } else {
+            $documentary->incrementTodayViews();
+        }
+
+        $this->save($documentary);
+    }
+
+    /**
+     * @param Documentary $documentary
      * @param bool $sync
      */
     public function save(Documentary $documentary, bool $sync = true)
