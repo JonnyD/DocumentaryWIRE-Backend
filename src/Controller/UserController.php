@@ -352,7 +352,7 @@ class UserController extends BaseController implements ClassResourceInterface
 
         $adapter = new DoctrineORMAdapter($qb, false);
         $pagerfanta = new Pagerfanta($adapter);
-        $pagerfanta->setMaxPerPage(16);
+        $pagerfanta->setMaxPerPage(25);
         $pagerfanta->setCurrentPage($page);
 
         $items = (array) $pagerfanta->getCurrentPageResults();
