@@ -354,6 +354,10 @@ class Documentary
         return $this;
     }
 
+    public function incrementViews()
+    {
+        $this->views++;
+    }
     public function getShortUrl(): ?string
     {
         return $this->shortUrl;

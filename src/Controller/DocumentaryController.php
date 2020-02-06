@@ -18,6 +18,7 @@ use App\Form\DocumentaryMovieForm;
 use App\Form\DocumentarySeriesForm;
 use App\Form\SeriesForm;
 use App\Form\MovieForm;
+use App\Service\ActivityService;
 use App\Service\CategoryService;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
@@ -83,6 +84,11 @@ class DocumentaryController extends BaseController implements ClassResourceInter
     private $documentaryVideoSourceService;
 
     /**
+     * @var ActivityService
+     */
+    private $activityService;
+
+    /**
      * @var Request
      */
     private $request;
@@ -95,9 +101,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
      * @param CategoryService $categoryService
      * @param VideoSourceService $videoSourceService
      * @param DocumentaryVideoSourceService $documentaryVideoSourceService
+     * @param ActivityService $activityService
      * @param RequestStack $requestStack
-     * @param DataManager $dataManager
-     * @param FilterManager $filterManager
      */
     public function __construct(
         DocumentaryService $documentaryService,
@@ -107,6 +112,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         CategoryService $categoryService,
         VideoSourceService $videoSourceService,
         DocumentaryVideoSourceService $documentaryVideoSourceService,
+        ActivityService $activityService,
         RequestStack $requestStack)
     {
         $this->documentaryService = $documentaryService;
@@ -116,6 +122,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $this->categoryService = $categoryService;
         $this->videoSourceService = $videoSourceService;
         $this->documentaryVideoSourceService = $documentaryVideoSourceService;
+        $this->activityService = $activityService;
         $this->request = $requestStack->getCurrentRequest();
     }
 
@@ -242,6 +249,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
     public function getDocumentaryAction(string $slug)
     {
         $documentary = $this->documentaryService->getDocumentaryBySlug($slug);
+        $documentary->incrementViews();
+        $this->documentaryService->save($documentary);
 
         if ($documentary->isMovie()) {
             $serialized = $this->serializeMovie($documentary);
