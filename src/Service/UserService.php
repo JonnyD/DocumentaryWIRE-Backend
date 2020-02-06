@@ -194,6 +194,17 @@ class UserService
 
         $this->activityService->addJoinedActivity($user);
     }
+
+    /**
+     * @param User $user
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function updateLastLogin(User $user)
+    {
+        $user->setLastLogin(new \DateTime());
+        $this->save($user);
+    }
+
     /**
      * @param User $user
      * @param bool $sync

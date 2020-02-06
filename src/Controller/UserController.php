@@ -152,8 +152,11 @@ class UserController extends BaseController implements ClassResourceInterface
     public function getMeAction()
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         $loggedInUser = $this->getLoggedInUser();
         $data = $this->serializeUser($loggedInUser);
+
+        $this->userService->updateLastLogin($loggedInUser);
 
         return $this->createApiResponse($data, 200);
     }
