@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Documentary;
 use App\Object\Activity\Activity as ActivityObject;
+use App\Object\Activity\ActivityItemObject;
 use App\Object\Activity\Strategy\DataStrategyContext;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
@@ -354,21 +355,24 @@ class ActivityService
      */
     private function convertActivityToArray(array $activity)
     {
-        $activityArray = [];
+        $activityMap = [];
 
         $previousGroupNumber = 0;
         /** @var Activity $activityEntity */
         foreach ($activity as $activityItem) {
-            $type = $activityItem->getType();
             $groupNumber = $activityItem->getGroupNumber();
-            $user = $activityItem->getUser();
-            $name = $user->getName();
-            $avatar = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar();
-            $username = $user->getUsername();
+
+            if (array_key_exists($groupNumber, $activityMap) != null) {
+                $activityItemObject = $activityMap[$groupNumber];
+            } else {
+                $activityItemObject = new ActivityItemObject();
+            }
+
+            $type = $activityItem->getType();
             $created = $activityItem->getCreatedAt();
 
-            $activityArray[$groupNumber]['type'] = $type;
-            $activityArray[$groupNumber]['created'] = $created;
+            $activityItemObject->setType($type);
+            $activityItemObject->setCreated($created);
 
             $dataStrategyContext = new DataStrategyContext(
                 $type,
@@ -376,6 +380,11 @@ class ActivityService
                 $this->documentaryService,
                 $this->commentService);
             $data = $dataStrategyContext->createData($activityItem);
+
+            $user = $activityItem->getUser();
+            $name = $user->getName();
+            $avatar = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar();
+            $username = $user->getUsername();
 
             $activityObject = new ActivityObject();
             $activityObject->setName($name);
@@ -386,20 +395,28 @@ class ActivityService
             $hasChildren = ActivityType::hasChildren($type);
             if ($hasChildren) {
                 if ($groupNumber != $previousGroupNumber) {
-                    $activityArray[$groupNumber]['parent'] = $activityObject->toArray();
+                    $activityItemObject->setParent($activityObject);
                 } else {
-                    $activityArray[$groupNumber]['child'][] = $activityObject->toArray();
+                    $activityItemObject->addChild($activityObject);
                 }
             } else {
-                $activityArray[$groupNumber]['parent'] = $activityObject->toArray();
+                $activityItemObject->setParent($activityObject);
             }
+
+            $activityMap[$groupNumber] = $activityItemObject;
 
             $previousGroupNumber = $groupNumber;
         }
 
-        return $activityArray;
-    }
+        $display = [];
+        /** @var ActivityItemObject $value */
+        foreach ($activityMap as $key => $value) {
+            $display[$key] = $value->toArray();
+        }
 
+        return $display;
+    }
+    
     /**
      * @param string $email
      * @return Activity[]|ArrayCollection
