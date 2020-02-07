@@ -82,7 +82,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
      */
     public function listAction(Request $request)
     {
-        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+        //$this->denyAccessUnlessGranted("ROLE_ADMIN");
 
         /**
         $watchlistService = $this->getWatchlistService();
@@ -102,7 +102,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
          **/
 
         //$this->updateJoinedActivity();
-        //$this->fixActivity();
+        $this->fixActivity();
         //$this->updateCommentCountForDocumentaries();
         //$this->updateDocumentaryCountForCategories();
         //$this->updateWatchlistCountForDocumentaries();
@@ -146,8 +146,8 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
             $type = $act->getType();
             $userId = $act->getUser()->getId();
 
-            if ($type == 'joined') {
-                if ($previousType == 'joined') {
+            if ($type == ActivityType::JOINED) {
+                if ($previousType == ActivityType::JOINED) {
                     if ($count == 20) {
                         $increment = true;
                         $count = 1;
@@ -160,12 +160,12 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
                 }
             }
 
-            if ($type == 'comment') {
+            if ($type == ActivityType::COMMENT) {
                 $increment = true;
             }
 
-            if ($type == 'like') {
-                if ($previousType == 'like' && $previousUserId == $userId) {
+            if ($type == ActivityType::WATCHLIST) {
+                if ($previousType == ActivityType::WATCHLIST && $previousUserId == $userId) {
                     $increment = false;
                 } else {
                     $increment = true;
