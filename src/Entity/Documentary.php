@@ -238,6 +238,7 @@ class Documentary
         $this->featured = false;
         $this->views = 0;
         $this->todayViews = 0;
+        $this->viewsDate = new \DateTime();
         $this->commentCount = 0;
         $this->watchlistCount = 0;
     }
