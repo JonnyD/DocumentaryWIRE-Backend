@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 
-class VideoSourceController extends AbstractFOSRestController implements ClassResourceInterface
+class VideoSourceController extends BaseController implements ClassResourceInterface
 {
     /**
      * @var VideoSourceService
