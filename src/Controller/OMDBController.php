@@ -1985,7 +1985,7 @@ class OMDBController extends BaseController implements ClassResourceInterface
         }
     ]
 }';**/
-        return new JsonResponse($result, 200, $headers);
+        return new JsonResponse($result, 200);
     }
 
     /**
