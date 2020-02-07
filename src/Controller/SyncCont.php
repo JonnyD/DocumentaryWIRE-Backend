@@ -82,7 +82,8 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
      */
     public function listAction(Request $request)
     {
-        //$this->denyAccessUnlessGranted("ROLE_ADMIN");
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+
         /**
         $watchlistService = $this->getWatchlistService();
         $criteria = new WatchlistCriteria();
@@ -105,7 +106,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         //$this->updateCommentCountForDocumentaries();
         //$this->updateDocumentaryCountForCategories();
         //$this->updateWatchlistCountForDocumentaries();
-        $this->updateViewsDate();
+        //$this->updateViewsDate();
     }
 
     public function updateJoinedActivity()
@@ -264,7 +265,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         foreach ($activities as $activity) {
             $data = $activity->getData();
 
-            if ($activity->getType() === ActivityType::LIKE) {
+            if ($activity->getType() === ActivityType::WATCHLIST) {
                 $oldThumbnailPath = $data['documentaryThumbnail'];
 
                 if (strpos($oldThumbnailPath, "documentary/")) {

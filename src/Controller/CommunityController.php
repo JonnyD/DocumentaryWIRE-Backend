@@ -155,7 +155,7 @@ class CommunityController extends BaseController implements ClassResourceInterfa
                     'data' => $activityItem->getData()
                 ];
                 break;
-            case ActivityType::LIKE:
+            case ActivityType::WATCHLIST:
                 $serializedActivityItem = [
                     'type' => $activityItem->getType(),
                     'user' => [

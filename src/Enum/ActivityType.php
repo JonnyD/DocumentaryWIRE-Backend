@@ -4,7 +4,7 @@ namespace App\Enum;
 
 class ActivityType
 {
-    const LIKE = "like";
+    const WATCHLIST = "watchlist";
     const COMMENT = "comment";
     const FOLLOW = "follow";
     const JOINED = "joined";
@@ -16,7 +16,7 @@ class ActivityType
     public static function getAllTypes()
     {
         return [
-            self::LIKE,
+            self::WATCHLIST,
             self::ADDED,
             self::JOINED,
             self::COMMENT,
@@ -30,7 +30,7 @@ class ActivityType
     public static function getTypesWithChildren()
     {
         return [
-            self::LIKE,
+            self::WATCHLIST,
             self::JOINED,
             self::ADDED
         ];

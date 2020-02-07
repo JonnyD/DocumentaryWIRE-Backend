@@ -26,7 +26,7 @@ class DataStrategyContext
         CommentService $commentService)
     {
         switch ($type) {
-            case ActivityType::LIKE:
+            case ActivityType::WATCHLIST:
                 $this->strategy = new StrategyWatchlist(
                     $request,
                     $documentaryService

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Documentary;
 use App\Object\Activity\Activity as ActivityObject;
 use App\Object\Activity\Strategy\DataStrategyContext;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -89,6 +90,11 @@ class ActivityService
         $this->activityRepository->remove($activity);
     }
 
+    public function addAddedActivity(Documentary $documentary)
+    {
+        //@TODO
+    }
+
     /**
      * @param Watchlist $watchlist
      */
@@ -100,7 +106,7 @@ class ActivityService
         $criteria = new ActivityCriteria();
         $criteria->setUser($user);
         $criteria->setObjectId($documentary->getId());
-        $criteria->setType(ActivityType::LIKE);
+        $criteria->setType(ActivityType::WATCHLIST);
         $criteria->setComponent(ComponentType::DOCUMENTARY);
 
         $activity = $this->getActivityByCriteria($criteria);
@@ -120,7 +126,7 @@ class ActivityService
             $latestActivity = $this->getLatestActivity();
             $groupNumber = $latestActivity->getGroupNumber();
 
-            if ($latestActivity->getType() != ActivityType::LIKE) {
+            if ($latestActivity->getType() != ActivityType::WATCHLIST) {
                 $groupNumber++;
             } else {
                 if ($latestActivity->getUser() == $user) {
@@ -131,7 +137,7 @@ class ActivityService
                 }
             }
 
-            $this->addActivity($user, $documentary->getId(), ActivityType::LIKE, ComponentType::DOCUMENTARY, $data, $groupNumber);
+            $this->addActivity($user, $documentary->getId(), ActivityType::WATCHLIST, ComponentType::DOCUMENTARY, $data, $groupNumber);
         }
     }
 
@@ -146,7 +152,7 @@ class ActivityService
         $criteria = new ActivityCriteria();
         $criteria->setUser($user);
         $criteria->setObjectId($documentary->getId());
-        $criteria->setType(ActivityType::LIKE);
+        $criteria->setType(ActivityType::WATCHLIST);
         $criteria->setComponent(ComponentType::DOCUMENTARY);
 
         $activity = $this->getActivityByCriteria($criteria);
@@ -330,7 +336,7 @@ class ActivityService
     public function getRecentActivityWatchlistedForWidget()
     {
         $criteria = new ActivityCriteria();
-        $criteria->setType(ActivityType::LIKE);
+        $criteria->setType(ActivityType::WATCHLIST);
         $criteria->setLimit(20);
         $criteria->setSort([
             ActivityOrderBy::CREATED_AT => Order::DESC
