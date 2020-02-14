@@ -116,7 +116,8 @@ class CategoryController extends BaseController implements ClassResourceInterfac
         $serializedCategory = [
             'id' => $category->getId(),
             'name' => $category->getName(),
-            'slug' => $category->getSlug()
+            'slug' => $category->getSlug(),
+            'documentaryCount' => $category->getDocumentaryCount()
         ];
 
         return $serializedCategory;

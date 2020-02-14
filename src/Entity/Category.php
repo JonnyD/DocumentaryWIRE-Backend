@@ -68,6 +68,8 @@ class Category
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="category")
+     *
+     * @var ArrayCollection|Documentary[]
      */
     private $documentaries;
 
@@ -171,14 +173,14 @@ class Category
      */
     public function getDocumentaryCount()
     {
-        return $this->documentaryCount;
-    }
+        $count = 0;
 
-    /**
-     * @param int $documentaryCount
-     */
-    public function setDocumentaryCount(int $documentaryCount)
-    {
-        $this->documentaryCount = $documentaryCount;
+        foreach ($this->documentaries as $documentary) {
+            if ($documentary->isPublished()) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 }
