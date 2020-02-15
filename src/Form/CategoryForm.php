@@ -14,7 +14,8 @@ class CategoryForm extends AbstractType
     {
         $builder
             ->add('name', TextType::class)
-            ->add('slug', TextType::class);
+            ->add('slug', TextType::class)
+            ->add('status', TextType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)

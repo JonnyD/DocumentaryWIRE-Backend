@@ -416,7 +416,7 @@ class ActivityService
 
         return $display;
     }
-    
+
     /**
      * @param string $email
      * @return Activity[]|ArrayCollection

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Enum\CategoryStatus;
 use App\Traits\Sluggable;
 use App\Traits\Timestampable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -79,6 +80,13 @@ class Category
      * @var int
      */
     private $documentaryCount;
+
+    /**
+     * @ORM\Column(type="string")
+     *
+     * @var string
+     */
+    private $status;
 
     public function __construct()
     {
@@ -182,5 +190,37 @@ class Category
         }
 
         return $count;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus(string $status)
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        return ($this->status === CategoryStatus::ENABLED);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisabled()
+    {
+        return ($this->status === CategoryStatus::DISABLED);
     }
 }

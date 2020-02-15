@@ -113,6 +113,13 @@ security:
             stateless:  false
             anonymous: true
 
+        api_public_category:
+            methods: [GET]
+            pattern: ^/api/v1/category
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
         api_public_activity:
             methods: [GET]
             pattern: ^/api/v1/activity

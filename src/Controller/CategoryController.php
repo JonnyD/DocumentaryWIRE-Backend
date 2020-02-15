@@ -2,7 +2,11 @@
 
 namespace App\Controller;
 
+use App\Criteria\CategoryCriteria;
 use App\Entity\Category;
+use App\Enum\CategoryOrderBy;
+use App\Enum\CategoryStatus;
+use App\Enum\Order;
 use App\Form\CategoryForm;
 use App\Service\CategoryService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -31,14 +35,38 @@ class CategoryController extends BaseController implements ClassResourceInterfac
     /**
      * @FOSRest\Get("/category", name="get_categories", options={ "method_prefix" = false })
      *
+     * @param Request $request
      * @return JsonResponse
      */
-    public function listAction()
+    public function listAction(Request $request)
     {
-        $categories = $this->categoryService->getAllCategoriesOrderedByName();
+        $criteria = new CategoryCriteria();
+
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        if ($isRoleAdmin) {
+            $status = $request->query->get('status');
+            if (isset($status)) {
+                $criteria->setStatus($status);
+            }
+        } else {
+            $criteria->setStatus(CategoryStatus::ENABLED);
+            $criteria->setGreaterThanEqual(1);
+        }
+
+        $sort = $request->query->get('sort');
+        if (isset($sort)) {
+            $exploded = explode("-", $sort);
+            $sort = [$exploded[0] => $exploded[1]];
+            $criteria->setSort($sort);
+        } else {
+            $criteria->setSort([
+                CategoryOrderBy::NAME => Order::ASC
+            ]);
+        }
+
+        $categories = $this->categoryService->getCategoriesByCriteria($criteria);
 
         $serialized = $this->serializeCategories($categories);
-
         return $this->createApiResponse($serialized, 200);
     }
 
@@ -77,7 +105,7 @@ class CategoryController extends BaseController implements ClassResourceInterfac
         $form->handleRequest($request);
 
         if ($request->isMethod('PATCH')) {
-            $data = json_decode($request->getContent(), true)['resource'];
+            $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
             if ($form->isValid()) {
@@ -117,6 +145,7 @@ class CategoryController extends BaseController implements ClassResourceInterfac
             'id' => $category->getId(),
             'name' => $category->getName(),
             'slug' => $category->getSlug(),
+            'status' => $category->getStatus(),
             'documentaryCount' => $category->getDocumentaryCount()
         ];
 

@@ -2,7 +2,11 @@
 
 namespace App\Service;
 
+use App\Criteria\CategoryCriteria;
 use App\Entity\Category;
+use App\Enum\CategoryOrderBy;
+use App\Enum\CategoryStatus;
+use App\Enum\Order;
 use App\Repository\CategoryRepository;
 
 class CategoryService
@@ -44,9 +48,21 @@ class CategoryService
      * @return Category[]|null
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function getAllCategoriesOrderedByName()
+    public function getEnabledCategoriesOrderedByName()
     {
-        return $this->categoryRepository->findAllCategoriesOrderedByName();
+        $categoryCriteria = new CategoryCriteria();
+        $categoryCriteria->setStatus(CategoryStatus::ENABLED);
+        $categoryCriteria->setGreaterThanEqual(1);
+        $categoryCriteria->setSort([
+            CategoryOrderBy::NAME => Order::ASC
+        ]);
+
+        return $this->categoryRepository->findCategoriesByCriteria($categoryCriteria);
+    }
+
+    public function getCategoriesByCriteria(CategoryCriteria $criteria)
+    {
+        return $this->categoryRepository->findCategoriesByCriteria($criteria);
     }
 
     /**
