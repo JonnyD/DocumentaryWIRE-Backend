@@ -396,12 +396,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 $this->documentaryService->save($documentary);
 
                 $newCategory = $documentary->getCategory();
-                if ($oldCategory->getId() != $newCategory->getId()) {
-                    $oldCategory->removeDocumentary($documentary);
-                    $this->categoryService->updateDocumentaryCountForCategory($oldCategory);
-                }
-
-                $this->categoryService->updateDocumentaryCountForCategory($newCategory);
+                $this->categoryService->updateDocumentaryCountForCategories(
+                    $newCategory, $oldCategory, $documentary);
 
                 $serialized = $this->serializeMovie($documentary);
                 return $this->createApiResponse($serialized, 200);

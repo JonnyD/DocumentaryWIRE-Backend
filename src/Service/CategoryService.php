@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Criteria\CategoryCriteria;
 use App\Entity\Category;
+use App\Entity\Documentary;
 use App\Enum\CategoryOrderBy;
 use App\Enum\CategoryStatus;
 use App\Enum\Order;
@@ -71,6 +72,24 @@ class CategoryService
     public function getAllCategories()
     {
         return $this->categoryRepository->findAll();
+    }
+
+    /**
+     * @param Category $newCategory
+     * @param Category $oldCategory
+     * @param Documentary $documentary
+     */
+    public function updateDocumentaryCountForCategories(
+        Category $newCategory,
+        Category $oldCategory,
+        Documentary $documentary)
+    {
+        if ($oldCategory->getId() != $newCategory->getId()) {
+            $oldCategory->removeDocumentary($documentary);
+            $this->updateDocumentaryCountForCategory($oldCategory);
+        }
+
+        $this->updateDocumentaryCountForCategory($newCategory);
     }
 
     /**
