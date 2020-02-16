@@ -350,7 +350,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 $this->documentaryService->save($documentary);
 
                 $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
-                
+
                 $serialized = $this->serializeSeries($documentary);
                 return $this->createApiResponse($serialized, 200);
             } else {
