@@ -66,17 +66,22 @@ class ActivityService
      * @param int $objectId
      * @param string $type
      * @param string $component
-     * @param array $data
      * @param int $groupNumber
+     * @param \DateTime|null $createdAt
      */
-    public function addActivity(User $user, int $objectId, string $type, string $component, array $data, int $groupNumber, \DateTime $createdAt = null)
+    public function addActivity(
+        User $user,
+        int $objectId,
+        string $type,
+        string $component,
+        int $groupNumber,
+        \DateTime $createdAt = null)
     {
         $activity = new Activity();
         $activity->setUser($user);
         $activity->setObjectId($objectId);
         $activity->setType($type);
         $activity->setComponent($component);
-        $activity->setData($data);
         $activity->setGroupNumber($groupNumber);
         $activity->setCreatedAt($createdAt);
 
@@ -116,14 +121,6 @@ class ActivityService
             $activity->setCreatedAt(new \DateTime());
             $this->activityRepository->save($activity);
         } else {
-            $data = [
-                "documentaryId" => $documentary->getId(),
-                "documentaryTitle" => $documentary->getTitle(),
-                "documentaryExcerpt" => $documentary->getSummary(),
-                //"documentaryThumbnail" => $documentary->getPoster(),
-                "documentarySlug" => $documentary->getSlug()
-            ];
-
             $latestActivity = $this->getLatestActivity();
             $groupNumber = $latestActivity->getGroupNumber();
 
@@ -138,7 +135,7 @@ class ActivityService
                 }
             }
 
-            $this->addActivity($user, $documentary->getId(), ActivityType::WATCHLIST, ComponentType::DOCUMENTARY, $data, $groupNumber);
+            $this->addActivity($user, $documentary->getId(), ActivityType::WATCHLIST, ComponentType::DOCUMENTARY, $groupNumber);
         }
     }
 
@@ -182,7 +179,7 @@ class ActivityService
             $groupNumber = 1;
         }
 
-        $this->addActivity($user, $user->getId(), ActivityType::JOINED, ComponentType::USER, [], $groupNumber, $user->getActivatedAt());
+        $this->addActivity($user, $user->getId(), ActivityType::JOINED, ComponentType::USER, $groupNumber, $user->getActivatedAt());
     }
 
     /**
@@ -190,23 +187,14 @@ class ActivityService
      */
     public function addCommentActivity(Comment $comment, \Datetime $createdAt)
     {
-        $documentary = $comment->getDocumentary();
         $user = $comment->getUser();
 
         if ($user) {
-            $data = [
-                "documentaryId" => $documentary->getId(),
-                "documentaryTitle" => $documentary->getTitle(),
-                //"documentaryThumbnail" => $documentary->getPoster(),
-                "documentarySlug" => $documentary->getSlug(),
-                "comment" => $comment->getCommentText()
-            ];
-
             $latestActivity = $this->getLatestActivity();
             $groupNumber = $latestActivity->getGroupNumber();
             $groupNumber++;
 
-            $this->addActivity($user, $comment->getId(), ActivityType::COMMENT, ComponentType::DOCUMENTARY, $data, $groupNumber, $createdAt);
+            $this->addActivity($user, $comment->getId(), ActivityType::COMMENT, ComponentType::DOCUMENTARY, $groupNumber, $createdAt);
         }
     }
     /**

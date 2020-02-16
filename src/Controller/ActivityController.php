@@ -117,13 +117,17 @@ class ActivityController extends BaseController implements ClassResourceInterfac
         return $this->createApiResponse($activities, 200);
     }
 
+    /**
+     * @param Activity $activity
+     * @return array
+     */
     private function serializeActivity(Activity $activity)
     {
         return [
+            'id' => $activity->getId(),
             'type' => $activity->getType(),
             'component' => $activity->getComponent(),
             'objectId' => $activity->getObjectId(),
-            'data' => json_encode($activity->getData(), true),
             'groupNumber' => $activity->getGroupNumber(),
             'user' => [
                 'username' => $activity->getUser()->getUsername(),

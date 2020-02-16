@@ -37,11 +37,6 @@ class Activity
     private $objectId;
 
     /**
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $data = [];
-
-    /**
      * @ORM\Column(type="integer")
      */
     private $groupNumber;
@@ -98,18 +93,6 @@ class Activity
     public function setObjectId(int $objectId): self
     {
         $this->objectId = $objectId;
-
-        return $this;
-    }
-
-    public function getData(): ?array
-    {
-        return $this->data;
-    }
-
-    public function setData(?array $data): self
-    {
-        $this->data = $data;
 
         return $this;
     }
