@@ -286,11 +286,11 @@ class DocumentaryService
     {
         $documentary->incrementViews();
 
-        $today = new \DateTime();
+        $now = new \DateTime();
         $viewsDate = $documentary->getViewsDate();
 
-        if ($today->diff($viewsDate)->d >= 1) {
-            $documentary->setViewsDate($today);
+        if ($now->diff($viewsDate)->d >= 1) {
+            $documentary->setViewsDate($now);
             $documentary->incrementTodayViews();
         } else {
             $documentary->incrementTodayViews();
@@ -314,6 +314,22 @@ class DocumentaryService
         }
 
         $documentary->setCommentCount($count);
+        $this->save($documentary);
+    }
+
+    /**
+     * @param Documentary $documentary
+     */
+    public function updateWatchlistCountForDocumentary(Documentary $documentary)
+    {
+        $count = 0;
+
+        $watchlists = $documentary->getWatchlists();
+        foreach ($watchlists as $watchlist) {
+            $count++;
+        }
+
+        $documentary->setWatchlistCount($count);
         $this->save($documentary);
     }
 
