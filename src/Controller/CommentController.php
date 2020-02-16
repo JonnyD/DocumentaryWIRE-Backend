@@ -152,6 +152,9 @@ class CommentController extends BaseController implements ClassResourceInterface
 
             if ($form->isValid()) {
                 $this->commentService->save($comment);
+
+                //@TODO $this->documentaryService->updateCommentCountForDocumentary($comment->getDocumentary());
+
                 $serializedComment = $this->serialiseComment($comment);
                 return $this->createApiResponse($serializedComment, 200);
             } else {
@@ -159,6 +162,11 @@ class CommentController extends BaseController implements ClassResourceInterface
                 return $this->createApiResponse($errors, 200);
             }
         }
+    }
+
+    public function createCommentAction()
+    {
+        //@TODO
     }
 
     /**
