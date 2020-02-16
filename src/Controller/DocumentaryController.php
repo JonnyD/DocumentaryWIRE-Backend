@@ -267,7 +267,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
      * @param Request $request
      * @return JsonResponse
      */
-    public function createMovieocumentaryAction(Request $request)
+    public function createMovieDocumentaryAction(Request $request)
     {
         $documentary = new Documentary();
 
@@ -304,6 +304,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);
+
+                $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
 
                 $serialized = $this->serializeMovie($documentary);
                 return $this->createApiResponse($serialized, 200);
@@ -347,6 +349,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
                 $this->documentaryService->save($documentary);
 
+                $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
+                
                 $serialized = $this->serializeSeries($documentary);
                 return $this->createApiResponse($serialized, 200);
             } else {
@@ -367,7 +371,6 @@ class DocumentaryController extends BaseController implements ClassResourceInter
     {
         /** @var Documentary $documentary */
         $documentary = $this->documentaryService->getDocumentaryById($id);
-        $oldCategory = $documentary->getCategory();
 
         if ($documentary === null) {
             return new AccessDeniedException();
@@ -378,6 +381,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
             throw new \Exception();
         }
+
+        $oldCategory = $documentary->getCategory();
 
         $form = $this->createForm(DocumentaryMovieForm::class, $documentary);
         $form->handleRequest($request);
@@ -430,6 +435,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             return null;
         }
 
+        $oldCategory = $documentary->getCategory();
+
         $form = $this->createForm(DocumentarySeriesForm::class, $documentary);
         $form->handleRequest($request);
 
@@ -446,6 +453,10 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);
+
+                $newCategory = $documentary->getCategory();
+                $this->categoryService->updateDocumentaryCountForCategories(
+                    $newCategory, $oldCategory, $documentary);
 
                 $serialized = $this->serializeSeries($documentary);
                 return $this->createApiResponse($serialized, 200);
