@@ -147,7 +147,7 @@ class CommentController extends BaseController implements ClassResourceInterface
         $form->handleRequest($request);
 
         if ($request->isMethod('PATCH')) {
-            $data = json_decode($request->getContent(), true)['resource'];
+            $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
             if ($form->isValid()) {

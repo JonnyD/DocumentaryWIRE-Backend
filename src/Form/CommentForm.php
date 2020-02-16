@@ -20,7 +20,7 @@ class CommentForm extends AbstractType
     {
         $builder
             ->add('commentText', TextType::class)
-            ->add('status', IntegerType::class);
+            ->add('status', TextType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)
