@@ -301,6 +301,24 @@ class DocumentaryService
 
     /**
      * @param Documentary $documentary
+     */
+    public function updateCommentCountForDocumentary(Documentary $documentary)
+    {
+        $count = 0;
+
+        $comments = $documentary->getComments();
+        foreach ($comments as $comment) {
+            if ($comment->isPublished()) {
+                $count++;
+            }
+        }
+
+        $documentary->setCommentCount($count);
+        $this->save($documentary);
+    }
+
+    /**
+     * @param Documentary $documentary
      * @param bool $sync
      */
     public function save(Documentary $documentary, bool $sync = true)
