@@ -20,6 +20,7 @@ class DocumentaryMovieForm extends AbstractType
     {
         $builder
             ->add('title', TextType::class)
+            ->add('status', TextType::class)
             ->add('storyline', TextType::class)
             ->add('summary', TextType::class, [
                 'empty_data' => '',

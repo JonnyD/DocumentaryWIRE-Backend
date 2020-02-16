@@ -75,6 +75,24 @@ class CategoryService
 
     /**
      * @param Category $category
+     */
+    public function updateDocumentaryCountForCategory(Category $category)
+    {
+        $count = 0;
+
+        $documentaries = $category->getDocumentaries();
+        foreach ($documentaries as $documentary) {
+            if ($documentary->isPublished()) {
+                $count++;
+            }
+        }
+
+        $category->setDocumentaryCount($count);
+        $this->save($category);
+    }
+
+    /**
+     * @param Category $category
      * @param bool $sync
      */
     public function save(Category $category, bool $sync = true)

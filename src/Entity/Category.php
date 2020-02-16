@@ -153,6 +153,15 @@ class Category
         return $this->documentaries;
     }
 
+    /**
+     * @param Documentary $documentary
+     * @return bool
+     */
+    public function hasDocumentary(Documentary $documentary)
+    {
+        return $this->documentaries->contains($documentary);
+    }
+
     public function addDocumentary(Documentary $documentary): self
     {
         if (!$this->documentaries->contains($documentary)) {
@@ -167,10 +176,6 @@ class Category
     {
         if ($this->documentaries->contains($documentary)) {
             $this->documentaries->removeElement($documentary);
-            // set the owning side to null (unless already changed)
-            if ($documentary->getCategory() === $this) {
-                $documentary->setCategory(null);
-            }
         }
 
         return $this;
@@ -181,15 +186,15 @@ class Category
      */
     public function getDocumentaryCount()
     {
-        $count = 0;
+        return $this->documentaryCount;
+    }
 
-        foreach ($this->documentaries as $documentary) {
-            if ($documentary->isPublished()) {
-                $count++;
-            }
-        }
-
-        return $count;
+    /**
+     * @param int $documentaryCount
+     */
+    public function setDocumentaryCount(int $documentaryCount)
+    {
+        $this->documentaryCount = $documentaryCount;
     }
 
     /**

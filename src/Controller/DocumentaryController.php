@@ -367,6 +367,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
     {
         /** @var Documentary $documentary */
         $documentary = $this->documentaryService->getDocumentaryById($id);
+        $oldCategory = $documentary->getCategory();
 
         if ($documentary === null) {
             return new AccessDeniedException();
@@ -393,6 +394,14 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);
+
+                $newCategory = $documentary->getCategory();
+                if ($oldCategory->getId() != $newCategory->getId()) {
+                    $oldCategory->removeDocumentary($documentary);
+                    $this->categoryService->updateDocumentaryCountForCategory($oldCategory);
+                }
+
+                $this->categoryService->updateDocumentaryCountForCategory($newCategory);
 
                 $serialized = $this->serializeMovie($documentary);
                 return $this->createApiResponse($serialized, 200);
