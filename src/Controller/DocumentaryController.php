@@ -647,7 +647,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                     'imdbId' => $episode->getImdbId(),
                     'storyline' => $episode->getStoryline(),
                     'summary' => $episode->getSummary(),
-                    'length' => $episode->getLength(),
+                    'duration' => $episode->getLength(),
                     'year' => $episode->getYear(),
                     'videoSource' => $episode->getVideoSource()->getName(),
                     'videoId' => $episode->getVideoId(),
