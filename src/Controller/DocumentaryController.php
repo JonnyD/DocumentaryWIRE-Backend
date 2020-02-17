@@ -615,11 +615,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             'yearTo' => $documentary->getYearTo(),
             'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $documentary->getPosterImagePath(),
             'wideImage' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $documentary->getWideImagePath(),
-            'category' => [
-                'id' => $documentary->getCategory()->getId(),
-                'name' => $documentary->getCategory()->getName(),
-                'slug' => $documentary->getCategory()->getSlug()
-            ],
+            'category' => $documentary->getCategory()->getId(),
             'createdAt' => $documentary->getCreatedAt(),
             'updatedAt' => $documentary->getUpdatedAt()
         ];
