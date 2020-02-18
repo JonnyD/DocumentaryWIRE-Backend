@@ -6,10 +6,12 @@ use App\Criteria\DocumentaryCriteria;
 use App\Entity\Category;
 use App\Entity\Documentary;
 use App\Entity\DocumentaryVideoSource;
+use App\Entity\Movie;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\Order;
 use App\Repository\DocumentaryRepository;
+use App\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
 
@@ -21,19 +23,27 @@ class DocumentaryService
     private $documentaryRepository;
 
     /**
+     * @var MovieRepository
+     */
+    private $movieRepository;
+
+    /**
      * @var VideoSourceService
      */
     private $videoSourceService;
 
     /**
      * @param DocumentaryRepository $documentaryRepository
+     * @param MovieRepository $movieRepository
      * @param VideoSourceService $videoSourceService
      */
     public function __construct(
         DocumentaryRepository $documentaryRepository,
+        MovieRepository $movieRepository,
         VideoSourceService $videoSourceService)
     {
         $this->documentaryRepository = $documentaryRepository;
+        $this->movieRepository = $movieRepository;
         $this->videoSourceService = $videoSourceService;
     }
 
@@ -345,5 +355,15 @@ class DocumentaryService
     public function flush()
     {
         $this->documentaryRepository->flush();
+    }
+
+    /**
+     * @param Movie $movie
+     * @param bool $sync
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function removeMovie(Movie $movie, $sync = true)
+    {
+        $this->movieRepository->remove($movie, $sync);
     }
 }

@@ -468,6 +468,42 @@ class DocumentaryController extends BaseController implements ClassResourceInter
     }
 
     /**
+     * @FOSRest\Post("/documentary/convert-to-series/{id}", name="convert_to_series_documentary", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function convertToSeriesAction(int $id)
+    {
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+
+        $documentary = $this->documentaryService->getDocumentaryById($id);
+
+        if ($documentary->isSeries()) {
+            //@TODO throw already is a series
+            return;
+        }
+
+        $movie = $documentary->getMovie();
+
+        $series = new Series();
+        $series->setDocumentary($documentary);
+
+        $documentary->setSeries($series);
+        $documentary->setMovie(null);
+        $documentary->setType(DocumentaryType::SERIES);
+
+        $this->documentaryService->save($documentary);
+
+        $this->documentaryService->removeMovie($movie);
+
+        $serialise = $this->serializeSeries($documentary);
+        return $this->createApiResponse($serialise, 200);
+
+    }
+
+    /**
      * @param array $data
      * @param Documentary $documentary
      * @return Documentary

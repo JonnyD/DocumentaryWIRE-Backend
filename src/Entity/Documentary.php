@@ -479,10 +479,12 @@ class Documentary
     /**
      * @param Movie $movie
      */
-    public function setMovie(Movie $movie)
+    public function setMovie(Movie $movie = null)
     {
         $this->movie = $movie;
-        $movie->setDocumentary($this);
+        if ($movie != null) {
+            $movie->setDocumentary($this);
+        }
     }
 
     /**
