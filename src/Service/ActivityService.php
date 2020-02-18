@@ -356,29 +356,7 @@ class ActivityService
                 $activityItemObject = new ActivityItemObject();
             }
 
-            $type = $activityItem->getType();
-            $created = $activityItem->getCreatedAt();
 
-            $activityItemObject->setType($type);
-            $activityItemObject->setCreated($created);
-
-            $dataStrategyContext = new DataStrategyContext(
-                $type,
-                $this->request,
-                $this->documentaryService,
-                $this->commentService);
-            $data = $dataStrategyContext->createData($activityItem);
-
-            $user = $activityItem->getUser();
-            $name = $user->getName();
-            $avatar = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar();
-            $username = $user->getUsername();
-
-            $activityObject = new ActivityObject();
-            $activityObject->setName($name);
-            $activityObject->setUsername($username);
-            $activityObject->setAvatar($avatar);
-            $activityObject->setData($data);
 
             $hasChildren = ActivityType::hasChildren($type);
             if ($hasChildren) {

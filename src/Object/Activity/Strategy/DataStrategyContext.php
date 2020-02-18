@@ -43,6 +43,7 @@ class DataStrategyContext
             break;
             case ActivityType::ADDED:
                 $this->strategy = new StrategyAdded(
+                    $request,
                     $documentaryService
                 );
             break;

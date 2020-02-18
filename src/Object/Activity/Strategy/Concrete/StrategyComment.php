@@ -32,6 +32,7 @@ class StrategyComment implements StrategyInterface
         Request $request,
         CommentService $commentService)
     {
+        $this->request = $request;
         $this->commentService = $commentService;
     }
 

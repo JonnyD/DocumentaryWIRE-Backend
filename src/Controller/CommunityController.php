@@ -7,7 +7,9 @@ use App\Entity\Activity;
 use App\Enum\ActivityOrderBy;
 use App\Enum\ActivityType;
 use App\Enum\Order;
+use App\Object\Activity\Strategy\DataStrategyContext;
 use App\Service\ActivityService;
+use App\Service\CommentService;
 use App\Service\DocumentaryService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -17,6 +19,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use App\Object\Activity\Activity as ActivityObject;
 
 class CommunityController extends BaseController implements ClassResourceInterface
 {
@@ -31,6 +34,11 @@ class CommunityController extends BaseController implements ClassResourceInterfa
     private $documentaryService;
 
     /**
+     * @var CommentService
+     */
+    private $commentService;
+
+    /**
      * @var null|Request
      */
     private $request;
@@ -38,15 +46,18 @@ class CommunityController extends BaseController implements ClassResourceInterfa
     /**
      * @param ActivityService $activityService
      * @param DocumentaryService $documentaryService
+     * @param CommentService $commentService
      * @param RequestStack $requestStack
      */
     public function __construct(
         ActivityService $activityService,
         DocumentaryService $documentaryService,
+        CommentService $commentService,
         RequestStack $requestStack)
     {
         $this->activityService = $activityService;
         $this->documentaryService = $documentaryService;
+        $this->commentService = $commentService;
         $this->request = $requestStack->getCurrentRequest();
     }
 
@@ -119,55 +130,29 @@ class CommunityController extends BaseController implements ClassResourceInterfa
      */
     private function serializeActivity(Activity $activityItem)
     {
-        $serializedActivityItem = null;
+        $type = $activityItem->getType();
+        $createdAt = $activityItem->getCreatedAt();
 
-        switch ($activityItem->getType()) {
-            case ActivityType::JOINED:
-                $serializedActivityItem = [
-                    'type' => $activityItem->getType(),
-                    'user' => [
-                        'username' => $activityItem->getUser()->getUsername(),
-                        'displayName' => $activityItem->getUser()->getName(),
-                        'avatar' => $this->request->getScheme() . '://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $activityItem->getUser()->getAvatar(),
-                    ],
-                    'data' => $activityItem->getData()
-                ];
-                break;
-            case ActivityType::ADDED:
-                $serializedActivityItem = [
-                    'type' => $activityItem->getType(),
-                    'user' => [
-                        'username' => $activityItem->getUser()->getUsername(),
-                        'displayName' => $activityItem->getUser()->getName(),
-                        'avatar' => $this->request->getScheme() . '://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $activityItem->getUser()->getAvatar(),
-                    ],
-                    'data' => $activityItem->getData()
-                ];
-                break;
-            case ActivityType::COMMENT:
-                $serializedActivityItem = [
-                    'type' => $activityItem->getType(),
-                    'user' => [
-                        'username' => $activityItem->getUser()->getUsername(),
-                        'displayName' => $activityItem->getUser()->getName(),
-                        'avatar' => $this->request->getScheme() . '://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $activityItem->getUser()->getAvatar(),
-                    ],
-                    'data' => $activityItem->getData()
-                ];
-                break;
-            case ActivityType::WATCHLIST:
-                $serializedActivityItem = [
-                    'type' => $activityItem->getType(),
-                    'user' => [
-                        'username' => $activityItem->getUser()->getUsername(),
-                        'displayName' => $activityItem->getUser()->getName(),
-                        'avatar' => $this->request->getScheme() . '://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $activityItem->getUser()->getAvatar(),
-                    ],
-                    'data' => $activityItem->getData()
-                ];
-                break;
-        }
+        $dataStrategyContext = new DataStrategyContext(
+            $type,
+            $this->request,
+            $this->documentaryService,
+            $this->commentService);
+        $data = $dataStrategyContext->createData($activityItem);
 
-        return $serializedActivityItem;
+        $user = $activityItem->getUser();
+        $name = $user->getName();
+        $avatar = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar();
+        $username = $user->getUsername();
+
+        $activityObject = new ActivityObject();
+        $activityObject->setName($name);
+        $activityObject->setUsername($username);
+        $activityObject->setAvatar($avatar);
+        $activityObject->setData($data);
+        $activityObject->setType($type);
+        $activityObject->setCreatedAt($createdAt);
+
+        return $activityObject->toArray();
     }
 }

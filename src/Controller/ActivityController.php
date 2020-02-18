@@ -56,7 +56,7 @@ class ActivityController extends BaseController implements ClassResourceInterfac
 
         if (isset($show) && $show === 'widget') {
             $activities = $this->activityService->getRecentActivityForWidget();
-            return new JsonResponse($activities, 200, array('Access-Control-Allow-Origin'=> '*'));
+            return $this->createApiResponse($activities, 200, array('Access-Control-Allow-Origin'=> '*'));
         }
         $page = $request->query->get('page', 1);
 
