@@ -73,18 +73,19 @@ security:
             stateless:  false
             anonymous: true
 
+        api_documentary:
+            methods: [PUT, POST, PATCH]
+            pattern:    ^/api/v1/documentary
+            fos_oauth:  true
+            stateless:  false
+
+
         api_public_documentary:
             methods: [GET]
             pattern: ^/api/v1/documentary
             fos_oauth:  true
             stateless:  false
             anonymous: true
-
-        api_documentary:
-            methods: [POST, PATCH]
-            pattern:    ^/api/v1/documentary
-            fos_oauth:  true
-            stateless:  false
 
         api_public_video_source:
             methods: [GET]

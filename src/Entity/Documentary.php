@@ -37,7 +37,7 @@ class Documentary
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    protected $id;
+    private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -46,7 +46,7 @@ class Documentary
      *
      * @Assert\NotBlank
      */
-    protected $title;
+    private $title;
 
     /**
      * @var string
@@ -54,7 +54,7 @@ class Documentary
      * @ORM\Column(type="string", unique=true)
      * @Gedmo\Slug(fields={"title"})
      */
-    protected $slug;
+    private $slug;
 
     /**
      * @ORM\Column(type="text")
@@ -62,7 +62,7 @@ class Documentary
      *
      * @Assert\NotBlank
      */
-    protected $storyline;
+    private $storyline;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -70,13 +70,13 @@ class Documentary
      *
      * @Assert\NotBlank
      */
-    protected $summary;
+    private $summary;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      * @Gedmo\Versioned
      */
-    protected $length;
+    private $length;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -84,13 +84,13 @@ class Documentary
      *
      * @Assert\NotBlank
      */
-    protected $status;
+    private $status;
 
     /**
      * @ORM\Column(type="integer")
      * @Gedmo\Versioned
      */
-    protected $views;
+    private $views;
 
     /**
      * @var int
@@ -98,28 +98,27 @@ class Documentary
      * @ORM\Column(type="integer")
      * @Gedmo\Versioned
      */
-    protected $todayViews;
+    private $todayViews;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @Gedmo\Versioned
      */
-    protected $viewsDate;
+    private $viewsDate;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    protected $shortUrl;
-
+    private $shortUrl;
 
     /**
      * @ORM\Column(type="boolean")
      * @Gedmo\Versioned
      */
-    protected $featured;
+    private $featured;
 
     /**
      * @var int
@@ -129,7 +128,7 @@ class Documentary
      *
      * @Assert\NotBlank
      */
-    protected $yearFrom;
+    private $yearFrom;
 
     /**
      * @var int
@@ -137,25 +136,25 @@ class Documentary
      * @ORM\Column(type="integer", nullable=true)
      * @Gedmo\Versioned
      */
-    protected $yearTo;
+    private $yearTo;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    protected $poster;
+    private $poster;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    protected $wideImage;
+    private $wideImage;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    protected $type;
+    private $type;
 
     /**
      * @var Movie
@@ -163,7 +162,7 @@ class Documentary
      * @ORM\OneToOne(targetEntity="App\Entity\Movie", mappedBy="documentary", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
-    protected $movie;
+    private $movie;
 
     /**
      * @var Series
@@ -171,25 +170,25 @@ class Documentary
      * @ORM\OneToOne(targetEntity="App\Entity\Series", mappedBy="documentary", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
-    protected $series;
+    private $series;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
-    protected $imdbId;
+    private $imdbId;
 
     /**
      * @ORM\Column(type="integer")
      * @Gedmo\Versioned
      */
-    protected $commentCount;
+    private $commentCount;
 
     /**
      * @ORM\Column(type="integer")
      * @Gedmo\Versioned
      */
-    protected $watchlistCount;
+    private $watchlistCount;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="documentary")
@@ -198,23 +197,23 @@ class Documentary
      *
      * @Assert\NotBlank
      */
-    protected $category;
+    private $category;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="documentary")
      */
-    protected $comments;
+    private $comments;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Watchlist", mappedBy="documentary")
      */
-    protected $watchlists;
+    private $watchlists;
 
     /**
      * @var DocumentaryVideoSource[]|ArrayCollection
      * @ORM\OneToMany(targetEntity="App\Entity\DocumentaryVideoSource", mappedBy="documentary", cascade={"persist"})
      */
-    protected $documentaryVideoSources;
+    private $documentaryVideoSources;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="documentaries")
@@ -222,13 +221,13 @@ class Documentary
      *
      * @var User
      */
-    protected $addedBy;
+    private $addedBy;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Season", inversedBy="episodes")
      * @ORM\JoinColumn(nullable=true)
      */
-    protected $season;
+    private $season;
 
     public function __construct()
     {
@@ -401,7 +400,7 @@ class Documentary
     /**
      * @return \DateTime
      */
-    public function getViewsDate(): \DateTime
+    public function getViewsDate(): ?\DateTime
     {
         return $this->viewsDate;
     }
@@ -717,7 +716,7 @@ class Documentary
     /**
      * @param int $yearFrom
      */
-    public function setYearFrom(int $yearFrom): void
+    public function setYearFrom(int $yearFrom = null): void
     {
         $this->yearFrom = $yearFrom;
     }

@@ -468,13 +468,13 @@ class DocumentaryController extends BaseController implements ClassResourceInter
     }
 
     /**
-     * @FOSRest\Post("/documentary/convert-to-series/{id}", name="convert_to_series_documentary", options={ "method_prefix" = false })
+     * @FOSRest\Put("/documentary/convert-to-series/{id}", name="convert_to_series_documentary", options={ "method_prefix" = false })
      *
      * @param int $id
      * @param Request $request
      * @return JsonResponse
      */
-    public function convertToSeriesAction(int $id)
+    public function convertToSeriesAction(int $id, Request $request)
     {
         $this->denyAccessUnlessGranted("ROLE_ADMIN");
 

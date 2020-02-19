@@ -299,11 +299,16 @@ class DocumentaryService
         $now = new \DateTime();
         $viewsDate = $documentary->getViewsDate();
 
-        if ($now->diff($viewsDate)->d >= 1) {
+        if ($viewsDate == null) {
+            $documentary->setTodayViews(0);
             $documentary->setViewsDate($now);
-            $documentary->incrementTodayViews();
         } else {
-            $documentary->incrementTodayViews();
+            if ($now->diff($viewsDate)->d >= 1) {
+                $documentary->setViewsDate($now);
+                $documentary->setTodayViews(0);
+            } else {
+                $documentary->incrementTodayViews();
+            }
         }
 
         $this->save($documentary);
