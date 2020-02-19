@@ -102,11 +102,12 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
          **/
 
         //$this->updateJoinedActivity();
-        $this->fixActivity();
+        //$this->fixActivity();
         //$this->updateCommentCountForDocumentaries();
         //$this->updateDocumentaryCountForCategories();
         //$this->updateWatchlistCountForDocumentaries();
         //$this->updateViewsDate();
+        $this->updateYearFrom0ToNull();
     }
 
     public function updateJoinedActivity()
@@ -252,8 +253,6 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         }
     }
 
-
-
     /**
      * @TODO tombstone
      */
@@ -290,6 +289,21 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
             $documentary->setViewsDate(new \DateTime());
 
             $this->documentaryService->save($documentary, false);
+        }
+
+        $this->documentaryService->flush();
+    }
+
+    private function updateYearFrom0ToNull()
+    {
+        $documentaries = $this->documentaryService->getAllDocumentaries();
+
+        foreach ($documentaries as $documentary) {
+            if ($documentary->getYearFrom() === 0) {
+                $documentary->setYearFrom(null);
+
+                $this->documentaryService->save($documentary);
+            }
         }
 
         $this->documentaryService->flush();
