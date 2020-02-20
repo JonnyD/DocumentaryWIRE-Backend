@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Documentary;
-use App\Entity\Season;
 use Liip\ImagineBundle\Imagine\Data\DataManager;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
