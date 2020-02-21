@@ -43,11 +43,17 @@
         "white-october/pagerfanta-bundle": "^1.2"
     },
     "require-dev": {
+        "codeception/codeception": "^4.1",
+        "codeception/module-asserts": "^1.1",
+        "codeception/module-doctrine2": "^1.0",
+        "codeception/module-phpbrowser": "^1.0.0",
+        "codeception/module-rest": "^1.2",
+        "codeception/module-symfony": "^1.0",
         "doctrine/doctrine-fixtures-bundle": "^3.2",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.0",
         "symfony/profiler-pack": "^1.0",
-        "symfony/test-pack": "*",
+        "symfony/test-pack": "^1.0",
         "symfony/web-server-bundle": "4.3.*"
     },
     "config": {
