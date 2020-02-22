@@ -399,7 +399,7 @@ class ActivityService
         $display = [];
         /** @var ActivityItemObject $value */
         foreach ($activityMap as $key => $value) {
-            $display[$key] = $value->toArray();
+            $display[] = $value->toArray();
         }
 
         return $display;
