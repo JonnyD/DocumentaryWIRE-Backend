@@ -80,7 +80,6 @@ class User extends BaseUser
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
      * @Assert\Length(
      *      min = 1,
      *      max = 100,
@@ -104,7 +103,6 @@ class User extends BaseUser
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"user:read"})
      */
     private $activatedAt;
 

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Criteria\UserCriteria;
 use App\Entity\User;
+use App\Enum\UserOrderBy;
 use App\Enum\UserStatus;
 use App\Form\ChangePasswordForm;
 use App\Form\ForgotPasswordForm;
@@ -35,6 +36,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
+use Carbon\Carbon;
 
 class UserController extends BaseController implements ClassResourceInterface
 {
@@ -105,19 +107,27 @@ class UserController extends BaseController implements ClassResourceInterface
         $data = json_decode($request->getContent(), true);
         $form->submit($data);
 
+        if ($this->isLoggedIn()) {
+            return $this->createApiResponse("Already Logged In", 400);
+        }
+
         if ($form->isSubmitted() && $form->isValid()){
             $email = $data['email'];
             $username = $data['username'];
             $name = $data['name'];
             $password = $data['password'];
 
+            if(!(filter_var($email, FILTER_VALIDATE_EMAIL))) {
+                return $this->createApiResponse("Not an email address", 400);
+            }
+
             $emailAlreadyExists = $this->userManager->findUserByEmail($email);
-            if ($emailAlreadyExists){
+            if ($emailAlreadyExists) {
                 return $this->createApiResponse("Email ".$email." already exists", 200);
             }
 
             $usernameAlreadyExists = $this->userManager->findUserByUsername($username);
-            if ($usernameAlreadyExists){
+            if ($usernameAlreadyExists) {
                 return $this->createApiResponse("Username ".$username." already exists", 200);
             }
 
@@ -188,14 +198,12 @@ class UserController extends BaseController implements ClassResourceInterface
             return $this->createApiResponse("Already confirmed", 200);
         }
 
-        if ($confirmationToken === $userInDatabase->getConfirmationToken()) {
-            $this->userService->confirmUser($userInDatabase);
-
-            return $this->createApiResponse("Successfully confirmed", 200);
+        if ($confirmationToken != $userInDatabase->getConfirmationToken()) {
+            return $this->createApiResponse("Confirmation Token cant be found", 400);
         }
 
-        //@TODO
-        return $this->createApiResponse('TODO', 200);
+        $this->userService->confirmUser($userInDatabase);
+        return $this->createApiResponse("Successfully confirmed", 200);
     }
 
     /**
@@ -214,7 +222,7 @@ class UserController extends BaseController implements ClassResourceInterface
 
         $userInDatabase = $this->userService->getUserByEmail($email);
         if ($userInDatabase === null) {
-            return $this->createApiResponse("Email not found", 404);
+            return $this->createApiResponse("User not found", 404);
         }
 
         if ($userInDatabase->isActivated()) {
@@ -241,19 +249,25 @@ class UserController extends BaseController implements ClassResourceInterface
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
-            $resetKey = $data['reset_key'];
-            if ($resetKey === null) {
+            $resetKey = null;
+            if (!(isset($data['reset_key'])) || $data['reset_key'] === null) {
                 return $this->createApiResponse("Reset key not found", 400);
+            } else {
+                $resetKey = $data['reset_key'];
             }
 
-            $username = $data['username'];
-            if ($username === null) {
+            $username = null;
+            if (!(isset($data['username'])) || $data['username'] === null) {
                 return $this->createApiResponse("Username not found", 400);
+            } else {
+                $username = $data['username'];
             }
 
-            $newPassword = $data['password'];
-            if ($newPassword === null) {
+            $newPassword = null;
+            if (!isset($data['password']) || $data['password'] === null) {
                 return $this->createApiResponse("Password not found", 400);
+            } else {
+                $newPassword = $data['password'];
             }
 
             $userFromDatabase = $this->userService->getUserByUsername($username);
@@ -261,15 +275,15 @@ class UserController extends BaseController implements ClassResourceInterface
                 return $this->createApiResponse("User does not exist", 403);
             }
 
-            if ($resetKey !== $userFromDatabase->getResetKey()) {
+            if ($resetKey == null || $resetKey != $userFromDatabase->getResetKey()) {
                 return $this->createApiResponse("Reset key does not exist", 403);
             }
 
-            $now = new \DateTime();
-            $isGreaterThan24Hours = $userFromDatabase->getPasswordRequestedAt()
-                    ->diff($now)->format('H') > 24;
-
-            if ($isGreaterThan24Hours) {
+            $now = Carbon::now();
+            $passwordRequestedAt = $userFromDatabase->getPasswordRequestedAt();
+            $diffInDays = $now->diffInDays($passwordRequestedAt);
+            $isGreaterThan1Day = $diffInDays >= 1;
+            if ($isGreaterThan1Day) {
                 return $this->createApiResponse("Reset key expired", 403);
             }
 
@@ -330,6 +344,8 @@ class UserController extends BaseController implements ClassResourceInterface
      */
     public function listUsersAction(Request $request)
     {
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+
         $page = $request->query->get('page', 1);
 
         $criteria = new UserCriteria();
@@ -337,11 +353,19 @@ class UserController extends BaseController implements ClassResourceInterface
         $sort = $request->query->get('sort');
         if (isset($sort)) {
             $exploded = explode("-", $sort);
-            $sort = [$exploded[0] => $exploded[1]];
-            $criteria->setSort($sort);
+            if ($exploded[0] == UserOrderBy::ENABLED) {
+                if ($isRoleAdmin) {
+                    $sort = [$exploded[0] => $exploded[1]];
+                    $criteria->setSort($sort);
+                } else {
+                    return $this->createApiResponse('Only admin can sort by enabled', 400);
+                }
+            } else {
+                $sort = [$exploded[0] => $exploded[1]];
+                $criteria->setSort($sort);
+            }
         }
 
-        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
         if (!$isRoleAdmin) {
             $criteria->setEnabled(true);
         } else {
@@ -389,7 +413,7 @@ class UserController extends BaseController implements ClassResourceInterface
         $user = $this->userService->getUserByUsername($username);
         if (!$user) {
             $data = null;
-            return $this->createApiResponse($data, 404);
+            return $this->createApiResponse("User cannot be found", 404);
         } else {
             $data = $this->serializeUser($user);
             return $this->createApiResponse($data, 200);
@@ -397,7 +421,7 @@ class UserController extends BaseController implements ClassResourceInterface
     }
 
     /**
-     * @FOSRest\Put("/user/{id}", name="update_user", options={ "method_prefix" = false })
+     * @FOSRest\Patch("/user/{id}", name="update_user", options={ "method_prefix" = false })
      *
      * @param int $id
      * @param Request $request
@@ -405,26 +429,37 @@ class UserController extends BaseController implements ClassResourceInterface
      */
     public function editUserAction(int $id, Request $request)
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $isLoggedIn = $this->isLoggedIn();
+        if (!$isLoggedIn) {
+            return $this->createApiResponse('Not authenticated', 401);
+        }
 
         $user = $this->userService->getUserById($id);
-
         if ($user === null) {
-            return new AccessDeniedException();
+            return $this->createApiResponse('User does not exist', 403);
         }
 
         $loggedInUser = $this->getLoggedInUser();
+        if ($loggedInUser->getUsername() != $user->getUsername()) {
+            return $this->createApiResponse('You are not allowed to edit a different user', 403);
+        }
 
         $form = $this->createForm(UserForm::class, $user);
         $form->handleRequest($request);
 
-        if ($request->isMethod('PUT')) {
-            $data = json_decode($request->getContent(), true)['resource'];
+        if ($request->isMethod('PATCH')) {
+            $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
-            $existingUsername = $this->userService->getUserByUsername($user->getUsername());
-            if ($existingUsername && $loggedInUser->getUsername() != $user->getUsername()) {
-                $form->addError(new FormError('Username already exists'));
+            $username = $data['username'];
+            if ($username != $user->getUsername()) {
+                $existingUser = $this->userService->getUserByUsername($username);
+                if ($existingUser != null) {
+                    $existingUsername = $existingUser->getUsername();
+                    if ($existingUsername != null) {
+                        $form->addError(new FormError('Username already exists'));
+                    }
+                }
             }
 
             if ($form->isSubmitted() && $form->isValid()) {
@@ -453,7 +488,7 @@ class UserController extends BaseController implements ClassResourceInterface
         $loggedInUser = $this->getLoggedInUser();
 
         if ($user !== $loggedInUser) {
-            throw new AccessDeniedException();
+            return $this->createApiResponse("You cannot change password of someone else", 403);
         }
 
         $userInfo = [
@@ -475,19 +510,15 @@ class UserController extends BaseController implements ClassResourceInterface
                 $newPassword = $data["newPassword"];
                 $confirmPassword = $data["confirmPassword"];
 
-                $oldPassword = $loggedInUser->getPassword();
-                $valid = $this->passwordEncoder->isPasswordValid($user, $currentPassword);#
+                $valid = $this->passwordEncoder->isPasswordValid($user, $currentPassword);
                 if (!$valid) {
-                    $form->addError(new FormError("Password doesn't match the one in your account"));
+                    $form->addError(new FormError("Password does not match the one in your account"));
                 }
                 if (strlen($newPassword) < 6 || strlen($newPassword) > 40) {
                     $form->addError(new FormError("New Password must be between 6 and 40 characters"));
                 }
                 if ($newPassword != $confirmPassword) {
-                    $form->addError(new FormError("New Password and Confirm Password don't match"));
-                }
-                if ($newPassword == $oldPassword) {
-                    $form->addError(new FormError("New Password cannot be the same as old password"));
+                    $form->addError(new FormError("New Password and Confirm Password do not match"));
                 }
 
                 if ($form->isValid()) {
@@ -527,11 +558,14 @@ class UserController extends BaseController implements ClassResourceInterface
             if ($form->isSubmitted()) {
                 $data = $form->getData();
 
-                $username =  $data['username'];
-                $user = $this->userService->getUserByUsername($username);
+                $username =  $userInfo['username'];
+                $user = null;
+                if ($username != null) {
+                    $user = $this->userService->getUserByUsername($username);
+                }
 
                 if ($user == null) {
-                    $form->addError(new FormError("Username or email cannot be found."));
+                    $form->addError(new FormError("Username cannot be found."));
                 }
 
                 if ($form->isValid()) {
@@ -543,7 +577,7 @@ class UserController extends BaseController implements ClassResourceInterface
                     $this->userService->save($user);
 
 
-
+/**
                     $email = (new \Swift_Message('Hello Email'))
                         ->setFrom(array('contact@documentarywire.com' => 'DocumentaryWIRE'))
                         ->setTo(array('facebook@jonnydevine.com' => 'Test'))
@@ -553,8 +587,9 @@ If this was a mistake, just ignore this email and nothing will happen.
 To reset your password, visit the following address: " . $url</p>');
 
                     $this->mailer->send($email);
+ * **/
 
-                    return $this->createApiResponse("An email has been sent", 200, $headers);
+                    return $this->createApiResponse("An email has been sent", 200);
                 }
             }
         }
@@ -574,7 +609,8 @@ To reset your password, visit the following address: " . $url</p>');
             'username' => $user->getUsername(),
             'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar(),
             'roles' => $user->getRoles(),
-            'createdAt' => $user->getCreatedAt()
+            'createdAt' => $user->getCreatedAt(),
+            'lastLogin' => $user->getLastLogin()
         ];
 
         $isUser = false;

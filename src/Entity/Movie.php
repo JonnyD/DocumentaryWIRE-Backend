@@ -24,7 +24,7 @@ class Movie
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Documentary", inversedBy="movie")
-     * @ORM\JoinColumn(name="documentary_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="documentary_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $documentary;
 

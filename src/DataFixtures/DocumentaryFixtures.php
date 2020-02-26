@@ -33,6 +33,9 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         $youtube = $this->getVideoSource('Youtube');
         $vimeo = $this->getVideoSource('Vimeo');
 
+        /**
+         * Create Movies
+         */
         $movie1 = $this->createMovie($vimeo, '234jkjkfs');
         $documentary1 = $this->createMovieDocumentary(
             $movie1,
@@ -112,11 +115,14 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
 
         $movie12 = $this->createMovie($vimeo, '234jkjkfs');
         $documentary12 = $this->createMovieDocumentary(
-            $movie11,
+            $movie12,
             $category3, 'Documentary 12', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
             false, 10, 90, 2015, $user1);
 
+        /**
+         * Create Series
+         */
         $series1 = $this->createSeries();
         $documentary13 = $this->createSeriesDocumentary(
             $series1,
@@ -258,7 +264,7 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         $documentary->setFeatured($featured);
         $documentary->setViews($views);
         $documentary->setLength($length);
-        $documentary->setYear($year);
+        $documentary->setYearFrom($year);
         $documentary->setAddedBy($user);
         return $documentary;
     }
@@ -274,7 +280,7 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
      * @param bool $featured
      * @param int $views
      * @param int $length
-     * @param int $year
+     * @param int $yearFrom
      * @param User $user
      * @return Documentary
      */
@@ -289,7 +295,7 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         bool $featured,
         int $views,
         int $length,
-        int $year,
+        int $yearFrom,
         User $user
     )
     {
@@ -305,7 +311,7 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         $documentary->setFeatured($featured);
         $documentary->setViews($views);
         $documentary->setLength($length);
-        $documentary->setYear($year);
+        $documentary->setYearFrom($yearFrom);
         $documentary->setAddedBy($user);
 
         return $documentary;

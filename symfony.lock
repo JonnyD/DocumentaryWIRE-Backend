@@ -266,7 +266,11 @@
             "branch": "master",
             "version": "1.8",
             "ref": "1d42bc3f713130582e6e0c475c49bc327ab0a2a2"
-        }
+        },
+        "files": [
+            "./config/packages/liip_imagine.yaml",
+            "./config/routes/liip_imagine.yaml"
+        ]
     },
     "michelf/php-markdown": {
         "version": "1.8.0"
@@ -301,6 +305,9 @@
         "files": [
             "./config/packages/nelmio_cors.yaml"
         ]
+    },
+    "nesbot/carbon": {
+        "version": "2.30.0"
     },
     "nikic/php-parser": {
         "version": "v4.2.2"

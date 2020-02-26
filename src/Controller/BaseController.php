@@ -45,4 +45,15 @@ class BaseController extends AbstractFOSRestController
     {
         return $this->get('security.token_storage')->getToken()->getUser();
     }
+
+    /**
+     * @return bool
+     */
+    protected function isLoggedIn()
+    {
+        if (is_string($this->getLoggedInUser())){
+            return false;
+        }
+        return $this->getLoggedInUser()->isGranted("ROLE_USER");
+    }
 }

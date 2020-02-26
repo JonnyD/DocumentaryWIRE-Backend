@@ -159,8 +159,8 @@ class Documentary
     /**
      * @var Movie
      *
-     * @ORM\OneToOne(targetEntity="App\Entity\Movie", mappedBy="documentary", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\OneToOne(targetEntity="App\Entity\Movie", mappedBy="documentary", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $movie;
 
@@ -168,7 +168,7 @@ class Documentary
      * @var Series
      *
      * @ORM\OneToOne(targetEntity="App\Entity\Series", mappedBy="documentary", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $series;
 

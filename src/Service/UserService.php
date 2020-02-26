@@ -188,11 +188,11 @@ class UserService
         $user->setActivatedAt(new \DateTime());
         $user->setEnabled(true);
 
-        $this->emailService->subscribe($user->getEmailCanonical());
+        //$this->emailService->subscribe($user->getEmailCanonical());
 
         $this->save($user);
 
-        $this->activityService->addJoinedActivity($user);
+        //$this->activityService->addJoinedActivity($user);
     }
 
     /**
