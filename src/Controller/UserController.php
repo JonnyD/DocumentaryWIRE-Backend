@@ -102,14 +102,14 @@ class UserController extends BaseController implements ClassResourceInterface
      */
     public function registerAction(Request $request)
     {
+        if ($this->isLoggedIn()) {
+            return $this->createApiResponse("Already Logged In", 400);
+        }
+
         $user = new User();
         $form = $this->createForm(RegisterForm::class, $user);
         $data = json_decode($request->getContent(), true);
         $form->submit($data);
-
-        if ($this->isLoggedIn()) {
-            return $this->createApiResponse("Already Logged In", 400);
-        }
 
         if ($form->isSubmitted() && $form->isValid()){
             $email = $data['email'];
