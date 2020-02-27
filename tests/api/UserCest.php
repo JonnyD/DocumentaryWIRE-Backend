@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class UserCest
 {
@@ -54,12 +54,19 @@ class UserCest
 
     public function registerButAlreadyLoggedIn(ApiTester $I)
     {
-        $username = 'user1';
-        $password = 'pass';
+        $userClass = \App\Entity\User::class;
+        $clientClass = \App\Entity\Client::class;
 
-        $I->seeInRepository(\App\Entity\User::class, [
+        $username = 'user2';
+        $password = 'password';
+
+        $I->seeInRepository($userClass, [
             'username' => $username,
             'enabled' => true
+        ]);
+
+        $I->seeInRepository($clientClass, [
+            'randomId' => '5w8zrdasdafr4tregd454cw0c0kswcgs0oks40s'
         ]);
 
         $logInDetails = [
@@ -69,7 +76,7 @@ class UserCest
             'username' => $username,
             'password' => $password
         ];
-        $I->sendPOST('oauth/v2/token', $logInDetails);
+        $I->sendPOST('/oauth/v2/token', $logInDetails);
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
         $I->seeResponseIsJson();
         $I->seeResponseContains('access_token');
@@ -120,7 +127,7 @@ class UserCest
     public function meLoggedInDisabled(ApiTester $I)
     {
         $username = 'user4';
-        $password = 'pass';
+        $password = 'password';
 
         $I->seeInRepository(\App\Entity\User::class, [
             'username' => $username,
@@ -158,8 +165,8 @@ class UserCest
 
     public function meLoggedInEnabled(ApiTester $I)
     {
-        $username = 'user1';
-        $password = 'pass';
+        $username = 'user19';
+        $password = 'password';
 
         $I->seeInRepository(\App\Entity\User::class, [
             'username' => $username,
@@ -186,7 +193,7 @@ class UserCest
         $response = json_decode($I->grabResponse(), true);
         $accessToken = $response['access_token'];
         $I->haveHttpHeader('Authorization', 'Bearer ' . $accessToken);
-        $I->sendGet('api/v1/user/me');
+        $I->sendGet('api/v1/user/me?disableLastLogin=' . true);
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
         $I->seeResponseIsJson();
     }
@@ -272,10 +279,12 @@ class UserCest
 
     public function confirmInvalidConfirmationToken(ApiTester $I)
     {
+        $userClass = \App\Entity\User::class;
+
         $username = 'user4';
         $confirmationToken = 'xxxx';
 
-        $I->seeInRepository(\App\Entity\User::class, [
+        $I->seeInRepository($userClass, [
             'username'  => $username
         ]);
 
@@ -287,12 +296,40 @@ class UserCest
 
     public function confirmAlreadyLoggedIn(ApiTester $I)
     {
-        $username = 'user4';
+        $userClass = \App\Entity\User::class;
+
+        $username = 'user1';
+        $password = 'password';
         $confirmationToken = '4c3fb568d51feb12a0038033890efb5367585af3a';
+
+        $I->seeInRepository($userClass, [
+            'username'  => $username
+        ]);
+
+        $logInDetails = [
+            'grant_type' => 'password',
+            'client_id' => '1_5w8zrdasdafr4tregd454cw0c0kswcgs0oks40s',
+            'client_secret' => 'sdgggskokererg4232404gc4csdgfdsgf8s8ck5s',
+            'username' => $username,
+            'password' => $password
+        ];
+
+        $I->sendPOST('oauth/v2/token', $logInDetails);
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $I->seeResponseIsJson();
+        $I->seeResponseContains('access_token');
+        $I->seeResponseContains('expires_in');
+        $I->seeResponseContains('token_type');
+        $I->seeResponseContains('scope');
+        $I->seeResponseContains('refresh_token');
+
+        $response = json_decode($I->grabResponse(), true);
+        $accessToken = $response['access_token'];
+        $I->amBearerAuthenticated($accessToken);
 
         $I->sendGet('api/v1/user/confirm?username='.$username.'&confirmation_token='.$confirmationToken);
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
-        $I->seeResponseContains('Successfully confirmed');
+        $I->seeResponseContains('Already confirmed');
     }
 
     public function confirmSuccessfully(ApiTester $I)
@@ -302,14 +339,16 @@ class UserCest
         $username = 'user5';
         $confirmationToken = '5c3fb568d51feb12a0038033890efb5367585af3a';
 
-        $I->seeInRepository($userClass, [
+        $data = [
             'username' => $username,
             'confirmationToken' => $confirmationToken,
             'activatedAt' => null,
             'enabled' => false
-       ]);
+        ];
+        $I->seeInRepository($userClass, $data);
 
-        $I->sendGet('api/v1/user/confirm?username='.$username.'&confirmation_token='.$confirmationToken);
+        $I->sendGet('api/v1/user/confirm?username='
+            .$username.'&confirmation_token='.$confirmationToken.'&disableActivation=true');
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
         $I->seeResponseContains('Successfully confirmed');
     }
@@ -485,14 +524,14 @@ class UserCest
                 "ROLE_ADMIN",
                 "ROLE_USER"
             ],
-            "createdAt" => [
-                "date" => "2020-02-24 19:34:59.000000",
-                "timezone_type" => 3,
-                "timezone" => "Europe/Berlin"
-            ]
         ];
 
         $I->seeResponseContainsJson($expectedResponse);
+
+        /** @var \App\Service\UserService $userService */
+        $userService = $I->grabService('App\Service\UserService');
+        $user = $userService->getUserByUsername($username);
+        $I->assertNotNull($user->getCreatedAt());
     }
 
     public function editUserNotLoggedIn(ApiTester $I)
@@ -514,7 +553,7 @@ class UserCest
     {
         $userId = 999999;
         $username = 'user2';
-        $password = 'pass';
+        $password = 'password';
 
         $logInDetails = [
             'grant_type' => 'password',
@@ -545,7 +584,7 @@ class UserCest
     public function editUserButDifferentUser(ApiTester $I)
     {
         $username = 'user2';
-        $password = 'pass';
+        $password = 'password';
 
         $logInDetails = [
             'grant_type' => 'password',
@@ -580,7 +619,7 @@ class UserCest
     public function editUserButDifferentUsername(ApiTester $I)
     {
         $username = 'user2';
-        $password = 'pass';
+        $password = 'password';
 
         $logInDetails = [
             'grant_type' => 'password',
@@ -618,7 +657,7 @@ class UserCest
     public function editUserSuccessfully(ApiTester $I)
     {
         $username = 'user2';
-        $password = 'pass';
+        $password = 'password';
 
         $logInDetails = [
             'grant_type' => 'password',
@@ -650,10 +689,21 @@ class UserCest
         ];
         $I->sendPATCH('api/v1/user/' . $existingUser->getId(), json_encode($data));
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
-
         $expectedResponse = [
             "name" => "Sarah McCarthy",
             "username" => "user99999"
+        ];
+        $I->seeResponseContainsJson($expectedResponse);
+
+        $data = [
+            'name' => $existingUser->getName(),
+            'username' => $username
+        ];
+        $I->sendPatch('api/v1/user/' . $existingUser->getId(), json_encode($data));
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $expectedResponse = [
+            "name" => "Sarah McCarthy",
+            "username" => "user2"
         ];
         $I->seeResponseContainsJson($expectedResponse);
     }
@@ -679,10 +729,10 @@ class UserCest
 
     public function changePasswordNotLoggedInUser(ApiTester $I)
     {
-        $username = 'user1';
+        $username = 'user3';
         $password = 'password';
 
-        $otherUsername = 'user2';
+        $otherUsername = 'user4';
 
         $data = [];
 
@@ -708,9 +758,11 @@ class UserCest
 
         /** @var \App\Service\UserService $userService */
         $userService = $I->grabService('App\Service\UserService');
-        $user = $userService->getUserByUsername($otherUsername);
+        $otherUser = $userService->getUserByUsername($otherUsername);
 
-        $I->sendPOST('api/v1/user/' . $user->getId() . '/change-password', $data);
+        $I->assertEquals($otherUsername, $otherUser->getUsername());
+
+        $I->sendPOST('api/v1/user/' . $otherUser->getId() . '/change-password', $data);
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::FORBIDDEN);
         $I->seeResponseContains('You cannot change password of someone else');
     }
@@ -801,7 +853,7 @@ class UserCest
 
     public function changePasswordSuccessfully(ApiTester $I)
     {
-        $username = 'user1';
+        $username = 'user19';
         $currentPassword = 'password';
         $newPassword = 'newpassword';
         $confirmPassword = 'newpassword';
@@ -840,8 +892,8 @@ class UserCest
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
 
         $expectedResponse = [
-            "name" => "John Smith",
-            "username" => "user1"
+            "name" => "Kathleen Sims",
+            "username" => "user19"
         ];
         $I->seeResponseContainsJson($expectedResponse);
 
@@ -876,7 +928,7 @@ class UserCest
     public function forgotPasswordSuccessful(ApiTester $I)
     {
         $data = [
-            'username' => 'user2'
+            'username' => 'user3'
         ];
 
         $I->sendPOST('api/v1/user/forgot-password', $data);

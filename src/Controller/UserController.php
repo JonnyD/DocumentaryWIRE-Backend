@@ -159,14 +159,17 @@ class UserController extends BaseController implements ClassResourceInterface
      *
      * @return User|string
      */
-    public function getMeAction()
+    public function getMeAction(Request $request)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $loggedInUser = $this->getLoggedInUser();
         $data = $this->serializeUser($loggedInUser);
 
-        $this->userService->updateLastLogin($loggedInUser);
+        $disableUpdateLastLogin = $request->query->get('disableLastLogin');
+        if ($disableUpdateLastLogin === false) {
+            $this->userService->updateLastLogin($loggedInUser);
+        }
 
         return $this->createApiResponse($data, 200);
     }
@@ -202,7 +205,13 @@ class UserController extends BaseController implements ClassResourceInterface
             return $this->createApiResponse("Confirmation Token cant be found", 400);
         }
 
-        $this->userService->confirmUser($userInDatabase);
+        $disableActivation = $request->query->get('disableActivation');
+        if ($disableActivation === false) {
+            $this->userService->confirmUser($userInDatabase);
+        } else {
+            $this->userService->save($userInDatabase);
+        }
+
         return $this->createApiResponse("Successfully confirmed", 200);
     }
 

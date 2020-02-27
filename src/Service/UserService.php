@@ -188,6 +188,7 @@ class UserService
         $user->setActivatedAt(new \DateTime());
         $user->setEnabled(true);
 
+        //@TODO
         //$this->emailService->subscribe($user->getEmailCanonical());
 
         $this->save($user);
