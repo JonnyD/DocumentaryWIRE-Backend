@@ -50,7 +50,7 @@ class CategoryController extends BaseController implements ClassResourceInterfac
             }
         } else {
             $criteria->setStatus(CategoryStatus::ENABLED);
-            $criteria->setGreaterThanEqual(1);
+            $criteria->setDocumentaryCountGreaterThanEqual(1);
         }
 
         $sort = $request->query->get('sort');
@@ -80,6 +80,11 @@ class CategoryController extends BaseController implements ClassResourceInterfac
     {
         $category = $this->categoryService->getCategoryBySlug($slug);
 
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        if ($category->isDisabled() && !$isRoleAdmin) {
+            return $this->createApiResponse("Not authorixed", 403);
+        }
+
         $serialized = $this->serializeCategory($category);
 
         return $this->createApiResponse($serialized, 200);
@@ -94,11 +99,12 @@ class CategoryController extends BaseController implements ClassResourceInterfac
      */
     public function editCategoryAction(int $id, Request $request)
     {
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+
         /** @var Category $category */
         $category = $this->categoryService->getCategoryById($id);
-
         if ($category === null) {
-            return new AccessDeniedException();
+            return $this->createApiResponse("Category not found", 404);
         }
 
         $form = $this->createForm(CategoryForm::class, $category);

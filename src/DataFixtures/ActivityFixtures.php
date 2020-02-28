@@ -147,6 +147,7 @@ class ActivityFixtures extends Fixture implements DependentFixtureInterface
     {
         return $this->getReference('documentary.'.$slug);
     }
+
     /**
      * @return array
      */

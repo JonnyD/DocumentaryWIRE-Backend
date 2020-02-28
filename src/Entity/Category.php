@@ -128,24 +128,6 @@ class Category
     }
 
     /**
-     * @Groups({"category:read"})
-     *
-     * @return int|null
-     */
-    public function getCount(): ?int
-    {
-        return $this->count;
-    }
-
-    /**
-     * @param int $count
-     */
-    public function setCount(int $count)
-    {
-        $this->count = $count;
-    }
-
-    /**
      * @return Collection|Documentary[]
      */
     public function getDocumentaries(): Collection

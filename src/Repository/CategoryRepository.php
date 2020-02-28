@@ -112,9 +112,9 @@ class CategoryRepository extends ServiceEntityRepository
                 ->setParameter('status', $criteria->getStatus());
         }
 
-        if ($criteria->getGreaterThanEqual() != null) {
+        if ($criteria->getDocumentaryCountGreaterThanEqual() != null) {
             $qb->andWhere('category.documentaryCount >= :greaterThanEqual')
-                ->setParameter('greaterThanEqual', $criteria->getGreaterThanEqual());
+                ->setParameter('greaterThanEqual', $criteria->getDocumentaryCountGreaterThanEqual());
         }
 
         if ($criteria->getSort()) {

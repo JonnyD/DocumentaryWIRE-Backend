@@ -46,7 +46,7 @@ class CategoryCriteria
     /**
      * @return int
      */
-    public function getGreaterThanEqual(): ?int
+    public function getDocumentaryCountGreaterThanEqual(): ?int
     {
         return $this->greaterThanEqual;
     }
@@ -54,7 +54,7 @@ class CategoryCriteria
     /**
      * @param int $greaterThanEqual
      */
-    public function setGreaterThanEqual(int $greaterThanEqual): void
+    public function setDocumentaryCountGreaterThanEqual(int $greaterThanEqual): void
     {
         $this->greaterThanEqual = $greaterThanEqual;
     }

@@ -15,9 +15,9 @@ class CategoryFixtures extends Fixture
      */
     public function load(ObjectManager $manager)
     {
-        $category1 = $this->createCategory('Category 1', CategoryStatus::ENABLED);
-        $category2 = $this->createCategory('Category 2', CategoryStatus::ENABLED);
-        $category3 = $this->createCategory('Category 3', CategoryStatus::DISABLED);
+        $category1 = $this->createCategory('Category 1', CategoryStatus::ENABLED, 2);
+        $category2 = $this->createCategory('Category 2', CategoryStatus::ENABLED, 2);
+        $category3 = $this->createCategory('Category 3', CategoryStatus::DISABLED, 0);
 
         $manager->persist($category1);
         $manager->persist($category2);
@@ -32,14 +32,15 @@ class CategoryFixtures extends Fixture
     /**
      * @param string $name
      * @param string $status
+     * @param int $documentaryCount
      * @return Category
      */
-    private function createCategory(string $name, string $status)
+    private function createCategory(string $name, string $status, int $documentaryCount)
     {
         $category = new Category();
         $category->setName($name);
         $category->setStatus($status);
-        $category->setCount(2);
+        $category->setDocumentaryCount($documentaryCount);
         return $category;
     }
 
