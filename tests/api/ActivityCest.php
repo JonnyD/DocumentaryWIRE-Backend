@@ -161,4 +161,135 @@ class ActivityCest
         ];
         $I->seeResponseContainsJson($expectedResponse);
     }
+
+    public function listActivity(ApiTester $I)
+    {
+        $I->sendGET('api/v1/activity');
+
+        $expectedResponse = [
+            'items' => [
+                [
+                    'type' => 'watchlist',
+                    'component' => 'documentary',
+                    'groupNumber' => 5,
+                    'user' => [
+                        'username' => 'user1',
+                        'name' => 'John Smith',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ],
+                [
+                    'type' => 'watchlist',
+                    'component' => 'documentary',
+                    'groupNumber' => 5,
+                    'user' => [
+                        'username' => 'user1',
+                        'name' => 'John Smith',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ],
+                [
+                    'type' => 'watchlist',
+                    'component' => 'documentary',
+                    'groupNumber' => 5,
+                    'user' => [
+                        'username' => 'user1',
+                        'name' => 'John Smith',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ],
+                [
+                    'type' => 'joined',
+                    'component' => 'user',
+                    'groupNumber' => 4,
+                    'user' => [
+                        'username' => 'user1',
+                        'name' => 'John Smith',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ],
+                [
+                    'type' => 'joined',
+                    'component' => 'user',
+                    'groupNumber' => 4,
+                    'user' => [
+                        'username' => 'user2',
+                        'name' => 'Sarah McCarthy',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ],
+                [
+                    'type' => 'joined',
+                    'component' => 'user',
+                    'groupNumber' => 4,
+                    'user' => [
+                        'username' => 'user3',
+                        'name' => 'Andrew Walsh',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ],
+                [
+                    'type' => 'watchlist',
+                    'component' => 'documentary',
+                    'groupNumber' => 3,
+                    'user' => [
+                        'username' => 'user1',
+                        'name' => 'John Smith',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ],
+                [
+                    'type' => 'watchlist',
+                    'component' => 'documentary',
+                    'groupNumber' => 3,
+                    'user' => [
+                        'username' => 'user1',
+                        'name' => 'John Smith',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ],
+                [
+                    'type' => 'comment',
+                    'component' => 'documentary',
+                    'groupNumber' => 2,
+                    'user' => [
+                        'username' => 'user1',
+                        'name' => 'John Smith',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ],
+                [
+                    'type' => 'joined',
+                    'component' => 'user',
+                    'groupNumber' => 1,
+                    'user' => [
+                        'username' => 'user4',
+                        'name' => 'Anne Keating',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ],
+                [
+                    'type' => 'joined',
+                    'component' => 'user',
+                    'groupNumber' => 1,
+                    'user' => [
+                        'username' => 'user5',
+                        'name' => 'Jerry Carroll',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ],
+                [
+                    'type' => 'joined',
+                    'component' => 'user',
+                    'groupNumber' => 1,
+                    'user' => [
+                        'username' => 'user6',
+                        'name' => 'Sarah Kirwin',
+                        'avatar' => 'http://localhost:8000/uploads/avatar/0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg'
+                    ]
+                ]
+            ]
+        ];
+        $I->seeResponseContainsJson($expectedResponse);
+    }
 }
