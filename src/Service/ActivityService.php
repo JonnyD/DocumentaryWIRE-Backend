@@ -375,6 +375,8 @@ class ActivityService
             $username = $user->getUsername();
 
             $activityObject = new ActivityObject();
+            $activityObject->setType($type);
+            $activityObject->setCreatedAt($created);
             $activityObject->setName($name);
             $activityObject->setUsername($username);
             $activityObject->setAvatar($avatar);

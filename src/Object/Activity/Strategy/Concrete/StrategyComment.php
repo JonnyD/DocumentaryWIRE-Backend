@@ -53,6 +53,7 @@ class StrategyComment implements StrategyInterface
         $poster = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPoster();
         $commentData->setDocumentaryPoster($poster);
         $commentData->setDocumentarySlug($documentary->getSlug());
+        $commentData->setDocumentaryTitle($documentary->getTitle());
 
         return $commentData;
     }
