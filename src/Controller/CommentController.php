@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Criteria\CommentCriteria;
 use App\Entity\Comment;
 use App\Enum\CommentOrderBy;
+use App\Enum\CommentStatus;
 use App\Enum\Order;
 use App\Form\CommentForm;
 use App\Service\CommentService;
 use App\Service\DocumentaryService;
+use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
@@ -31,15 +33,23 @@ class CommentController extends BaseController implements ClassResourceInterface
     private $documentaryService;
 
     /**
+     * @var UserService
+     */
+    private $userService;
+
+    /**
      * @param CommentService $commentService
      * @param DocumentaryService $documentaryService
+     * @param UserService $userService
      */
     public function __construct(
         CommentService $commentService,
-        DocumentaryService $documentaryService)
+        DocumentaryService $documentaryService,
+        UserService $userService)
     {
         $this->commentService = $commentService;
         $this->documentaryService = $documentaryService;
+        $this->userService = $userService;
     }
 
     /**
@@ -54,19 +64,36 @@ class CommentController extends BaseController implements ClassResourceInterface
 
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
         if (!$isRoleAdmin && !isset($documentaryId)) {
-            throw new AccessDeniedException();
+            return $this->createApiResponse('Documentary ID is required', 400);
         }
 
         $criteria = new CommentCriteria();
 
         if (isset($documentaryId)) {
             $documentary = $this->documentaryService->getDocumentaryById($documentaryId);
+            if (!$documentary) {
+                return $this->createApiResponse('Documentary cannot be found', 404);
+            }
             $criteria->setDocumentary($documentary);
         }
 
         $status = $request->query->get('status');
         if (isset($status)) {
-            $criteria->setStatus($status);
+            $hasStatus = CommentStatus::hasStatus($status);
+            if (!$hasStatus) {
+                return $this->createApiResponse('Status does not exist', 400);
+            }
+        }
+        if (isset($status)) {
+            if (!$isRoleAdmin) {
+                return $this->createApiResponse('Only admins can change status', 400);
+            } else {
+                $criteria->setStatus($status);
+            }
+        } else {
+            if (!$isRoleAdmin) {
+                $criteria->setStatus(CommentStatus::PUBLISHED);
+            }
         }
 
         $email = $request->query->get('email');
@@ -74,8 +101,12 @@ class CommentController extends BaseController implements ClassResourceInterface
             $criteria->setEmail($email);
         }
 
-        $user = $request->query->get('user');
-        if (isset($user)) {
+        $userId = $request->query->get('user');
+        if (isset($userId)) {
+            $user = $this->userService->getUserById($userId);
+            if (!$user) {
+                return $this->createApiResponse('User cannot be found', 404);
+            }
             $criteria->setUser($user);
         }
 
