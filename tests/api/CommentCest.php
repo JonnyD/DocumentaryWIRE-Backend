@@ -325,4 +325,293 @@ class CommentCest
         ];
         $I->seeResponseContainsJson($expectedResponse);
     }
+
+    public function getCommentNotLoggedIn(ApiTester $I)
+    {
+        $commentClass = \App\Entity\Comment::class;
+        /** @var \App\Entity\Comment $comment */
+        $comment = $I->grabEntityFromRepository($commentClass, [
+            'commentText' => 'This is a comment 2',
+            'status' => 'published'
+        ]);
+
+        $I->sendGET('api/v1/comment/'.$comment->getId());
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $I->seeResponseContainsJson();
+
+        $expectedResponse = [
+            'commentText' => 'This is a comment 2',
+            'status' => 'published',
+            'user' => [
+                'username' => 'user2'
+            ],
+            'documentary' => [
+                'title' => 'Documentary 1'
+            ]
+        ];
+        $I->seeResponseContainsJson($expectedResponse);
+    }
+
+    public function getCommentIsPendingNotLoggedIn(ApiTester $I)
+    {
+        $commentClass = \App\Entity\Comment::class;
+        /** @var \App\Entity\Comment $comment */
+        $comment = $I->grabEntityFromRepository($commentClass, [
+            'commentText' => 'This is a comment 1',
+            'status' => 'pending'
+        ]);
+
+        $I->sendGET('api/v1/comment/'.$comment->getId());
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::BAD_REQUEST);
+        $I->seeResponseContains('Unauthorized to view this comment');
+    }
+
+    public function getCommentIsPendingAsAdmin(ApiTester $I)
+    {
+        $username = 'user1';
+
+        $logInDetails = [
+            'grant_type' => 'password',
+            'client_id' => '1_5w8zrdasdafr4tregd454cw0c0kswcgs0oks40s',
+            'client_secret' => 'sdgggskokererg4232404gc4csdgfdsgf8s8ck5s',
+            'username' => $username,
+            'password' => 'password'
+        ];
+        $I->sendPOST('oauth/v2/token', $logInDetails);
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $I->seeResponseIsJson();
+        $I->seeResponseContains('access_token');
+        $I->seeResponseContains('expires_in');
+        $I->seeResponseContains('token_type');
+        $I->seeResponseContains('scope');
+        $I->seeResponseContains('refresh_token');
+
+        $response = json_decode($I->grabResponse(), true);
+        $accessToken = $response['access_token'];
+        $I->amBearerAuthenticated($accessToken);
+
+        $commentClass = \App\Entity\Comment::class;
+        /** @var \App\Entity\Comment $comment */
+        $comment = $I->grabEntityFromRepository($commentClass, [
+            'commentText' => 'This is a comment 1',
+            'status' => 'pending'
+        ]);
+
+        $I->sendGET('api/v1/comment/'.$comment->getId());
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+
+        $expectedResponse = [
+            'commentText' => 'This is a comment 1',
+            'status' => 'pending',
+            'user' => [
+                'username' => 'user1'
+            ],
+            'documentary' => [
+                'title' => 'Documentary 1'
+            ]
+        ];
+        $I->seeResponseContainsJson($expectedResponse);
+    }
+
+    public function editCommentAsGuest(ApiTester $I)
+    {
+        $I->sendPATCH('api/v1/comment/1');
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::NOT_FOUND);
+        $I->seeResponseContainsJson();
+        $I->seeResponseContains('Comment not found');
+    }
+
+    public function editCommentNotFoundAsAdmin(ApiTester $I)
+    {
+        $username = 'user1';
+
+        $logInDetails = [
+            'grant_type' => 'password',
+            'client_id' => '1_5w8zrdasdafr4tregd454cw0c0kswcgs0oks40s',
+            'client_secret' => 'sdgggskokererg4232404gc4csdgfdsgf8s8ck5s',
+            'username' => $username,
+            'password' => 'password'
+        ];
+        $I->sendPOST('oauth/v2/token', $logInDetails);
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $I->seeResponseIsJson();
+        $I->seeResponseContains('access_token');
+        $I->seeResponseContains('expires_in');
+        $I->seeResponseContains('token_type');
+        $I->seeResponseContains('scope');
+        $I->seeResponseContains('refresh_token');
+
+        $response = json_decode($I->grabResponse(), true);
+        $accessToken = $response['access_token'];
+        $I->amBearerAuthenticated($accessToken);
+
+        $I->sendPATCH('api/v1/comment/99999999');
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::NOT_FOUND);
+        $I->seeResponseContainsJson();
+        $I->seeResponseContains('Comment not found');
+    }
+
+    public function editCommentFoundAsAdmin(ApiTester $I)
+    {
+        $username = 'user1';
+
+        $logInDetails = [
+            'grant_type' => 'password',
+            'client_id' => '1_5w8zrdasdafr4tregd454cw0c0kswcgs0oks40s',
+            'client_secret' => 'sdgggskokererg4232404gc4csdgfdsgf8s8ck5s',
+            'username' => $username,
+            'password' => 'password'
+        ];
+        $I->sendPOST('oauth/v2/token', $logInDetails);
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $I->seeResponseIsJson();
+        $I->seeResponseContains('access_token');
+        $I->seeResponseContains('expires_in');
+        $I->seeResponseContains('token_type');
+        $I->seeResponseContains('scope');
+        $I->seeResponseContains('refresh_token');
+
+        $response = json_decode($I->grabResponse(), true);
+        $accessToken = $response['access_token'];
+        $I->amBearerAuthenticated($accessToken);
+
+        /** @var \App\Entity\Comment $comment */
+        $comment = $I->grabEntityFromRepository(\App\Entity\Comment::class, [
+            'commentText' => 'This is a comment 1',
+            'status' => 'pending'
+        ]);
+        $data = [
+            'commentText' => 'This is a comment xxxxx',
+            'status' => 'published'
+        ];
+        $I->sendPATCH('api/v1/comment/' . $comment->getId(), json_encode($data));
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $I->seeResponseContainsJson();
+
+        $expectedResponse = [
+            'commentText' => 'This is a comment xxxxx',
+            'status' => 'published',
+            'user' => [
+                'username' => 'user1'
+            ],
+            'documentary' => [
+                'title' => 'Documentary 1'
+            ]
+        ];
+        $I->seeResponseContainsJson($expectedResponse);
+
+        $data = [
+            'commentText' => 'This is a comment 1',
+            'status' => 'pending'
+        ];
+        $I->sendPATCH('api/v1/comment/' . $comment->getId(), json_encode($data));
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+    }
+
+    public function editCommentAsOwner(ApiTester $I)
+    {
+        $username = 'user3';
+
+        $logInDetails = [
+            'grant_type' => 'password',
+            'client_id' => '1_5w8zrdasdafr4tregd454cw0c0kswcgs0oks40s',
+            'client_secret' => 'sdgggskokererg4232404gc4csdgfdsgf8s8ck5s',
+            'username' => $username,
+            'password' => 'password'
+        ];
+        $I->sendPOST('oauth/v2/token', $logInDetails);
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $I->seeResponseIsJson();
+        $I->seeResponseContains('access_token');
+        $I->seeResponseContains('expires_in');
+        $I->seeResponseContains('token_type');
+        $I->seeResponseContains('scope');
+        $I->seeResponseContains('refresh_token');
+
+        $response = json_decode($I->grabResponse(), true);
+        $accessToken = $response['access_token'];
+        $I->amBearerAuthenticated($accessToken);
+
+        /** @var \App\Entity\Comment $comment */
+        $comment = $I->grabEntityFromRepository(\App\Entity\Comment::class, [
+            'commentText' => 'This is a comment 3',
+            'status' => 'pending'
+        ]);
+        $data = [
+            'commentText' => 'This is a comment xxxxx',
+            'status' => 'pending'
+        ];
+        $I->sendPATCH('api/v1/comment/' . $comment->getId(), json_encode($data));
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $I->seeResponseContainsJson();
+
+        $expectedResponse = [
+            'commentText' => 'This is a comment xxxxx',
+            'status' => 'pending',
+            'user' => [
+                'username' => 'user3'
+            ],
+            'documentary' => [
+                'title' => 'Documentary 2'
+            ]
+        ];
+        $I->seeResponseContainsJson($expectedResponse);
+
+        $data = [
+            'commentText' => 'This is a comment 3',
+            'status' => 'pending'
+        ];
+        $I->sendPATCH('api/v1/comment/' . $comment->getId(), json_encode($data));
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+    }
+
+    public function editCommentAsOwnerDifferentStatus(ApiTester $I)
+    {
+        $username = 'user3';
+
+        $logInDetails = [
+            'grant_type' => 'password',
+            'client_id' => '1_5w8zrdasdafr4tregd454cw0c0kswcgs0oks40s',
+            'client_secret' => 'sdgggskokererg4232404gc4csdgfdsgf8s8ck5s',
+            'username' => $username,
+            'password' => 'password'
+        ];
+        $I->sendPOST('oauth/v2/token', $logInDetails);
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $I->seeResponseIsJson();
+        $I->seeResponseContains('access_token');
+        $I->seeResponseContains('expires_in');
+        $I->seeResponseContains('token_type');
+        $I->seeResponseContains('scope');
+        $I->seeResponseContains('refresh_token');
+
+        $response = json_decode($I->grabResponse(), true);
+        $accessToken = $response['access_token'];
+        $I->amBearerAuthenticated($accessToken);
+
+        /** @var \App\Entity\Comment $comment */
+        $comment = $I->grabEntityFromRepository(\App\Entity\Comment::class, [
+            'commentText' => 'This is a comment 3',
+            'status' => 'pending'
+        ]);
+        $data = [
+            'commentText' => 'This is a comment xxxxx',
+            'status' => 'published'
+        ];
+        $I->sendPATCH('api/v1/comment/' . $comment->getId(), json_encode($data));
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::UNAUTHORIZED);
+        $I->seeResponseContains('Only admins can edit comment status');
+
+        $data = [
+            'commentText' => 'This is a comment 3',
+            'status' => 'pending'
+        ];
+        $I->sendPATCH('api/v1/comment/' . $comment->getId(), json_encode($data));
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+    }
+
+    public function createComment(ApiTester $I)
+    {
+        //@TODO
+    }
 }

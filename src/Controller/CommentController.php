@@ -152,6 +152,15 @@ class CommentController extends BaseController implements ClassResourceInterface
     public function getCommentAction(int $id)
     {
         $comment = $this->commentService->getCommentById($id);
+        if (!$comment) {
+            return $this->createApiResponse('Comment does not exist', 404);
+        }
+
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+
+        if (($comment->isPending() || $comment->isDeleted()) && !$isRoleAdmin) {
+            return $this->createApiResponse('Unauthorized to view this comment', 400);
+        }
 
         $serialized = $this->serialiseComment($comment);
 
@@ -167,11 +176,27 @@ class CommentController extends BaseController implements ClassResourceInterface
      */
     public function editCommentAction(int $id, Request $request)
     {
+        $isAuthorized = false;
+
         /** @var Comment $comment */
         $comment = $this->commentService->getCommentById($id);
-
         if ($comment === null) {
-            return new AccessDeniedException();
+            return $this->createApiResponse('Comment not found', 404);
+        }
+
+        $commentStatus = $comment->getStatus();
+
+        if ($comment != null) {
+            $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+            $commentUser = $comment->getUser();
+            if (($this->isLoggedIn() && $commentUser->getId() == $this->getLoggedInUser()->getId())
+                || $isRoleAdmin) {
+                $isAuthorized = true;
+            }
+        }
+
+        if (!$isAuthorized) {
+            return $this->createApiResponse('Not authorized', 401);
         }
 
         $form = $this->createForm(CommentForm::class, $comment);
@@ -180,6 +205,12 @@ class CommentController extends BaseController implements ClassResourceInterface
         if ($request->isMethod('PATCH')) {
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
+
+            if (!$isRoleAdmin) {
+                if ($data['status'] != $commentStatus) {
+                    return $this->createApiResponse('Only admins can edit comment status', 401);
+                }
+            }
 
             if ($form->isValid()) {
                 $this->commentService->save($comment);
