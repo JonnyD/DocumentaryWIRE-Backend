@@ -48,14 +48,14 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
             $movie2,
             $category2, 'Documentary 2', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH, 'poster.jpg',
-            true, 10, 90, 2015, $user1);
+            true, 10, 90, 2011, $user1);
 
         $movie3 = $this->createMovie($youtube, '234jkjkfs');
         $documentary3 = $this->createMovieDocumentary(
             $movie3,
             $category3, 'Documentary 3', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,'poster.jpg',
-            true, 10, 90, 2015, $user1);
+            true, 10, 90, 2010, $user1);
 
         $movie4 = $this->createMovie($youtube, '234jkjkfs');
         $documentary4 = $this->createMovieDocumentary(
@@ -69,56 +69,56 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
             $movie5,
             $category3, 'Documentary 5', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2016, $user1);
 
         $movie6 = $this->createMovie($vimeo, '234jkjkfs');
         $documentary6 = $this->createMovieDocumentary(
             $movie6,
             $category3, 'Documentary 6', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2009, $user1);
 
         $movie7 = $this->createMovie($vimeo, '234jkjkfs');
         $documentary7 = $this->createMovieDocumentary(
             $movie7,
             $category3, 'Documentary 7', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2001, $user1);
 
         $movie8 = $this->createMovie($vimeo, '234jkjkfs');
         $documentary8 = $this->createMovieDocumentary(
             $movie8,
             $category3, 'Documentary 8', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2017, $user1);
 
         $movie9 = $this->createMovie($vimeo, '234jkjkfs');
         $documentary9 = $this->createMovieDocumentary(
             $movie9,
             $category3, 'Documentary 9', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2016, $user1);
 
         $movie10 = $this->createMovie($vimeo, '234jkjkfs');
         $documentary10 = $this->createMovieDocumentary(
             $movie10,
             $category3, 'Documentary 10', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2018, $user1);
 
         $movie11 = $this->createMovie($vimeo, '234jkjkfs');
         $documentary11 = $this->createMovieDocumentary(
             $movie11,
             $category3, 'Documentary 11', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2010, $user1);
 
         $movie12 = $this->createMovie($vimeo, '234jkjkfs');
         $documentary12 = $this->createMovieDocumentary(
             $movie12,
             $category3, 'Documentary 12', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2011, $user1);
 
         /**
          * Create Series
@@ -128,35 +128,35 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
             $series1,
             $category3, 'Documentary 13', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2012, $user1);
 
         $series2 = $this->createSeries();
         $documentary14 = $this->createSeriesDocumentary(
             $series2,
             $category3, 'Documentary 14', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2013, $user1);
 
         $series3 = $this->createSeries();
         $documentary15 = $this->createSeriesDocumentary(
             $series3,
             $category3, 'Documentary 15', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2002, $user1);
 
         $series4 = $this->createSeries();
         $documentary16 = $this->createSeriesDocumentary(
             $series4,
             $category3, 'Documentary 16', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2003, $user1);
 
         $series5 = $this->createSeries();
         $documentary17 = $this->createSeriesDocumentary(
             $series5,
             $category3, 'Documentary 17', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2000, $user1);
 
         $series6 = $this->createSeries();
         $documentary18 = $this->createSeriesDocumentary(
@@ -170,14 +170,14 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
             $series7,
             $category3, 'Documentary 19', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2017, $user1);
 
         $series8 = $this->createSeries();
         $documentary20 = $this->createSeriesDocumentary(
             $series8,
             $category3, 'Documentary 20', 'This is a storyline', 'Storyline',
             DocumentaryStatus::PUBLISH,  'poster.jpg',
-            false, 10, 90, 2015, $user1);
+            false, 10, 90, 2019, $user1);
 
         $manager->persist($documentary1);
         $manager->persist($documentary2);

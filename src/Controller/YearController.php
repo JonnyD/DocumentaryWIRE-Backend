@@ -34,13 +34,4 @@ class YearController extends BaseController implements ClassResourceInterface
 
         return $this->createApiResponse($years, 200);
     }
-
-    public function getYearAction(int $id)
-    {
-        $year = $this->yearService->getYearById($id);
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*'
-        ];
-    }
 }
