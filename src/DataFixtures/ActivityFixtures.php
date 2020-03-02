@@ -41,11 +41,11 @@ class ActivityFixtures extends Fixture implements DependentFixtureInterface
         $activity5 = $this->createActivity(ActivityType::JOINED, $user2, ComponentType::USER, $user2->getId(), 4);
         $activity6 = $this->createActivity(ActivityType::JOINED, $user3, ComponentType::USER, $user3->getId(), 4);
 
-        $activity7 = $this->createActivity(ActivityType::WATCHLIST, $user1, ComponentType::DOCUMENTARY, $documentary1->getId(), 3);
-        $activity8 = $this->createActivity(ActivityType::WATCHLIST, $user1, ComponentType::DOCUMENTARY, $documentary2->getId(), 3);
-        $activity9 = $this->createActivity(ActivityType::WATCHLIST, $user1, ComponentType::DOCUMENTARY, $documentary3->getId(), 3);
+        $activity7 = $this->createActivity(ActivityType::WATCHLIST, $user4, ComponentType::DOCUMENTARY, $documentary1->getId(), 3);
+        $activity8 = $this->createActivity(ActivityType::WATCHLIST, $user4, ComponentType::DOCUMENTARY, $documentary2->getId(), 3);
+        $activity9 = $this->createActivity(ActivityType::WATCHLIST, $user4, ComponentType::DOCUMENTARY, $documentary3->getId(), 3);
 
-        $activity10 = $this->createActivity(ActivityType::COMMENT, $user1, ComponentType::DOCUMENTARY, $comment1->getId(), 2);
+        $activity10 = $this->createActivity(ActivityType::COMMENT, $user5, ComponentType::DOCUMENTARY, $comment1->getId(), 2);
 
         $activity11 = $this->createActivity(ActivityType::JOINED, $user4, ComponentType::USER, $user4->getId(), 1);
         $activity12 = $this->createActivity(ActivityType::JOINED, $user5, ComponentType::USER, $user5->getId(), 1);
