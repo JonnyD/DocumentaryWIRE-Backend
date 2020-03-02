@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Criteria\EmailCriteria;
 use App\Entity\Category;
 use App\Entity\Email;
+use App\Enum\YesNo;
 use App\Form\CategoryForm;
 use App\Form\EmailForm;
 use App\Form\UnsubscribeEmailSubscriptionForm;
@@ -56,13 +57,13 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
             $criteria->setSort($sort);
         }
 
-        $isSubscribed = $request->query->get('subscribed');
-        if ($isSubscribed) {
-            $criteria->setSubscribed($isSubscribed);
+        $subscribed = $request->query->get('subscribed');
+        if (isset($subscribed)) {
+            $criteria->setSubscribed($subscribed);
         }
 
         $email = $request->query->get('email');
-        if ($email) {
+        if (isset($email)) {
             $criteria->setEmail($email);
         }
 
@@ -101,6 +102,9 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
         $this->denyAccessUnlessGranted("ROLE_ADMIN");
 
         $email = $this->emailService->getEmailById($id);
+        if ($email == null) {
+            return $this->createApiResponse('Email not found', 404);
+        }
 
         $serialized = $this->serializeEmail($email);;
 
@@ -124,13 +128,17 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
 
         if ($request->isMethod('POST')) {
             $data = json_decode($request->getContent(), true);
-            $subscribed = $data['subscribed'] == "true";
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
+                $doesEmailAlreadyExist = $this->emailService->getEmailByEmailAddress($email->getEmail());
+                if ($doesEmailAlreadyExist) {
+                    return $this->createApiResponse('Email already exists', 400);
+                }
+
                 $subscriptionKey = sha1(mt_rand(10000,99999).time().$email->getEmail());
                 $email->setSubscriptionKey($subscriptionKey);
-                $email->setSubscribed($subscribed);
+                $email->setSubscribed(YesNo::YES);
                 $this->emailService->save($email);
 
                 $serialized = $this->serializeEmail($email);
@@ -154,9 +162,8 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
         $this->denyAccessUnlessGranted("ROLE_ADMIN");
 
         $email = $this->emailService->getEmailById($id);
-
         if ($email === null) {
-            return new AccessDeniedException();
+            return $this->createApiResponse('Email does not exist', 404);
         }
 
         $form = $this->createForm(EmailForm::class, $email);
@@ -164,7 +171,7 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
 
         if ($request->isMethod('PATCH')) {
             $data = json_decode($request->getContent(), true);
-            $subscribed = $data['subscribed'] == "true";
+            $subscribed = $data['subscribed'];
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
@@ -172,7 +179,7 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
                 $this->emailService->save($email);
 
                 $serialized = $this->serializeEmail($email);
-                return $this->createApiResponse($serialized, 200,);
+                return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
                 return $this->createApiResponse($errors, 400);
@@ -191,21 +198,21 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
     {
         $emailAddress = $request->query->get('email');
         if (!$emailAddress) {
-            return $this->createApiResponse("Email not found", 400,);
+            return $this->createApiResponse("Email not found", 404);
         } else {
             $existingEmail = $this->emailService->getEmailByEmailAddress($emailAddress);
             if (!$existingEmail) {
-                return $this->createApiResponse("Email not found", 400,);
+                return $this->createApiResponse("Email not found", 404);
             }
         }
 
         $subscriptionKey = $request->query->get('subscription_key');
         if (!$subscriptionKey) {
-            return $this->createApiResponse("Subscription key not found", 400);
+            return $this->createApiResponse("Subscription key not found", 404);
         } else {
             $existingEmail = $this->emailService->getEmailByEmailAddressAndSubscriptionKey($emailAddress, $subscriptionKey);
             if (!$existingEmail) {
-                return $this->createApiResponse("Subscription key not found", 400);
+                return $this->createApiResponse("Subscription key not found", 404);
             }
         }
         $unsubscribeData = [
@@ -254,7 +261,7 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
         $serializedEmail = [
             'id' => $email->getId(),
             'email' => $email->getEmail(),
-            'subscribed' => $email->isSubscribed(),
+            'subscribed' => $email->getSubscribed(),
             'subscriptionKey' => $email->getSubscriptionKey(),
             'createdAt' => $email->getCreatedAt(),
             'updatedAt' => $email->getUpdatedAt()

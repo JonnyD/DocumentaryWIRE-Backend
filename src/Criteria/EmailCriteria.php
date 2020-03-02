@@ -5,7 +5,7 @@ namespace App\Criteria;
 class EmailCriteria
 {
     /**
-     * @var bool
+     * @var string
      */
     private $subscribed;
 
@@ -25,17 +25,17 @@ class EmailCriteria
     private $sort;
 
     /**
-     * @return bool
+     * @return null|string
      */
-    public function isSubscribed(): ?bool
+    public function getSubscribed(): ?string
     {
         return $this->subscribed;
     }
 
     /**
-     * @param bool $subscribed
+     * @param string $subscribed
      */
-    public function setSubscribed(bool $subscribed): void
+    public function setSubscribed(string $subscribed): void
     {
         $this->subscribed = $subscribed;
     }

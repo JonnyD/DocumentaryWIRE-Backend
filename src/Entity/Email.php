@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\YesNo;
 use App\Traits\Timestampable;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -32,7 +33,7 @@ class Email
     /**
      * @var bool
      *
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="string")
      */
     private $subscribed;
 
@@ -77,13 +78,21 @@ class Email
      */
     public function isSubscribed(): ?bool
     {
+        return ($this->subscribed === YesNo::YES);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getSubscribed(): ?string
+    {
         return $this->subscribed;
     }
 
     /**
-     * @param bool $subscribed
+     * @param string $subscribed
      */
-    public function setSubscribed(bool $subscribed): void
+    public function setSubscribed(string $subscribed): void
     {
         $this->subscribed = $subscribed;
     }

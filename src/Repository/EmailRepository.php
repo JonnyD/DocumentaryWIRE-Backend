@@ -26,9 +26,10 @@ class EmailRepository extends ServiceEntityRepository
         $qb->select('email')
             ->from('App\Entity\Email', 'email');
 
-        if ($criteria->isSubscribed() != null) {
+        $subscribed = $criteria->getSubscribed();
+        if (isset($subscribed)) {
             $qb->andWhere('email.subscribed = :subscribed')
-                ->setParameter('subscribed', $criteria->isSubscribed());
+                ->setParameter('subscribed', $subscribed);
         }
 
         if ($criteria->getEmail() != null) {

@@ -32,6 +32,13 @@ security:
             fos_oauth:  true
             stateless:  false
 
+        api_email_unsubscribe:
+            methods: [GET]
+            pattern:    ^/api/v1/email/unsubscribe
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
         api_email:
             methods: [POST, GET, PATCH]
             pattern:    ^/api/v1/email
