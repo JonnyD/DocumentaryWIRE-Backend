@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Criteria\EmailCriteria;
 use App\Entity\Email;
+use App\Enum\YesNo;
 use App\Repository\EmailRepository;
 use App\Repository\ActivityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -128,7 +129,7 @@ class EmailService
     public function unsubscribe(string $emailAddress)
     {
         $existingEmail = $this->getEmailByEmailAddress($emailAddress);
-        $existingEmail->setSubscribed(false);
+        $existingEmail->setSubscribed(YesNo::NO);
         $existingEmail->setUpdatedAt(new \DateTime());
 
         $this->save($existingEmail);

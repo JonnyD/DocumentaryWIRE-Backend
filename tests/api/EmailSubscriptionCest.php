@@ -432,7 +432,7 @@ class EmailSubscriptionCest
 
         $expectedResponse = [
             'email' => 'user1@email.com',
-            'subscribed' => 'no',
+            'subscribed' => \App\Enum\YesNo::NO,
             'subscriptionKey' => '1'
         ];
         $I->seeResponseContainsJson($expectedResponse);

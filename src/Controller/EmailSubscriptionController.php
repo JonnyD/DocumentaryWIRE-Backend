@@ -215,6 +215,7 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
                 return $this->createApiResponse("Subscription key not found", 404);
             }
         }
+
         $unsubscribeData = [
             'email' => $emailAddress,
             'subscriptionKey' => $subscriptionKey
