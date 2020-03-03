@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\VideoSourceStatus;
 use App\Traits\Timestampable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -116,6 +117,14 @@ class VideoSource
     public function setStatus($status): void
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        return ($this->status === VideoSourceStatus::ENABLED);
     }
 
     /**

@@ -15,7 +15,6 @@ class EditVideoSourceForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('id', IntegerType::class)
             ->add('name', TextType::class)
             ->add('embedAllowed', ChoiceType::class, [
                 'choices'  => [
@@ -30,6 +29,7 @@ class EditVideoSourceForm extends AbstractType
                     'Disabled' => 'disabled'
                 ]
             ]);
+        //@TODO choices
     }
 
     public function configureOptions(OptionsResolver $resolver)

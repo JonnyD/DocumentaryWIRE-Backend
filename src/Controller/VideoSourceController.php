@@ -71,9 +71,15 @@ class VideoSourceController extends BaseController implements ClassResourceInter
     public function getVideoSourceAction(int $id)
     {
         $videoSource = $this->videoSourceService->getVideoSourceById($id);
-
         if ($videoSource === null) {
-            throw new AccessDeniedException();
+            return $this->createApiResponse('Video source not found', 404);
+        }
+
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        if (!$isRoleAdmin) {
+            if (!$videoSource->isEnabled()) {
+                return $this->createApiResponse('Not authorized', 401);
+            }
         }
 
         $data = $this->serializeVideoSource($videoSource);
@@ -93,50 +99,29 @@ class VideoSourceController extends BaseController implements ClassResourceInter
     {
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
         if (!$isRoleAdmin) {
-            throw new AccessDeniedException();
+            return $this->createApiResponse('Not authorized', 401);
         }
 
         $videoSource = $this->videoSourceService->getVideoSourceById($id);
-
         if ($videoSource === null) {
-            throw new AccessDeniedException();
+            return $this->createApiResponse('Video source not found', 404);
         }
 
         $form = $this->createForm(EditVideoSourceForm::class, $videoSource);
 
-        $data = json_decode($request->getContent(), true)['resource'];
-        $form->submit($data, false);
+        if ($request->isMethod('PATCH')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $videoSource = $this->mapArrayToObject($data, $videoSource);
-            $this->videoSourceService->save($videoSource);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $this->videoSourceService->save($videoSource);
+            }
         }
 
         $data = $this->serializeVideoSource($videoSource);
         $response = $this->createApiResponse($data, 200);
 
         return $response;
-    }
-
-    /**
-     * @param array $data
-     * @param VideoSource $videoSource
-     */
-    public function mapArrayToObject(array $data, VideoSource $videoSource)
-    {
-        if (isset($data['name'])) {
-            $videoSource->setName($data['name']);
-        }
-        if (isset($data['embedAllowed'])) {
-            $videoSource->setEmbedAllowed($data['embedAllowed']);
-        }
-        if (isset($data['embedCode'])) {
-            $videoSource->setEmbedCode($data['embedCode']);
-        }
-        if (isset($data['enabled'])) {
-            $videoSource->setStatus($data['status']);
-        }
-        return $videoSource;
     }
 
     /**
