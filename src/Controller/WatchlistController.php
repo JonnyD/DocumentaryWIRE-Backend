@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 
-class WatchlistController extends AbstractFOSRestController implements ClassResourceInterface
+class WatchlistController extends BaseController implements ClassResourceInterface
 {
     /**
      * @var WatchlistService
@@ -65,13 +65,23 @@ class WatchlistController extends AbstractFOSRestController implements ClassReso
      */
     public function listAction(Request $request)
     {
+        if (!$this->isLoggedIn()) {
+            return $this->createApiResponse('Not authorized', 401);
+        }
+
         $page = $request->query->get('page', 1);
 
         $criteria = new WatchlistCriteria();
 
-        $username = $request->query->get('user');
-        if (isset($username)) {
-            $user = $this->userService->getUserByUsername($username);
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        if ($isRoleAdmin) {
+            $username = $request->query->get('user');
+            if (isset($username)) {
+                $user = $this->userService->getUserByUsername($username);
+                $criteria->setUser($user);
+            }
+        } else {
+            $user = $this->getLoggedInUser();
             $criteria->setUser($user);
         }
 
@@ -87,6 +97,7 @@ class WatchlistController extends AbstractFOSRestController implements ClassReso
             $sort = [$exploded[0] => $exploded[1]];
             $criteria->setSort($sort);
         } else {
+            //@TODO
         }
 
         $amountPerPage = $request->query->get('amountPerPage', 12);
@@ -134,7 +145,7 @@ class WatchlistController extends AbstractFOSRestController implements ClassReso
             'documentary' => [
                 'title' => $documentary->getTitle(),
                 'slug' => $documentary->getSlug(),
-                'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPosterFileName(),
+                'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPoster(),
                 'summary' => $documentary->getSummary()
             ]
         ];
