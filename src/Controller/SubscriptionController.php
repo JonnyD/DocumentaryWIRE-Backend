@@ -60,6 +60,15 @@ class SubscriptionController extends BaseController implements ClassResourceInte
     public function getSubscriptionAction(int $id)
     {
         $subscription = $this->subscriptionService->getSubscriptionById($id);
+        if ($subscription == null) {
+            return $this->createApiResponse('Subscription not found', 404);
+        }
+
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        $isOwner = $this->isLoggedIn() && $this->getLoggedInUser()->getId() === $subscription->getUserFrom()->getId();
+        if (!$isRoleAdmin && !$isOwner) {
+            return $this->createApiResponse('Not authorized', 401);
+        }
 
         $serialized = $this->serializeSubscription($subscription);
         return $this->createApiResponse($serialized, 200);
@@ -83,9 +92,22 @@ class SubscriptionController extends BaseController implements ClassResourceInte
             $form->submit($data);
 
             $userFromId = $data['userFrom'];
+            if (!isset($userFromId)) {
+                return $this->createApiResponse('UserFrom ID not found', 404);
+            }
             $userFrom = $this->userService->getUserById($userFromId);
+            if (!$userFrom) {
+                return $this->createApiResponse('UserTo does not exist', 404);
+            }
+
             $userToId = $data['userTo'];
+            if (!isset($userToId)) {
+                return $this->createApiResponse('UserTo ID not found');
+            }
             $userTo = $this->userService->getUserById($userToId);
+            if (!$userTo) {
+                return $this->createApiResponse('UserFrom does not exist', 404);
+            }
 
             $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
             if (!$isRoleAdmin) {
@@ -124,13 +146,14 @@ class SubscriptionController extends BaseController implements ClassResourceInte
     public function listAction(Request $request)
     {
         $page = $request->query->get('page', 1);
-        $from = $request->query->get('from');
-        $to = $request->query->get('to');
+
+        $userFromId = $request->query->get('from');
+        $userToId = $request->query->get('to');
 
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
         if (!$isRoleAdmin) {
-            if (!isset($from) && !isset($to)) {
-                //@todo throw error
+            if (!isset($userFromId)) {
+                return $this->createApiResponse('You must specify User From ID', 404);
             }
         }
 
@@ -138,25 +161,25 @@ class SubscriptionController extends BaseController implements ClassResourceInte
 
         $loggedInUser = $this->getLoggedInUser();
 
-        if (isset($from)) {
-            $user = $this->userService->getUserById($from);
+        if (isset($userFromId)) {
+            $user = $this->userService->getUserById($userFromId);
 
             $userEqualToLoggedInUser = $loggedInUser->getId() === $user->getId();
             if ($userEqualToLoggedInUser || $isRoleAdmin) {
                 $criteria->setFrom($user);
             } else {
-                //@todo throw error
+                return $this->createApiResponse('Not authorized', 401);
             }
         }
 
-        if (isset($to)) {
-            $user = $this->userService->getUserById($to);
+        if (isset($userToId)) {
+            $user = $this->userService->getUserById($userToId);
 
             $userEqualToLoggedInUser = $loggedInUser->getId() === $user->getId();
             if ($userEqualToLoggedInUser || $isRoleAdmin) {
                 $criteria->setTo($user);
             } else {
-                //@todo throw error
+                return $this->createApiResponse('Not authorized', 401);
             }
         }
 
@@ -188,7 +211,7 @@ class SubscriptionController extends BaseController implements ClassResourceInte
     }
 
     /**
-     * @FOSRest\Delete("/subscription/{id}", name="get_subscription", options={ "method_prefix" = false })
+     * @FOSRest\Delete("/subscription/{id}", name="delete_subscription", options={ "method_prefix" = false })
      *
      * @param int $id
      * @return JsonResponse|null

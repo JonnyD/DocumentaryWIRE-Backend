@@ -180,8 +180,16 @@ security:
             stateless:  false
             anonymous: true
 #
-        api_subscription:
+        api_public_subscription:
+            methods: [GET]
             pattern: ^/api/v1/subscription
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
+        api_subscription:
+            methods: [PUT, POST, PATCH]
+            pattern:    ^/api/v1/subscription
             fos_oauth:  true
             stateless:  false
 
