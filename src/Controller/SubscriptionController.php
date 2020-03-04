@@ -150,37 +150,27 @@ class SubscriptionController extends BaseController implements ClassResourceInte
         $userFromId = $request->query->get('from');
         $userToId = $request->query->get('to');
 
-        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
-        if (!$isRoleAdmin) {
-            if (!isset($userFromId)) {
-                return $this->createApiResponse('You must specify User From ID', 404);
-            }
-        }
-
         $criteria = new SubscriptionCriteria();
 
-        $loggedInUser = $this->getLoggedInUser();
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        if (!$isRoleAdmin && !isset($userFromId) && !isset($userToId)) {
+            return $this->createApiResponse('You must set either a User From or User To', 401);
+        }
 
         if (isset($userFromId)) {
             $user = $this->userService->getUserById($userFromId);
-
-            $userEqualToLoggedInUser = $loggedInUser->getId() === $user->getId();
-            if ($userEqualToLoggedInUser || $isRoleAdmin) {
-                $criteria->setFrom($user);
-            } else {
-                return $this->createApiResponse('Not authorized', 401);
+            if (!$user) {
+                return $this->createApiResponse('User From not found', 404);
             }
+            $criteria->setFrom($user);
         }
 
         if (isset($userToId)) {
             $user = $this->userService->getUserById($userToId);
-
-            $userEqualToLoggedInUser = $loggedInUser->getId() === $user->getId();
-            if ($userEqualToLoggedInUser || $isRoleAdmin) {
-                $criteria->setTo($user);
-            } else {
-                return $this->createApiResponse('Not authorized', 401);
+            if (!$user) {
+                return $this->createApiResponse('User To not found', 404);
             }
+            $criteria->setTo($user);
         }
 
         $qb = $this->subscriptionService->getSubscriptionsByCriteriaQueryBuilder($criteria);
@@ -218,14 +208,24 @@ class SubscriptionController extends BaseController implements ClassResourceInte
      */
     public function removeSubscriptionAction(int $id)
     {
-        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        if (!$this->isLoggedIn()) {
+            return $this->createApiResponse('Not authorized', 401);
+        }
 
         $subscription = $this->subscriptionService->getSubscriptionById($id);
+        if (!$subscription) {
+            return $this->createApiResponse('Subscription does not exist', 404);
+        }
 
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
         $loggedInUser = $this->getLoggedInUser();
         $userFrom = $subscription->getUserFrom();
 
         $isLoggedInUserEqualsUserFrom = $loggedInUser->getId() === $userFrom->getId();
+        if (!$isLoggedInUserEqualsUserFrom && !$isRoleAdmin) {
+            return $this->createApiResponse('You are not allowed to change this subscription', 401);
+        }
+
         if ($isLoggedInUserEqualsUserFrom  || $isRoleAdmin) {
             $this->subscriptionService->remove($subscription);
         }

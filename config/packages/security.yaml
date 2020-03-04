@@ -188,7 +188,7 @@ security:
             anonymous: true
 
         api_subscription:
-            methods: [PUT, POST, PATCH]
+            methods: [PUT, POST, PATCH, DELETE]
             pattern:    ^/api/v1/subscription
             fos_oauth:  true
             stateless:  false
