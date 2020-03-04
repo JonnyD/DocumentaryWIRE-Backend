@@ -36,6 +36,16 @@ class Activity
     private $createdAt;
 
     /**
+     * @var int
+     */
+    private $groupNumber;
+
+    /**
+     * @var string
+     */
+    private $component;
+
+    /**
      * @return Data
      */
     public function getData(): Data
@@ -131,6 +141,35 @@ class Activity
         $this->createdAt = $createdAt;
     }
 
+    /**
+     * @return int
+     */
+    public function getGroupNumber()
+    {
+        return $this->groupNumber;
+    }
+
+    /**
+     * @param int $groupNumber
+     */
+    public function setGroupNumber(int $groupNumber)
+    {
+        $this->groupNumber = $groupNumber;
+    }
+
+    public function getComponent()
+    {
+        return $this->component;
+    }
+
+    /**
+     * @param string $component
+     */
+    public function setComponent(string $component)
+    {
+        $this->component = $component;
+    }
+
      /**
       * @return array
       */
@@ -139,9 +178,13 @@ class Activity
        return [
            'type' => $this->type,
              'data' => $this->data->toArray(),
-             'name' => $this->name,
-             'avatar' => $this->avatar,
-             'username' => $this->username,
+           'component' => $this->component,
+           'groupNumber' => $this->groupNumber,
+            'user' => [
+                'name' => $this->name,
+                'username' => $this->username,
+                'avatar' => $this->avatar
+            ],
             'createdAt' => $this->createdAt
          ];
      }
