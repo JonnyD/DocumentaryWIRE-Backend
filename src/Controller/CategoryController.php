@@ -45,11 +45,12 @@ class CategoryController extends BaseController implements ClassResourceInterfac
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
         if ($isRoleAdmin) {
             $status = $request->query->get('status');
-            $hasStatus = CategoryStatus::hasType($status);
-            if (!$hasStatus) {
-                return $this->createApiResponse('Status . ' . $status . ' does not exist', 404);
-            }
             if (isset($status)) {
+                $hasStatus = CategoryStatus::hasStatus($status);
+                if (!$hasStatus) {
+                    return $this->createApiResponse('Status . ' . $status . ' does not exist', 404);
+                }
+
                 $criteria->setStatus($status);
             }
         } else {
