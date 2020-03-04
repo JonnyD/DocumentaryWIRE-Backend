@@ -6,7 +6,7 @@ class CommunityCest
     {
     }
 
-    public function listActivityWithTypeAsGuest(ApiTester $I)
+    public function listActivityAsGuest(ApiTester $I)
     {
         $I->sendGET('api/v1/community');
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
@@ -20,8 +20,10 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 1',
                         'documentarySummary' => 'Storyline',
                     ],
-                    'name' => 'John Smith',
-                    'username' => 'user1'
+                    'user' => [
+                        'name' => 'John Smith',
+                        'username' => 'user1'
+                    ]
                 ],
                 [
                     'type' => 'watchlist',
@@ -30,8 +32,10 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 2',
                         'documentarySummary' => 'Storyline',
                     ],
-                    'name' => 'John Smith',
-                    'username' => 'user1'
+                    'user' => [
+                        'name' => 'John Smith',
+                        'username' => 'user1'
+                    ]
                 ],
                 [
                     'type' => 'watchlist',
@@ -40,26 +44,34 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 3',
                         'documentarySummary' => 'Storyline',
                     ],
-                    'name' => 'John Smith',
-                    'username' => 'user1'
+                    'user' => [
+                        'name' => 'John Smith',
+                        'username' => 'user1'
+                    ]
                 ],
                 [
                     'type' => 'joined',
                     'data' => [],
-                    'name' => 'John Smith',
-                    'username' => 'user1'
+                    'user' => [
+                        'name' => 'John Smith',
+                        'username' => 'user1'
+                    ]
                 ],
                 [
                     'type' => 'joined',
                     'data' => [],
-                    'name' => 'Sarah McCarthy',
-                    'username' => 'user2'
+                    'user' => [
+                        'name' => 'Sarah McCarthy',
+                        'username' => 'user2'
+                    ]
                 ],
                 [
                     'type' => 'joined',
                     'data' => [],
-                    'name' => 'Andrew Walsh',
-                    'username' => 'user3'
+                    'user' => [
+                        'name' => 'Andrew Walsh',
+                        'username' => 'user3'
+                    ]
                 ],
                 [
                     'type' => 'watchlist',
@@ -68,8 +80,10 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 1',
                         'documentarySummary' => 'Storyline'
                     ],
-                    'name' => 'Anne Keating',
-                    'username' => 'user4'
+                    'user' => [
+                        'name' => 'Anne Keating',
+                        'username' => 'user4'
+                    ]
                 ],
                 [
                     'type' => 'watchlist',
@@ -78,8 +92,10 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 2',
                         'documentarySummary' => 'Storyline'
                     ],
-                    'name' => 'Anne Keating',
-                    'username' => 'user4'
+                    'user' => [
+                        'name' => 'Anne Keating',
+                        'username' => 'user4'
+                    ]
                 ],
                 [
                     'type' => 'watchlist',
@@ -88,8 +104,10 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 3',
                         'documentarySummary' => 'Storyline'
                     ],
-                    'name' => 'Anne Keating',
-                    'username' => 'user4'
+                    'user' => [
+                        'name' => 'Anne Keating',
+                        'username' => 'user4'
+                    ]
                 ],
                 [
                     'type' => 'comment',
@@ -98,36 +116,42 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 1',
                         'documentarySlug' => 'documentary-1',
                     ],
-                    'name' => 'Jerry Carroll',
-                    'username' => 'user5'
+                    'user' => [
+                        'name' => 'Jerry Carroll',
+                        'username' => 'user5'
+                    ]
                 ],
                 [
                     'type' => 'joined',
                     'data' => [],
-                    'name' => 'Anne Keating',
-                    'username' => 'user4'
+                    'user' => [
+                        'name' => 'Anne Keating',
+                        'username' => 'user4'
+                    ]
                 ],
                 [
                     'type' => 'joined',
                     'data' => [],
-                    'name' => 'Jerry Carroll',
-                    'username' => 'user5'
+                    'user' => [
+                        'name' => 'Jerry Carroll',
+                        'username' => 'user5'
+                    ]
                 ]
             ]
         ];
         $I->seeResponseContainsJson($expectedResponse);
     }
 
-    public function listActivityWithStatusAsGuest(ApiTester $I)
+    public function listActivityWithTypeAsGuest(ApiTester $I)
     {
         $I->sendGET('api/v1/community?type=' . \App\Enum\ActivityType::WATCHLIST);
 
-        $expectedResponse = 'Not Authorized to view statuses';
+        $expectedResponse = 'Not Authorized to view types';
         $I->seeResponseContains($expectedResponse);
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::UNAUTHORIZED);
     }
 
-    public function listActivityWithStatusAsAdmin(ApiTester $I)
+    public function listActivityWithTypeAsAdmin(ApiTester $I)
     {
         $username = 'user1';
 
@@ -163,8 +187,10 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 1',
                         'documentarySummary' => 'Storyline'
                     ],
-                    'name' => 'John Smith',
-                    'username' => 'user1'
+                    'user' => [
+                        'name' => 'John Smith',
+                        'username' => 'user1'
+                    ]
                 ],
                 [
                     'type' => 'watchlist',
@@ -173,8 +199,10 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 2',
                         'documentarySummary' => 'Storyline'
                     ],
-                    'name' => 'John Smith',
-                    'username' => 'user1'
+                    'user' => [
+                        'name' => 'John Smith',
+                        'username' => 'user1'
+                    ]
                 ],
                 [
                     'type' => 'watchlist',
@@ -183,8 +211,10 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 3',
                         'documentarySummary' => 'Storyline'
                     ],
-                    'name' => 'John Smith',
-                    'username' => 'user1'
+                    'user' => [
+                        'name' => 'John Smith',
+                        'username' => 'user1'
+                    ]
                 ],
                 [
 
@@ -194,8 +224,10 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 1',
                         'documentarySummary' => 'Storyline'
                     ],
-                    'name' => 'Anne Keating',
-                    'username' => 'user4'
+                    'user' => [
+                        'name' => 'Anne Keating',
+                        'username' => 'user4'
+                    ]
                 ],
                 [
                     'type' => 'watchlist',
@@ -204,8 +236,10 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 2',
                         'documentarySummary' => 'Storyline'
                     ],
-                    'name' => 'Anne Keating',
-                    'username' => 'user4'
+                    'user' => [
+                        'name' => 'Anne Keating',
+                        'username' => 'user4'
+                    ]
                 ],
                 [
                     'type' => 'watchlist',
@@ -214,8 +248,10 @@ class CommunityCest
                         'documentaryTitle' => 'Documentary 3',
                         'documentarySummary' => 'Storyline'
                     ],
-                    'name' => 'Anne Keating',
-                    'username' => 'user4'
+                    'user' => [
+                        'name' => 'Anne Keating',
+                        'username' => 'user4'
+                    ]
                 ]
             ]
         ];
@@ -248,7 +284,7 @@ class CommunityCest
 
         $I->sendGET('api/v1/community?type=xxxxxxxxx');
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::NOT_FOUND);
-        $I->seeResponseContains('Status does not exist');
+        $I->seeResponseContains('Type xxxxxxxxx does not exist');
     }
 
 }

@@ -163,6 +163,8 @@ class CommunityController extends BaseController implements ClassResourceInterfa
         $activityObject->setData($data);
         $activityObject->setType($type);
         $activityObject->setCreatedAt($createdAt);
+        $activityObject->setComponent($activityItem->getComponent());
+        $activityObject->setGroupNumber($activityItem->getGroupNumber());
 
         return $activityObject->toArray();
     }
