@@ -2,9 +2,10 @@
 
 namespace App\Enum;
 
-class CategoryOrderBy
+class WatchlistOrderBy
 {
-    const NAME = "name";
+    const USER_ID = 'userId';
+    const DOCUMENTARY_ID = 'documentaryId';
 
     /**
      * @return array
@@ -12,7 +13,8 @@ class CategoryOrderBy
     public static function getAllOrderBys()
     {
         return [
-            self::NAME
+            self::USER_ID,
+            self::DOCUMENTARY_ID
         ];
     }
 

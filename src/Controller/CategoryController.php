@@ -45,6 +45,10 @@ class CategoryController extends BaseController implements ClassResourceInterfac
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
         if ($isRoleAdmin) {
             $status = $request->query->get('status');
+            $hasStatus = CategoryStatus::hasType($status);
+            if (!$hasStatus) {
+                return $this->createApiResponse('Status . ' . $status . ' does not exist', 404);
+            }
             if (isset($status)) {
                 $criteria->setStatus($status);
             }
@@ -56,6 +60,12 @@ class CategoryController extends BaseController implements ClassResourceInterfac
         $sort = $request->query->get('sort');
         if (isset($sort)) {
             $exploded = explode("-", $sort);
+
+            $hasOrderBy = CategoryOrderBy::hasOrderBy($exploded[0]);
+            if (!$hasOrderBy) {
+                return $this->createApiResponse('Order by . ' . $exploded[0] . ' does not exist', 404);
+            }
+
             $sort = [$exploded[0] => $exploded[1]];
             $criteria->setSort($sort);
         } else {

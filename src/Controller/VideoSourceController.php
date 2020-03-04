@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Criteria\VideoSourceCriteria;
 use App\Entity\VideoSource;
+use App\Enum\VideoSourceStatus;
+use App\Enum\YesNo;
 use App\Form\EditVideoSourceForm;
 use App\Service\VideoSourceService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -43,11 +45,19 @@ class VideoSourceController extends BaseController implements ClassResourceInter
         }
 
         if ($isRoleAdmin) {
-            if ($status = $request->query->get('status')) {
+            $status = $request->query->get('status');
+            $hasStatus = VideoSourceStatus::hasStatus($status);
+            if (!$hasStatus) {
+                return $this->createApiResponse('Status ' . $status . ' does not exist', 404);
+            } else {
                 $criteria->setStatus($status);
             }
 
-            if ($embedAllowed = $request->query->get('embed_allowed')) {
+            $embedAllowed = $request->query->get('embed_allowed');
+            $hasStatus = YesNo::hasStatus($embedAllowed);
+            if (!$hasStatus) {
+                return $this->createApiResponse('Embed allowed ' . $status . ' does not exist', 404);
+            } else {
                 $criteria->setEmbedAllowed($embedAllowed);
             }
         }

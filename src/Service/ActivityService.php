@@ -381,6 +381,8 @@ class ActivityService
             $activityObject->setUsername($username);
             $activityObject->setAvatar($avatar);
             $activityObject->setData($data);
+            $activityObject->setGroupNumber($groupNumber);
+            $activityObject->setComponent($activityItem->getComponent());
 
             $hasChildren = ActivityType::hasChildren($type);
             if ($hasChildren) {

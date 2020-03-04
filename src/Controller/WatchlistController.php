@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Criteria\WatchlistCriteria;
 use App\Entity\Documentary;
 use App\Entity\Watchlist;
+use App\Enum\WatchlistOrderBy;
 use App\Service\DocumentaryService;
 use App\Service\UserService;
 use App\Service\WatchlistService;
@@ -95,6 +96,11 @@ class WatchlistController extends BaseController implements ClassResourceInterfa
         if (isset($sort)) {
             $exploded = explode("-", $sort);
             $sort = [$exploded[0] => $exploded[1]];
+
+            $hasOrderBy = WatchlistOrderBy::hasOrderBy($exploded[0]);
+            if (!$hasOrderBy) {
+                return $this->createApiResponse('Order by ' . $exploded[0] . ' does not exist', 404);
+            }
             $criteria->setSort($sort);
         } else {
             //@TODO

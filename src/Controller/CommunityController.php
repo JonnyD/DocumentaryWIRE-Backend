@@ -75,8 +75,13 @@ class CommunityController extends BaseController implements ClassResourceInterfa
 
         $sort = $request->query->get('sort');
         if (isset($sort)) {
-            //@TODO check if sort exists first
             $exploded = explode("-", $sort);
+
+            $hasOrderBy = ActivityOrderBy::hasOrderBy($exploded[0]);
+            if (!$hasOrderBy) {
+                return $this->createApiResponse('Order by ' . $exploded[0] . ' does not exist', 404);
+            }
+
             $sort = [$exploded[0] => $exploded[1]];
             $criteria->setSort($sort);
         } else {
@@ -88,10 +93,10 @@ class CommunityController extends BaseController implements ClassResourceInterfa
         $type = $request->query->get('type');
         $isRoleAdmin = $this->isGranted("ROLE_ADMIN");
         if (isset($type) && !$isRoleAdmin) {
-            return $this->createApiResponse('Not Authorized to view statuses', 401);
+            return $this->createApiResponse('Not Authorized to view types', 401);
         } else if (isset($type) && $isRoleAdmin) {
             if (!ActivityType::hasType($type)) {
-                return $this->createApiResponse('Status does not exist', 404);
+                return $this->createApiResponse('Type ' . $type . ' does not exist', 404);
             }
             if (isset($type)) {
                 $criteria->setType($type);

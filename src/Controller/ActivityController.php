@@ -7,7 +7,10 @@ use App\Entity\Activity;
 use App\Enum\ActivityOrderBy;
 use App\Enum\ActivityType;
 use App\Enum\Order;
+use App\Object\Activity\Strategy\DataStrategyContext;
 use App\Service\ActivityService;
+use App\Service\CommentService;
+use App\Service\DocumentaryService;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -31,6 +34,16 @@ class ActivityController extends BaseController implements ClassResourceInterfac
     private $userService;
 
     /**
+     * @var DocumentaryService
+     */
+    private $documentaryService;
+
+    /**
+     * @var CommentService
+     */
+    private $commentService;
+
+    /**
      * @var Request
      */
     private $request;
@@ -38,10 +51,14 @@ class ActivityController extends BaseController implements ClassResourceInterfac
     public function __construct(
         ActivityService $activityService,
         UserService $userService,
+        DocumentaryService $documentaryService,
+        CommentService $commentService,
         RequestStack $requestStack)
     {
         $this->activityService = $activityService;
         $this->userService = $userService;
+        $this->documentaryService = $documentaryService;
+        $this->commentService = $commentService;
         $this->request = $requestStack->getCurrentRequest();
     }
 
@@ -71,6 +88,12 @@ class ActivityController extends BaseController implements ClassResourceInterfac
         $sort = $request->query->get('sort');
         if (isset($sort)) {
             $exploded = explode("-", $sort);
+
+            $hasOrderBy = ActivityOrderBy::hasOrderBy($exploded[0]);
+            if (!$hasOrderBy) {
+                return $this->createApiResponse('Order by ' . $exploded[0] . ' does not exist', 404);
+            }
+
             $sort = [$exploded[0] => $exploded[1]];
             $criteria->setSort($sort);
         } else {
@@ -123,19 +146,31 @@ class ActivityController extends BaseController implements ClassResourceInterfac
      */
     private function serializeActivity(Activity $activity)
     {
-        return [
-            'id' => $activity->getId(),
-            'type' => $activity->getType(),
-            'component' => $activity->getComponent(),
-            'objectId' => $activity->getObjectId(),
-            'groupNumber' => $activity->getGroupNumber(),
-            'user' => [
-                'username' => $activity->getUser()->getUsername(),
-                'name' => $activity->getUser()->getName(),
-                'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $activity->getUser()->getAvatar()
-            ],
-            'createdAt' => $activity->getCreatedAt(),
-            'updatedAt' => $activity->getUpdatedAt()
-        ];
+        $type = $activity->getType();
+        $createdAt = $activity->getCreatedAt();
+
+        $dataStrategyContext = new DataStrategyContext(
+            $type,
+            $this->request,
+            $this->documentaryService,
+            $this->commentService);
+        $data = $dataStrategyContext->createData($activity);
+
+        $user = $activity->getUser();
+        $name = $user->getName();
+        $avatar = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar();
+        $username = $user->getUsername();
+
+        $activityObject = new \App\Object\Activity\Activity();
+        $activityObject->setName($name);
+        $activityObject->setUsername($username);
+        $activityObject->setAvatar($avatar);
+        $activityObject->setData($data);
+        $activityObject->setType($type);
+        $activityObject->setCreatedAt($createdAt);
+        $activityObject->setComponent($activity->getComponent());
+        $activityObject->setGroupNumber($activity->getGroupNumber());
+
+        return $activityObject->toArray();
     }
 }

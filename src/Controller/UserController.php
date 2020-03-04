@@ -360,7 +360,7 @@ class UserController extends BaseController implements ClassResourceInterface
         $criteria = new UserCriteria();
 
         $sort = $request->query->get('sort');
-        if (isset($sort)) {
+        if (isset($sort)) { //@TODO refactor
             $exploded = explode("-", $sort);
             if ($exploded[0] == UserOrderBy::ENABLED) {
                 if ($isRoleAdmin) {

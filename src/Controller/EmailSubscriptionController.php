@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Criteria\EmailCriteria;
 use App\Entity\Category;
 use App\Entity\Email;
+use App\Enum\EmailOrderBy;
 use App\Enum\YesNo;
 use App\Form\CategoryForm;
 use App\Form\EmailForm;
@@ -53,12 +54,24 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
         $sort = $request->query->get('sort');
         if (isset($sort)) {
             $exploded = explode("-", $sort);
-            $sort = [$exploded[0] => $exploded[1]];
+            $orderBy = $exploded[0];
+            $direction = $exploded[1];
+
+            $hasOrderBy = EmailOrderBy::hasOrderBy($orderBy);
+            if (!$hasOrderBy) {
+                return $this->createApiResponse('Order by ' . $orderBy . ' does not exist', 404);
+            }
+
+            $sort = [$orderBy => $direction];
             $criteria->setSort($sort);
         }
 
         $subscribed = $request->query->get('subscribed');
         if (isset($subscribed)) {
+            $hasSubscribed = YesNo::hasStatus($subscribed);
+            if (!$hasSubscribed) {
+                return $this->createApiResponse('Subscribed status ' . $subscribed . ' does not exist', 404);
+            }
             $criteria->setSubscribed($subscribed);
         }
 

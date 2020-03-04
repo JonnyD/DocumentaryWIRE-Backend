@@ -11,4 +11,38 @@ class DocumentaryOrderBy
     const WATCHLIST_COUNT = "watchlistCount";
     const YEAR = "year";
     const TODAY_VIEWS = "todayViews";
+
+    /**
+     * @return array
+     */
+    public static function getAllOrderBys()
+    {
+        return [
+            self::CREATED_AT,
+            self::UPDATED_AT,
+            self::VIEWS,
+            self::COMMENT_COUNT,
+            self::WATCHLIST_COUNT,
+            self::YEAR,
+            self::TODAY_VIEWS
+        ];
+    }
+
+    /**
+     * @param string $lookupOrderBy
+     * @return bool
+     */
+    public static function hasOrderBy(string $lookupOrderBy)
+    {
+        $hasOrderBy = false;
+
+        foreach (self::getAllOrderBys() as $currentOrderBy) {
+            if ($lookupOrderBy === $currentOrderBy) {
+                $hasOrderBy = true;
+                break;
+            }
+        }
+
+        return $hasOrderBy;
+    }
 }

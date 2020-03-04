@@ -85,6 +85,10 @@ class CommentController extends BaseController implements ClassResourceInterface
             }
         }
         if (isset($status)) {
+            $hasStatus = CommentStatus::hasStatus($status);
+            if (!$hasStatus) {
+                return $this->createApiResponse('Status ' . $status . ' does not exist', 404);
+            }
             if (!$isRoleAdmin) {
                 return $this->createApiResponse('Only admins can change status', 400);
             } else {
