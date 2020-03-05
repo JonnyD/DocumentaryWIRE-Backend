@@ -46,19 +46,23 @@ class VideoSourceController extends BaseController implements ClassResourceInter
 
         if ($isRoleAdmin) {
             $status = $request->query->get('status');
-            $hasStatus = VideoSourceStatus::hasStatus($status);
-            if (!$hasStatus) {
-                return $this->createApiResponse('Status ' . $status . ' does not exist', 404);
-            } else {
-                $criteria->setStatus($status);
+            if (isset($status)) {
+                $hasStatus = VideoSourceStatus::hasStatus($status);
+                if (!$hasStatus) {
+                    return $this->createApiResponse('Status ' . $status . ' does not exist', 404);
+                } else {
+                    $criteria->setStatus($status);
+                }
             }
 
             $embedAllowed = $request->query->get('embed_allowed');
-            $hasStatus = YesNo::hasStatus($embedAllowed);
-            if (!$hasStatus) {
-                return $this->createApiResponse('Embed allowed ' . $status . ' does not exist', 404);
-            } else {
-                $criteria->setEmbedAllowed($embedAllowed);
+            if (isset($embedAllowed)) {
+                $hasStatus = YesNo::hasStatus($embedAllowed);
+                if (!$hasStatus) {
+                    return $this->createApiResponse('Embed allowed ' . $embedAllowed . ' does not exist', 404);
+                } else {
+                    $criteria->setEmbedAllowed($embedAllowed);
+                }
             }
         }
 
