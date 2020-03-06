@@ -193,7 +193,15 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $sort = $request->query->get('sort');
         if (isset($sort)) {
             $exploded = explode("-", $sort);
-            $sort = [$exploded[0] => $exploded[1]];
+            $orderBy = $exploded[0];
+            $order = $exploded[1];
+
+            $hasOrderBy = DocumentaryOrderBy::hasOrderBy($orderBy);
+            if (!$hasOrderBy) {
+                return $this->createApiResponse('Order by ' . $orderBy . ' does not exist', 404);
+            }
+
+            $sort = [$orderBy => $order];
             $criteria->setSort($sort);
         } else {
             $criteria->setSort([
