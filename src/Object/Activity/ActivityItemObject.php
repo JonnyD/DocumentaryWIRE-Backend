@@ -116,9 +116,12 @@ class ActivityItemObject
         $array = [
             'type' => $this->type,
             'created' => $this->created,
-            'parent' => $this->parent->toArray(),
-            'child' => $children
+            'parent' => $this->parent->toArray()
         ];
+
+        if (count($children) > 0) {
+            $array['children'] = $children;
+        }
 
         return $array;
     }
