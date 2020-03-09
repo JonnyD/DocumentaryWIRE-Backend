@@ -9,7 +9,8 @@ class DocumentaryOrderBy
     const VIEWS = "views";
     const COMMENT_COUNT = "commentCount";
     const WATCHLIST_COUNT = "watchlistCount";
-    const YEAR = "year";
+    const YEAR_FROM = "yearFrom";
+    const YEAR_TO = "yearFrom";
     const TODAY_VIEWS = "todayViews";
 
     /**
@@ -23,7 +24,8 @@ class DocumentaryOrderBy
             self::VIEWS,
             self::COMMENT_COUNT,
             self::WATCHLIST_COUNT,
-            self::YEAR,
+            self::YEAR_FROM,
+            self::YEAR_TO,
             self::TODAY_VIEWS
         ];
     }
