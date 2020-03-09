@@ -120,7 +120,7 @@ class ActivityItemObject
         ];
 
         if (count($children) > 0) {
-            $array['children'] = $children;
+            $array['child'] = $children;
         }
 
         return $array;
