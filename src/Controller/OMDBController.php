@@ -44,7 +44,6 @@ class OMDBController extends BaseController implements ClassResourceInterface
             return $this->createApiResponse(null, 400);
         }
 
-        $searchedMovies = [];
         $searchedMovies = $omdb->search($title);
 
         if ($searchedMovies['Response'] == false) {
