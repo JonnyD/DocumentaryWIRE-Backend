@@ -5,7 +5,6 @@ namespace App\Form;
 use App\Entity\Documentary;
 use App\Entity\DocumentaryVideoSource;
 use App\Entity\Episode;
-use App\Entity\Season;
 use App\Entity\VideoSource;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;

@@ -4,9 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Documentary;
 use App\Entity\DocumentaryVideoSource;
+use App\Entity\Episode;
 use App\Entity\Movie;
 use App\Entity\Poster;
-use App\Entity\Season;
 use App\Entity\Series;
 use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
@@ -14,6 +14,7 @@ use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
 use App\Enum\Order;
 use App\Form\AdminDocumentaryForm;
+use App\Form\DocumentaryEpisodeForm;
 use App\Form\DocumentaryMovieForm;
 use App\Form\DocumentarySeriesForm;
 use App\Form\SeriesForm;
@@ -151,16 +152,16 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             if (isset($status)) {
                 $criteria->setStatus($status);
             }
-
-            $featured = $request->query->get('featured');
-            if (isset($featured)) {
-                $featured = $featured === 'true' ? true: false;
-                $criteria->setFeatured($featured);
-            }
         }
 
         if (!$isRoleAdmin) {
             $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        }
+
+        $featured = $request->query->get('featured');
+        if (isset($featured)) {
+            $featured = $featured === 'true' ? true : false;
+            $criteria->setFeatured($featured);
         }
 
         $type = $request->query->get('type');
@@ -221,7 +222,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $pagerfanta->setMaxPerPage($amountPerPage);
         $pagerfanta->setCurrentPage($page);
 
-        $items = (array) $pagerfanta->getCurrentPageResults();
+        $items = (array)$pagerfanta->getCurrentPageResults();
 
         $serialized = [];
         /** @var Documentary $item */
@@ -236,13 +237,13 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         }
 
         $data = [
-            'items'             => $serialized,
-            'count_results'     => $pagerfanta->getNbResults(),
-            'current_page'      => $pagerfanta->getCurrentPage(),
-            'number_of_pages'   => $pagerfanta->getNbPages(),
-            'next'              => ($pagerfanta->hasNextPage()) ? $pagerfanta->getNextPage() : null,
-            'prev'              => ($pagerfanta->hasPreviousPage()) ? $pagerfanta->getPreviousPage() : null,
-            'paginate'          => $pagerfanta->haveToPaginate(),
+            'items' => $serialized,
+            'count_results' => $pagerfanta->getNbResults(),
+            'current_page' => $pagerfanta->getCurrentPage(),
+            'number_of_pages' => $pagerfanta->getNbPages(),
+            'next' => ($pagerfanta->hasNextPage()) ? $pagerfanta->getNextPage() : null,
+            'prev' => ($pagerfanta->hasPreviousPage()) ? $pagerfanta->getPreviousPage() : null,
+            'paginate' => $pagerfanta->haveToPaginate(),
         ];
 
         return $this->createApiResponse($data, 200);
@@ -332,9 +333,9 @@ class DocumentaryController extends BaseController implements ClassResourceInter
      */
     public function createSeriesDocumentaryAction(Request $request)
     {
-        $documentary = new Documentary();
-
         $series = new Series();
+
+        $documentary = new Documentary();
         $documentary->setSeries($series);
         $documentary->setType(DocumentaryType::SERIES);
         $documentary->setAddedBy($this->getLoggedInUser());
@@ -348,18 +349,58 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                $documentary = $this->imageService->mapSeriesImages($documentary, $data);
+                //$documentary = $this->imageService->mapSeriesImages($documentary, $data);
 
+                /**
                 $seasons = $documentary->getSeries()->getSeasons()->toArray();
                 $documentaryVideoSources = $this->documentaryVideoSourceService
                     ->addDocumentaryVideoSourcesFroSeriesDocumentary($seasons, $documentary);
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
-
+        **/
                 $this->documentaryService->save($documentary);
 
                 $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
 
                 $serialized = $this->serializeSeries($documentary);
+                return $this->createApiResponse($serialized, 200);
+            } else {
+                $errors = (string)$form->getErrors(true, false);
+                return $this->createApiResponse($errors, 400,);
+            }
+        }
+    }
+
+    /**
+     * @FOSRest\Post("/documentary/episode", name="create_episode_documentary", options={ "method_prefix" = false })
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function createEpisodeAction(Request $request)
+    {
+        $episode = new Episode();
+
+        $documentary = new Documentary();
+        $documentary->setEpisode($episode);
+        $documentary->setType(DocumentaryType::EPISODE);
+        $documentary->setAddedBy($this->getLoggedInUser());
+        $documentary->setStatus(DocumentaryStatus::PENDING);
+
+        $form = $this->createForm(DocumentaryEpisodeForm::class, $documentary);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $this->documentaryService->save($documentary);
+
+                if ($documentary->getParent() === null) {
+                    return $this->createApiResponse('You must specify a parent', 401);
+                }
+
+                $serialized = ['test'=>'test'];
                 return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -680,6 +721,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             ];
         }
 
+        /**
         $seasonsArray = [];
         foreach ($series->getSeasons() as $season) {
 
@@ -710,7 +752,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $serialized['series'] = [
             'seasons' => $seasonsArray
         ];
-
+**/
         return $serialized;
     }
 }

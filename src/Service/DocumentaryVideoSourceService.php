@@ -5,7 +5,6 @@ namespace App\Service;
 use App\Entity\Documentary;
 use App\Entity\DocumentaryVideoSource;
 use App\Entity\Episode;
-use App\Entity\Season;
 use App\Repository\DocumentaryVideoSourceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 

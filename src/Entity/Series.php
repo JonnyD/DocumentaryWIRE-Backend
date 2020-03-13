@@ -31,18 +31,6 @@ class Series
     private $documentary;
 
     /**
-     * @var ArrayCollection | Season[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Season", mappedBy="series", cascade={"persist"}), fetch="EAGER")
-     */
-    private $seasons;
-
-    public function __construct()
-    {
-        $this->seasons = new ArrayCollection();
-    }
-
-    /**
      * @return int|null
      */
     public function getId(): ?int
@@ -65,40 +53,4 @@ class Series
     {
         $this->documentary = $documentary;
     }
-
-    /**
-     * @return ArrayCollection|Season[]
-     */
-    public function getSeasons(): ArrayCollection
-    {
-        if ($this->seasons instanceof PersistentCollection) {
-            $asArray = $this->seasons->getValues();
-            $this->seasons = new ArrayCollection($asArray);
-        }
-        return $this->seasons;
-    }
-
-    public function addSeason(Season $season): self
-    {
-        if (!$this->seasons->contains($season)) {
-            $this->seasons[] = $season;
-            $season->setDocumentary($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSeason(Season $season): self
-    {
-        if ($this->seasons->contains($season)) {
-            $this->seasons->removeElement($season);
-            // set the owning side to null (unless already changed)
-            if ($season->getEpisodic() === $this) {
-                $season->setDocumentary(null);
-            }
-        }
-
-        return $this;
-    }
-
 }

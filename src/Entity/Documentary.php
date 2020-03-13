@@ -17,6 +17,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use phpDocumentor\Reflection\Types\Parent_;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -173,6 +174,14 @@ class Documentary
     private $series;
 
     /**
+     * @var Episode
+     *
+     * @ORM\OneToOne(targetEntity="App\Entity\Episode", mappedBy="documentary", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     */
+    private $episode;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
@@ -192,10 +201,8 @@ class Documentary
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="documentary")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      * @Gedmo\Versioned
-     *
-     * @Assert\NotBlank
      */
     private $category;
 
@@ -224,16 +231,22 @@ class Documentary
     private $addedBy;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Season", inversedBy="episodes")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Documentary", mappedBy="parent")
      */
-    private $season;
+    private $children;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Documentary", inversedBy="children")
+     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id")
+     */
+    private $parent;
 
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->watchlists = new ArrayCollection();
         $this->documentaryVideoSources = new ArrayCollection();
+        $this->children = new ArrayCollection();
         $this->featured = false;
         $this->views = 0;
         $this->todayViews = 0;
@@ -504,6 +517,23 @@ class Documentary
     }
 
     /**
+     * @return Episode|null
+     */
+    public function getEpisode(): ?Episode
+    {
+        return $this->episode;
+    }
+
+    /**
+     * @param Episode $episode
+     */
+    public function setEpisode(Episode $episode)
+    {
+        $this->episode = $episode;
+        $episode->setDocumentary($this);
+    }
+
+    /**
      * @return bool
      */
     public function isMovie(): bool
@@ -517,6 +547,14 @@ class Documentary
     public function isSeries(): bool
     {
         return ($this->type === DocumentaryType::SERIES);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEpisode(): bool
+    {
+        return ($this->type === DocumentaryType::EPISODE);
     }
 
     /**
@@ -785,15 +823,59 @@ class Documentary
         $this->addedBy = $user;
     }
 
-    public function getSeason(): ?Season
+    /**
+     * @param Documentary $documentary
+     * @return bool
+     */
+    public function hasChild(Documentary $documentary)
     {
-        return $this->season;
+        return $this->children->contains($documentary);
     }
 
-    public function setSeason(?Season $season): self
+    /**
+     * @param Documentary $documentary
+     */
+    public function addChild(Documentary $documentary)
     {
-        $this->season = $season;
+        if (!$this->hasChild($documentary)) {
+            $this->children->add($documentary);
+        }
+    }
 
-        return $this;
+    /**
+     * @return ArrayCollection
+     */
+    public function getChildren()
+    {
+        return $this->children;
+    }
+
+    /**
+     * @param ArrayCollection|Documentary[] $children
+     */
+    public function setChildren($children)
+    {
+        $this->children->clear();
+
+        foreach ($children as $child) {
+            $this->addChild($child);
+            $child->setParent($this);
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * @param Documentary $parent
+     */
+    public function setParent(Documentary $parent)
+    {
+        $this->parent = $parent;
     }
 }

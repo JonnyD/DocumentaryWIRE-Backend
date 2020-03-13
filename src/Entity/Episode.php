@@ -31,49 +31,7 @@ class Episode
      *
      * @Assert\NotBlank
      */
-    private $number;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
-    private $title;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
-    private $storyline;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
-    private $summary;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(type="integer", length=255, nullable=false)
-     */
-    private $year;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(type="integer", length=255, nullable=false)
-     */
-    private $length;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $imdbId;
+    private $episodeNumber;
 
     /**
      * @var VideoSource
@@ -91,19 +49,17 @@ class Episode
     private $videoId;
 
     /**
-     * @var string
+     * @var int
      *
-     * @ORM\Column(type="string", length=255, nullable=false)
+     * @ORM\Column(type="integer")
      */
-    private $thumbnail;
+    private $seasonNumber;
 
     /**
-     * @var Season
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Season", inversedBy="episodes")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\OneToOne(targetEntity="App\Entity\Documentary", inversedBy="episode")
+     * @ORM\JoinColumn(name="documentary_id", referencedColumnName="id")
      */
-    private $season;
+    private $documentary;
 
     /**
      * @return mixed
@@ -116,114 +72,19 @@ class Episode
     /**
      * @return int
      */
-    public function getNumber(): ?int
+    public function getEpisodeNumber(): ?int
     {
-        return $this->number;
+        return $this->episodeNumber;
     }
 
     /**
-     * @param int $number
+     * @param int $episodeNumber
      */
-    public function setNumber(int $number): void
+    public function setEpisodeNumber(int $episodeNumber)
     {
-        $this->number = $number;
+        $this->episodeNumber = $episodeNumber;
     }
 
-    /**
-     * @return string
-     */
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    /**
-     * @param string $title
-     */
-    public function setTitle(string $title): void
-    {
-        $this->title = $title;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStoryline(): ?string
-    {
-        return $this->storyline;
-    }
-
-    /**
-     * @param string $storyline
-     */
-    public function setStoryline(string $storyline): void
-    {
-        $this->storyline = $storyline;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSummary(): ?string
-    {
-        return $this->summary;
-    }
-
-    /**
-     * @param string $summary
-     */
-    public function setSummary(string $summary): void
-    {
-        $this->summary = $summary;
-    }
-
-    /**
-     * @return int
-     */
-    public function getYear(): ?int
-    {
-        return $this->year;
-    }
-
-    /**
-     * @param int $year
-     */
-    public function setYear(int $year): void
-    {
-        $this->year = $year;
-    }
-
-    /**
-     * @return int
-     */
-    public function getLength(): ?int
-    {
-        return $this->length;
-    }
-
-    /**
-     * @param int $length
-     */
-    public function setLength(int $length): void
-    {
-        $this->length = $length;
-    }
-
-    /**
-     * @return string
-     */
-    public function getImdbId(): ?string
-    {
-        return $this->imdbId;
-    }
-
-    /**
-     * @param string $imdbId
-     */
-    public function setImdbId(string $imdbId): void
-    {
-        $this->imdbId = $imdbId;
-    }
 
     /**
      * @return VideoSource
@@ -258,41 +119,34 @@ class Episode
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getThumbnail(): ?string
+    public function getSeasonNumber()
     {
-        return $this->thumbnail;
+        return $this->seasonNumber;
     }
 
     /**
-     * @param string $thumbnail
+     * @param int $seasonNumber
      */
-    public function setThumbnail(string $thumbnail): void
+    public function setSeasonNumber(int $seasonNumber)
     {
-        $this->thumbnail = $thumbnail;
+        $this->seasonNumber = $seasonNumber;
     }
 
     /**
-     * @return string
+     * @return Documentary|null
      */
-    public function getThumbnailImagePath()
+    public function getDocumentary(): ?Documentary
     {
-        return '/uploads/thumbnail/'.$this->getThumbnail();
-    }
-    /**
-     * @return Season
-     */
-    public function getSeason(): Season
-    {
-        return $this->season;
+        return $this->documentary;
     }
 
     /**
-     * @param Season $season
+     * @param Documentary $documentary
      */
-    public function setSeason(Season $season): void
+    public function setDocumentary(Documentary $documentary)
     {
-        $this->season = $season;
+        $this->documentary = $documentary;
     }
 }

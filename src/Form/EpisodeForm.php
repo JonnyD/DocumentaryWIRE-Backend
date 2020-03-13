@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\Documentary;
 use App\Entity\Episode;
-use App\Entity\Season;
 use App\Entity\VideoSource;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -20,25 +19,13 @@ class EpisodeForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('number', IntegerType::class)
-            ->add('title', TextType::class)
-            ->add('storyline', TextType::class)
-            ->add('summary', TextType::class, [
-                'empty_data' => '',
-                'required' => true
-            ])
-            ->add('year', IntegerType::class)
-            ->add('length', TextType::class)
-            ->add('imdbId', TextType::class)
+            ->add('episodeNumber', IntegerType::class)
             ->add('videoSource', EntityType::class, [
                 'class' => VideoSource::class,
                 'choice_label' => 'id',
             ])
             ->add('videoId', TextType::class)
-            ->add('thumbnail', TextType::class, [
-                'mapped' => false,
-                'required' => true
-            ]);
+            ->add('seasonNumber', IntegerType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)
