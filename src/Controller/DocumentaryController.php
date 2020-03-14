@@ -321,11 +321,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $documentary = $this->imageService->mapMovieImages($documentary, $data);
-
-                $documentaryVideoSources = $this->documentaryVideoSourceService
-                    ->addDocumentaryVideoSourcesFromMovieDocumentary($data['movie'], $documentary);
-                $documentary->setDocumentaryVideoSources($documentaryVideoSources);
-
+                
                 $this->documentaryService->save($documentary);
 
                 $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
@@ -365,13 +361,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $documentary = $this->imageService->mapImages($documentary, $data);
-
-                /**
-                $seasons = $documentary->getSeries()->getSeasons()->toArray();
-                $documentaryVideoSources = $this->documentaryVideoSourceService
-                    ->addDocumentaryVideoSourcesFroSeriesDocumentary($seasons, $documentary);
-                $documentary->setDocumentaryVideoSources($documentaryVideoSources);
-        **/
+                
                 $this->documentaryService->save($documentary);
 
                 $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
