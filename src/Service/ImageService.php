@@ -148,10 +148,8 @@ class ImageService
      * @param array $data
      * @return Documentary
      */
-    public function mapSeriesImages(Documentary $documentary, array $data)
+    public function mapImages(Documentary $documentary, array $data)
     {
-        $series = $documentary->getSeries();
-
         $poster = $data['poster'];
         if ($poster) {
             $currentPoster = $documentary->getPoster();
@@ -170,23 +168,26 @@ class ImageService
             }
         }
 
+        //@TODO remove
+        /**
         $seasons = $data['series']['seasons'];
         foreach ($seasons as $season) {
-            $seasonNumber = $season['number'];
+        $seasonNumber = $season['number'];
 
-            $episodes = $season['episodes'];
-            foreach ($episodes as $episode) {
-                $episodeNumber = $episode['number'];
-                $episodeObject = $this->getEpisodeFromDocumentaryObject($documentary, $seasonNumber, $episodeNumber);
-                $currentThumbnail = $episodeObject->getThumbnail();
+        $episodes = $season['episodes'];
+        foreach ($episodes as $episode) {
+        $episodeNumber = $episode['number'];
+        $episodeObject = $this->getEpisodeFromDocumentaryObject($documentary, $seasonNumber, $episodeNumber);
+        $currentThumbnail = $episodeObject->getThumbnail();
 
-                $newThumbnail = $episode['thumbnail'];
-                if ($currentThumbnail != $newThumbnail) {
-                    $thumbnailFileName = $this->uploadThumbnail($newThumbnail);
-                    $episodeObject->setThumbnail($thumbnailFileName);
-                }
-            }
+        $newThumbnail = $episode['thumbnail'];
+        if ($currentThumbnail != $newThumbnail) {
+        $thumbnailFileName = $this->uploadThumbnail($newThumbnail);
+        $episodeObject->setThumbnail($thumbnailFileName);
         }
+        }
+        }*/
+
 
         return $documentary;
     }

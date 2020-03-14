@@ -364,7 +364,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                //$documentary = $this->imageService->mapSeriesImages($documentary, $data);
+                $documentary = $this->imageService->mapImages($documentary, $data);
 
                 /**
                 $seasons = $documentary->getSeries()->getSeasons()->toArray();
