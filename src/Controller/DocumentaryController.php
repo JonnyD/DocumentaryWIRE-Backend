@@ -151,6 +151,9 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
             $status = $request->query->get('status');
             if (isset($status)) {
+                if (!DocumentaryStatus::hasStatus($status)) {
+                    return $this->createApiResponse('Status does not exist', 404);
+                }
                 $criteria->setStatus($status);
             }
         }
@@ -167,6 +170,9 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
         $type = $request->query->get('type');
         if (isset($type)) {
+            if (!DocumentaryType::hasType($type)) {
+                return $this->createApiResponse('Type does not exist', 404);
+            }
             $criteria->setType($type);
         }
 
@@ -361,7 +367,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $documentary = $this->imageService->mapImages($documentary, $data);
-                
+
                 $this->documentaryService->save($documentary);
 
                 $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
@@ -502,11 +508,6 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $documentary = $this->imageService->mapImages($documentary, $data);
-
-                $seasons = $documentary->getSeries()->getSeasons()->toArray();
-                $documentaryVideoSources = $this->documentaryVideoSourceService
-                    ->addDocumentaryVideoSourcesFroSeriesDocumentary($seasons, $documentary);
-                $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $this->documentaryService->save($documentary);
 
