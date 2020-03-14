@@ -74,7 +74,7 @@ class ImageService
             file_put_contents($tmpImagePathRel, $contents);
 
             $processedImage = $this->dataManager->find('cover160x200', $tmpImagePathRel);
-            $response = $this->filterManager->applyFilter($processedImage, 'avatar200');
+            $response = $this->filterManager->applyFilter($processedImage, 'cover160x200');
             $avatar = $response->getContent();
 
             unlink($tmpImagePathRel); // eliminate unfiltered temp file.
@@ -151,7 +151,7 @@ class ImageService
     public function mapImages(Documentary $documentary, array $data)
     {
         $poster = $data['poster'];
-        if ($poster) {
+        if ($poster != null) {
             $currentPoster = $documentary->getPoster();
             if ($poster != $currentPoster) {
                 $posterFileName = $this->uploadPoster($poster);
@@ -159,15 +159,17 @@ class ImageService
             }
         }
 
-        $wideImage = $data['wideImage'];
-        if ($wideImage) {
-            $currentWideImage = $documentary->getWideImage();
-            if ($wideImage != $currentWideImage) {
-                $wideImageFileName = $this->uploadWideImage($wideImage);
-                $documentary->setWideImage($wideImageFileName);
+        if (isset($data['wideImage'])) {
+            $wideImage = $data['wideImage'];
+            if ($wideImage != null) {
+                $currentWideImage = $documentary->getWideImage();
+                if ($wideImage != $currentWideImage) {
+                    $wideImageFileName = $this->uploadWideImage($wideImage);
+                    $documentary->setWideImage($wideImageFileName);
+                }
             }
         }
-
+        
         //@TODO remove
         /**
         $seasons = $data['series']['seasons'];

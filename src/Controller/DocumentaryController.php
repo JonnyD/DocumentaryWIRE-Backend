@@ -409,11 +409,13 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                $this->documentaryService->save($documentary);
-
                 if ($documentary->getParent() === null) {
                     return $this->createApiResponse('You must specify a parent', 401);
                 }
+
+                $documentary = $this->imageService->mapImages($documentary, $data);
+
+                $this->documentaryService->save($documentary);
 
                 $serialized = ['test'=>'test'];
                 return $this->createApiResponse($serialized, 200);
@@ -509,7 +511,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             $form->submit($data);
 
             if ($form->isSubmitted() && $form->isValid()) {
-                $documentary = $this->imageService->mapSeriesImages($documentary, $data);
+                $documentary = $this->imageService->mapImages($documentary, $data);
 
                 $seasons = $documentary->getSeries()->getSeasons()->toArray();
                 $documentaryVideoSources = $this->documentaryVideoSourceService
