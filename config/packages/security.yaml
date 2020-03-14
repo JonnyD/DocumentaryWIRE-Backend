@@ -66,13 +66,11 @@ security:
             stateless:  false
             anonymous: true
 
-
         api_public_resend:
             pattern:    ^/api/v1/user/resend
             fos_oauth:  true
             stateless:  false
             anonymous: true
-
 
         api_me:
             pattern:    ^/api/v1/user/me
@@ -91,7 +89,6 @@ security:
             pattern:    ^/api/v1/documentary
             fos_oauth:  true
             stateless:  false
-
 
         api_public_documentary:
             methods: [GET]
@@ -206,6 +203,13 @@ security:
             fos_oauth:  true
             stateless:  false
             anonymous: true
+
+        api_season:
+            methods: [POST]
+            pattern:    ^/api/v1/season
+            fos_oauth:  true
+            stateless:  false
+
 
         main:
             pattern: ^/

@@ -169,7 +169,7 @@ class ImageService
                 }
             }
         }
-        
+
         //@TODO remove
         /**
         $seasons = $data['series']['seasons'];

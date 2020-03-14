@@ -80,3 +80,8 @@ api_email:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\EmailSubscriptionController
+
+api_season:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\SeasonController

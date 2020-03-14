@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Documentary;
 use App\Entity\Episode;
+use App\Entity\Season;
 use App\Entity\VideoSource;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -25,7 +26,10 @@ class EpisodeForm extends AbstractType
                 'choice_label' => 'id',
             ])
             ->add('videoId', TextType::class)
-            ->add('seasonNumber', IntegerType::class);
+            ->add('season', EntityType::class, [
+                'class' => Season::class,
+                'choice_label' => 'id',
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)

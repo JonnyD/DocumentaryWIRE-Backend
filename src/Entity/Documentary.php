@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
 use App\Enum\YesNo;
@@ -216,6 +214,8 @@ class Documentary
     private $category;
 
     /**
+     * @var Comment
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="documentary")
      */
     private $comments;

@@ -48,18 +48,19 @@ class Episode
      */
     private $videoId;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(type="integer")
-     */
-    private $seasonNumber;
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Documentary", inversedBy="episode")
      * @ORM\JoinColumn(name="documentary_id", referencedColumnName="id")
      */
     private $documentary;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Season", inversedBy="episodes")
+     * @ORM\JoinColumn(name="season_id", referencedColumnName="id")
+     * @Gedmo\Versioned
+     */
+    private $season;
 
     /**
      * @return mixed
@@ -119,22 +120,6 @@ class Episode
     }
 
     /**
-     * @return int
-     */
-    public function getSeasonNumber()
-    {
-        return $this->seasonNumber;
-    }
-
-    /**
-     * @param int $seasonNumber
-     */
-    public function setSeasonNumber(int $seasonNumber)
-    {
-        $this->seasonNumber = $seasonNumber;
-    }
-
-    /**
      * @return Documentary|null
      */
     public function getDocumentary(): ?Documentary
@@ -148,5 +133,21 @@ class Episode
     public function setDocumentary(Documentary $documentary)
     {
         $this->documentary = $documentary;
+    }
+
+    /**
+     * @return Season
+     */
+    public function getSeason()
+    {
+        return $this->season;
+    }
+
+    /**
+     * @param Season $season
+     */
+    public function setSeason($season): void
+    {
+        $this->season = $season;
     }
 }
