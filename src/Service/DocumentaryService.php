@@ -10,6 +10,7 @@ use App\Entity\Movie;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\Order;
+use App\Enum\YesNo;
 use App\Repository\DocumentaryRepository;
 use App\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -235,6 +236,7 @@ class DocumentaryService
         $criteria = new DocumentaryCriteria();
         $criteria->setStatus(DocumentaryStatus::PUBLISH);
         $criteria->setLimit($limit);
+        $criteria->setIsParent(YesNo::YES);
         $criteria->setSort([
             DocumentaryOrderBy::CREATED_AT => Order::DESC
         ]);

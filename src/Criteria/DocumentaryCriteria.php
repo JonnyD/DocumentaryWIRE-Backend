@@ -24,6 +24,11 @@ class DocumentaryCriteria
     private $status;
 
     /**
+     * @var string
+     */
+    private $isParent;
+
+    /**
      * @var Category
      */
     private $category;
@@ -104,6 +109,22 @@ class DocumentaryCriteria
     public function setStatus($status)
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIsParent()
+    {
+        return $this->isParent;
+    }
+
+    /**
+     * @param string $isParent
+     */
+    public function setIsParent(string $isParent)
+    {
+        $this->isParent = $isParent;
     }
 
     /**

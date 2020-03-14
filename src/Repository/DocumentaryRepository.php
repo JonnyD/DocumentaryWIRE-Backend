@@ -126,6 +126,11 @@ class DocumentaryRepository extends ServiceEntityRepository
                 ->setParameter('status', $criteria->getStatus());
         }
 
+        if ($criteria->getIsParent() != null) {
+            $qb->andWhere('documentary.isParent = :isParent')
+                ->setParameter('isParent', $criteria->getIsParent());
+        }
+
         if ($criteria->getCategory()) {
             $qb->andWhere('documentary.category = :category')
                 ->setParameter('category', $criteria->getCategory());

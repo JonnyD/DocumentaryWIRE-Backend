@@ -15,6 +15,7 @@ use App\Enum\CommentStatus;
 use App\Enum\DocumentaryStatus;
 use App\Enum\Order;
 use App\Enum\UserOrderBy;
+use App\Enum\YesNo;
 use App\Service\ActivityService;
 use App\Service\CategoryService;
 use App\Service\CommentService;
@@ -82,7 +83,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
      */
     public function listAction(Request $request)
     {
-        //$this->denyAccessUnlessGranted("ROLE_ADMIN");
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
 
         /**
         $watchlistService = $this->getWatchlistService();
@@ -107,7 +108,8 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         //$this->updateDocumentaryCountForCategories();
         //$this->updateWatchlistCountForDocumentaries();
         //$this->updateViewsDate();
-        $this->updateYearFrom0ToNull();
+        //$this->updateYearFrom0ToNull();
+        $this->updateIsParent();
     }
 
     public function updateJoinedActivity()
@@ -304,6 +306,19 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
 
                 $this->documentaryService->save($documentary);
             }
+        }
+
+        $this->documentaryService->flush();
+    }
+
+    public function updateIsParent()
+    {
+        $documentaries = $this->documentaryService->getAllDocumentaries();
+
+        foreach ($documentaries as $documentary) {
+            $documentary->setIsParent(YesNo::YES);
+
+            $this->documentaryService->save($documentary);
         }
 
         $this->documentaryService->flush();

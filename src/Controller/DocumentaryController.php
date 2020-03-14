@@ -13,6 +13,7 @@ use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
 use App\Enum\Order;
+use App\Enum\YesNo;
 use App\Form\AdminDocumentaryForm;
 use App\Form\DocumentaryEpisodeForm;
 use App\Form\DocumentaryMovieForm;
@@ -175,6 +176,17 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             $criteria->setCategory($category);
         }
 
+        $isParent = $request->query->get('isParent');
+        if (isset($isParent)) {
+            if ($isRoleAdmin) {
+                $criteria->setIsParent($isParent);
+            } else {
+                $criteria->setIsParent(YesNo::YES);
+            }
+        } else {
+            $criteria->setIsParent(YesNo::YES);
+        }
+
         $yearFrom = $request->query->get('yearFrom');
         if (isset($yearFrom)) {
             $criteria->setYear($yearFrom);
@@ -231,6 +243,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 $serialized[] = $this->serializeMovie($item);
             } else if ($item->isSeries()) {
                 $serialized[] = $this->serializeSeries($item);
+            } else if ($item->isEpisode()) {
+                $serialized[] = $this->serializeEpisode($item);
             } else {
                 throw new \Exception();
             }
@@ -340,6 +354,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $documentary->setType(DocumentaryType::SERIES);
         $documentary->setAddedBy($this->getLoggedInUser());
         $documentary->setStatus(DocumentaryStatus::PENDING);
+        $documentary->setIsParent(YesNo::YES);
 
         $form = $this->createForm(DocumentarySeriesForm::class, $documentary);
         $form->handleRequest($request);
@@ -609,8 +624,6 @@ class DocumentaryController extends BaseController implements ClassResourceInter
      */
     private function serializeMovie(Documentary $documentary)
     {
-        $movie = $documentary->getMovie();
-
         $serialized = [
             'id' => $documentary->getId(),
             'type' => $documentary->getType(),
@@ -662,6 +675,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             $serialized['videoSources'] = $videoSources;
         }
 
+        $movie = $documentary->getMovie();
+
         if ($movie->getVideoSource() != null) {
             $serialized['movie']['videoSource'] = [
                 'id' => $movie->getVideoSource()->getId(),
@@ -676,6 +691,69 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         return $serialized;
     }
 
+    private function serializeEpisode(Documentary $documentary)
+    {
+        $serialized = [
+            'id' => $documentary->getId(),
+            'type' => $documentary->getType(),
+            'title' => $documentary->getTitle(),
+            'slug' => $documentary->getSlug(),
+            'storyline' => $documentary->getStoryline(),
+            'summary' => $documentary->getSummary(),
+            'year' => $documentary->getYearFrom(),
+            'length' => $documentary->getLength(),
+            'status' => $documentary->getStatus(),
+            'views' => $documentary->getViews(),
+            'shortUrl' => $documentary->getShortUrl(),
+            'featured' => $documentary->getFeatured(),
+            'imdbId' => $documentary->getImdbId(),
+            'createdAt' => $documentary->getCreatedAt(),
+            'updatedAt' => $documentary->getUpdatedAt()
+        ];
+
+        if ($documentary->getPoster() != null) {
+            $serialized['poster'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPoster();
+        } else {
+            $serialized['poster'] = null;
+        }
+
+        if ($documentary->getWideImage() != null) {
+            $serialized['wideImage'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/wide/' . $documentary->getWideImage();
+        } else {
+            $serialized['wideImage'] = null;
+        }
+
+        if ($documentary->getAddedBy() != null) {
+            $serialized['addedBy'] = [
+                'username' => $documentary->getAddedBy()->getUsername()
+            ];
+        }
+
+        if ($documentary->getDocumentaryVideoSources() != null) {
+            $videoSources = [];
+
+            foreach ($documentary->getDocumentaryVideoSources() as $documentaryVideoSource) {
+                $videoSources[] = $documentaryVideoSource->getVideoSource()->getName();
+            }
+
+            $serialized['videoSources'] = $videoSources;
+        }
+
+        $episode = $documentary->getEpisode();
+
+        if ($episode->getVideoSource() != null) {
+            $serialized['movie']['videoSource'] = [
+                'id' => $episode->getVideoSource()->getId(),
+                'name' => $episode->getVideoSource()->getName()
+            ];
+        }
+
+        if ($episode->getVideoId() != null) {
+            $serialized['movie']['videoId'] = $episode->getVideoId();
+        }
+
+        return $serialized;
+    }
     /**
      * @param Documentary $documentary
      * @return array

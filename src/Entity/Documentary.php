@@ -6,6 +6,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
+use App\Enum\YesNo;
 use App\Traits\Timestampable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -200,6 +201,14 @@ class Documentary
     private $watchlistCount;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string")
+     * @Gedmo\Versioned
+     */
+    private $isParent;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="documentary")
      * @ORM\JoinColumn(nullable=true)
      * @Gedmo\Versioned
@@ -253,6 +262,7 @@ class Documentary
         $this->viewsDate = new \DateTime();
         $this->commentCount = 0;
         $this->watchlistCount = 0;
+        $this->isParent = YesNo::NO;
     }
 
     public function getId(): ?int
@@ -408,6 +418,22 @@ class Documentary
     public function incrementTodayViews()
     {
         $this->todayViews++;
+    }
+
+    /**
+     * @return string
+     */
+    public function isParent()
+    {
+        return $this->isParent;
+    }
+
+    /**
+     * @param string $isParent
+     */
+    public function setIsParent(string $isParent)
+    {
+        $this->isParent = $isParent;
     }
 
     /**
