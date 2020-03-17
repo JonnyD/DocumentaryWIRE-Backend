@@ -808,7 +808,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 'storyline' => $child->getStoryline(),
                 'summary' => $child->getSummary(),
                 'duration' => $child->getLength(),
-                'year' => $child->getYearFrom(),
+                'yearFrom' => $child->getYearFrom(),
                 'videoSource' => $episode->getVideoSource()->getName(),
                 'videoId' => $episode->getVideoId(),
                 'thumbnail' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $child->getPosterImagePath(),
@@ -816,6 +816,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
             $seasonArray = [
                 'number' => $episode->getSeason()->getSeasonNumber(),
+                'seasonSummary' => $episode->getSeason()->getSummary(),
                 'episodes' => $episodesArray
             ];
 
