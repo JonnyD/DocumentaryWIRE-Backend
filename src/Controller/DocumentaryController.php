@@ -722,6 +722,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             ];
         }
 
+        /**
         if ($documentary->getDocumentaryVideoSources() != null) {
             $videoSources = [];
 
@@ -730,7 +731,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             }
 
             $serialized['videoSources'] = $videoSources;
-        }
+        } **/
 
         $episode = $documentary->getEpisode();
 
@@ -753,8 +754,6 @@ class DocumentaryController extends BaseController implements ClassResourceInter
      */
     private function serializeSeries(Documentary $documentary)
     {
-        $series = $documentary->getSeries();
-
         $serialized = [
             'id' => $documentary->getId(),
             'type' => $documentary->getType(),
@@ -771,11 +770,15 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             'yearTo' => $documentary->getYearTo(),
             'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $documentary->getPosterImagePath(),
             'wideImage' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $documentary->getWideImagePath(),
-            'category' => $documentary->getCategory()->getId(),
+            'category' => [
+                'id' => $documentary->getCategory()->getId(),
+                'name' => $documentary->getCategory()->getName()
+            ],
             'createdAt' => $documentary->getCreatedAt(),
             'updatedAt' => $documentary->getUpdatedAt()
         ];
 
+        /**
         if ($documentary->getDocumentaryVideoSources() != null) {
             $videoSources = [];
 
@@ -785,6 +788,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
             $serialized['videoSources'] = $videoSources;
         }
+         **/
 
         if ($documentary->getAddedBy() != null) {
             $serialized['addedBy'] = [
@@ -792,28 +796,26 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             ];
         }
 
-        /**
         $seasonsArray = [];
-        foreach ($series->getSeasons() as $season) {
+        foreach ($documentary->getChildren() as $child) {
+            $episode = $child->getEpisode();
 
             $episodesArray = [];
-            foreach ($season->getEpisodes() as $episode) {
-                $episodesArray[] = [
-                    'number' => $episode->getNumber(),
-                    'title' => $episode->getTitle(),
-                    'imdbId' => $episode->getImdbId(),
-                    'storyline' => $episode->getStoryline(),
-                    'summary' => $episode->getSummary(),
-                    'duration' => $episode->getLength(),
-                    'year' => $episode->getYear(),
-                    'videoSource' => $episode->getVideoSource()->getName(),
-                    'videoId' => $episode->getVideoId(),
-                    'thumbnail' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $episode->getThumbnailImagePath(),
-                ];
-            }
+            $episodesArray[] = [
+                'number' => $episode->getEpisodeNumber(),
+                'title' => $child->getTitle(),
+                'imdbId' => $child->getImdbId(),
+                'storyline' => $child->getStoryline(),
+                'summary' => $child->getSummary(),
+                'duration' => $child->getLength(),
+                'year' => $child->getYearFrom(),
+                'videoSource' => $episode->getVideoSource()->getName(),
+                'videoId' => $episode->getVideoId(),
+                'thumbnail' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $child->getPosterImagePath(),
+            ];
 
             $seasonArray = [
-                'number' => $season->getNumber(),
+                'number' => $episode->getSeason()->getSeasonNumber(),
                 'episodes' => $episodesArray
             ];
 
@@ -823,7 +825,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $serialized['series'] = [
             'seasons' => $seasonsArray
         ];
-**/
+
         return $serialized;
     }
 }

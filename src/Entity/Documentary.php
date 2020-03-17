@@ -869,7 +869,7 @@ class Documentary
     }
 
     /**
-     * @return ArrayCollection
+     * @return ArrayCollection|Documentary[]
      */
     public function getChildren()
     {

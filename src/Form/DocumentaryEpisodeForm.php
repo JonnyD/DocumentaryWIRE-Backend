@@ -26,8 +26,8 @@ class DocumentaryEpisodeForm extends AbstractType
                 'required' => true
             ])
             ->add('length', TextType::class)
-            ->add('imdbId', TextType::class)
             ->add('yearFrom', IntegerType::class)
+            ->add('imdbId', TextType::class)
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'id',
