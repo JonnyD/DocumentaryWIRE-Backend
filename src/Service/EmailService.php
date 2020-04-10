@@ -7,6 +7,7 @@ use App\Entity\Email;
 use App\Enum\YesNo;
 use App\Repository\EmailRepository;
 use App\Repository\ActivityRepository;
+use Carbon\Carbon;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -34,6 +35,24 @@ class EmailService
     public function save(Email $email, $sync = true)
     {
         $this->emailRepository->save($email, $sync);
+    }
+
+    /**
+     * @param Email[] $emails
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function saveAll($emails)
+    {
+        foreach ($emails as $email) {
+            $this->save($email, false);
+        }
+
+        $this->emailRepository->flush();
+    }
+
+    public function flush()
+    {
+        $this->emailRepository->flush();
     }
 
     /**
@@ -94,6 +113,60 @@ class EmailService
     public function getAllEmails()
     {
         return $this->emailRepository->findAll();
+    }
+
+    /**
+     * @param Email[] $emails
+     * @param int $chunkSize
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function updateSubscriptionKeysForEmailsUsingModolus(array $emails, int $chunkSize)
+    {
+        $emailsCount = count($emails);
+
+        $editedEmails = [];
+        for ($i = 0; $i < $emailsCount; $i++) {
+            $email = $emails[$i];
+
+            $subscriptionKey = sha1(mt_rand(10000,99999).time().$email->getEmail());
+            $email->setSubscriptionKey($subscriptionKey);
+
+            $editedEmails[] = $email;
+
+            $isIndexEqualToChunkSize = ($i % $chunkSize) === 0;
+            $isIndexEqualToEmailsCount = $i === ($emailsCount - 1);
+
+            if ($isIndexEqualToChunkSize || $isIndexEqualToEmailsCount) {
+                $this->saveAll($editedEmails);
+                $editedEmails = [];
+            }
+        }
+    }
+
+    /**
+     * @param Email[] $emails
+     * @param int $chunkSize
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function updateSubscriptionKeysForEmailsUsingArrayChunk(array $emails, int $chunkSize)
+    {
+        $chunks = array_chunk($emails, $chunkSize, true);
+
+        /** @var Email[] $chunkEmails */
+        foreach ($chunks as $chunkEmails) {
+            $editedEmails = [];
+
+            foreach ($chunkEmails as $email) {
+                $subscriptionKey = sha1(mt_rand(10000,99999).time().$email->getEmail());
+                $email->setSubscriptionKey($subscriptionKey);
+
+                $editedEmails[] = $email;
+            }
+
+            if (count($editedEmails) > 0) {
+                $this->saveAll($editedEmails);
+            }
+        }
     }
 
     /**
