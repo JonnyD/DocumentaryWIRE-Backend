@@ -8,6 +8,8 @@ use App\Criteria\DocumentaryCriteria;
 use App\Criteria\UserCriteria;
 use App\Criteria\WatchlistCriteria;
 use App\Entity\Activity;
+use App\Entity\Email;
+use App\Entity\Subscription;
 use App\Enum\ActivityOrderBy;
 use App\Enum\ActivityType;
 use App\Enum\CommentOrderBy;
@@ -20,6 +22,8 @@ use App\Service\ActivityService;
 use App\Service\CategoryService;
 use App\Service\CommentService;
 use App\Service\DocumentaryService;
+use App\Service\EmailService;
+use App\Service\SubscriptionService;
 use App\Service\UserService;
 use App\Service\WatchlistService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -60,13 +64,19 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
      */
     private $watchlistService;
 
+    /**
+     * @var EmailService
+     */
+    private $emailService;
+
     public function __construct(
         ActivityService $activityService,
         CommentService $commentService,
         UserService $userService,
         CategoryService $categoryService,
         DocumentaryService $documentaryService,
-        WatchlistService $watchlistService)
+        WatchlistService $watchlistService,
+        EmailService $emailService)
     {
         $this->activityService = $activityService;
         $this->commentService = $commentService;
@@ -74,6 +84,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         $this->categoryService = $categoryService;
         $this->documentaryService = $documentaryService;
         $this->watchlistService = $watchlistService;
+        $this->emailService = $emailService;
     }
 
     /**
@@ -109,7 +120,8 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         //$this->updateWatchlistCountForDocumentaries();
         //$this->updateViewsDate();
         //$this->updateYearFrom0ToNull();
-        $this->updateIsParent();
+        //$this->updateIsParent();
+        $this->updateSubscriptionKeys();
     }
 
     public function updateJoinedActivity()
@@ -318,9 +330,15 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         foreach ($documentaries as $documentary) {
             $documentary->setIsParent(YesNo::YES);
 
-            $this->documentaryService->save($documentary);
+            $this->documentaryService->save($documentary, false);
         }
 
         $this->documentaryService->flush();
+    }
+
+    private function updateSubscriptionKeys()
+    {
+        $emails = $this->emailService->getAllEmails();
+        $this->emailService->updateSubscriptionKeysForEmailsUsingModulos($emails, 100);
     }
 }
