@@ -121,7 +121,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         //$this->updateViewsDate();
         //$this->updateYearFrom0ToNull();
         //$this->updateIsParent();
-        $this->updateSubscriptionKeys();
+        //$this->updateSubscriptionKeys();
     }
 
     public function updateJoinedActivity()
