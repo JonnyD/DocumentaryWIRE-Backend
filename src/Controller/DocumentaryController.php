@@ -802,6 +802,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
             $episodesArray = [];
             $episodesArray[] = [
+                'id' => $child->getId(),
                 'number' => $episode->getEpisodeNumber(),
                 'title' => $child->getTitle(),
                 'imdbId' => $child->getImdbId(),
@@ -814,9 +815,11 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 'thumbnail' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $child->getPosterImagePath(),
             ];
 
+            $season = $episode->getSeason();
             $seasonArray = [
-                'number' => $episode->getSeason()->getSeasonNumber(),
-                'seasonSummary' => $episode->getSeason()->getSummary(),
+                'id' => $season->getId(),
+                'number' => $season->getSeasonNumber(),
+                'seasonSummary' => $season->getSummary(),
                 'episodes' => $episodesArray
             ];
 
