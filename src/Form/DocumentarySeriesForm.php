@@ -29,9 +29,6 @@ class DocumentarySeriesForm extends AbstractType
             ->add('imdbId', TextType::class)
             ->add('yearFrom', IntegerType::class)
             ->add('yearTo', IntegerType::class)
-            ->add('series', SeriesForm::class, [
-                'required' => true
-            ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'id',
