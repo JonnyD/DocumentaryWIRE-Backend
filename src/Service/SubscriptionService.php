@@ -24,6 +24,14 @@ class SubscriptionService
     }
 
     /**
+     * @return Subscription[]
+     */
+    public function getAllSubscriptions()
+    {
+        return $this->subscriptionRepository->findAll();
+    }
+
+    /**
      * @param int $id
      * @return null|Subscription
      */
