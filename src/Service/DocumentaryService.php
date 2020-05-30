@@ -313,7 +313,7 @@ class DocumentaryService
             }
         }
 
-        $this->save($documentary);
+        $this->saveAndDontUpdateTimestamps($documentary);
     }
 
     /**
@@ -331,7 +331,7 @@ class DocumentaryService
         }
 
         $documentary->setCommentCount($count);
-        $this->save($documentary);
+        $this->saveAndDontUpdateTimestamps($documentary);
     }
 
     /**
@@ -347,7 +347,7 @@ class DocumentaryService
         }
 
         $documentary->setWatchlistCount($count);
-        $this->save($documentary);
+        $this->saveAndDontUpdateTimestamps($documentary);
     }
 
     /**
@@ -356,7 +356,30 @@ class DocumentaryService
      */
     public function save(Documentary $documentary, bool $sync = true)
     {
+        if ($documentary->getCreatedAt() == null) {
+            $documentary->setCreatedAt(new \DateTime());
+        } else {
+            $documentary->setUpdatedAt(new \DateTime());
+        }
+
         $this->documentaryRepository->save($documentary, $sync);
+    }
+
+    /**
+     * @param Documentary $documentary
+     * @param bool $sync
+     */
+    public function saveAndDontUpdateTimestamps(Documentary $documentary, bool $sync = true)
+    {
+        $this->documentaryRepository->save($documentary, $sync);
+    }
+
+    /**
+     * @return array
+     */
+    public function getYearsExtractedFromDocumentaries()
+    {
+        return $this->documentaryRepository->findYearsExtractedFromDocumentaries();
     }
 
     public function flush()

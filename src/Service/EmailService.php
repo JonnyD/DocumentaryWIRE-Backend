@@ -34,6 +34,12 @@ class EmailService
      */
     public function save(Email $email, $sync = true)
     {
+        if ($email->getCreatedAt() == null) {
+            $email->setCreatedAt(new \DateTime());
+        } else {
+            $email->setUpdatedAt(new \DateTime());
+        }
+
         $this->emailRepository->save($email, $sync);
     }
 
@@ -120,7 +126,7 @@ class EmailService
      * @param int $chunkSize
      * @throws \Doctrine\ORM\ORMException
      */
-    public function updateSubscriptionKeysForEmailsUsingModolus(array $emails, int $chunkSize)
+    public function updateSubscriptionKeysForEmailsUsingModulos(array $emails, int $chunkSize)
     {
         $emailsCount = count($emails);
 
@@ -179,7 +185,7 @@ class EmailService
 
         $existingEmail = $this->getEmailByEmailAddress($emailAddress);
         if ($existingEmail) {
-            $existingEmail->setSubscribed(true);
+            $existingEmail->setSubscribed(true); //@TODO YesNo
             $existingEmail->setSubscriptionKey($subscriptionKey);
             $existingEmail->setUpdatedAt(new \DateTime());
 
@@ -189,7 +195,7 @@ class EmailService
             $email->setCreatedAt(new \DateTime());
             $email->setEmail($emailAddress);
             $email->setSubscriptionKey($subscriptionKey);
-            $email->setSubscribed(true);
+            $email->setSubscribed(true); //@TODO YesNo
 
             $this->save($email);
         }

@@ -71,6 +71,12 @@ class CommentService
      */
     public function save(Comment $comment, $sync = true)
     {
+        if ($comment->getCreatedAt() == null) {
+            $comment->setCreatedAt(new \DateTime());
+        } else {
+            $comment->setUpdatedAt(new \DateTime());
+        }
+
         $this->commentRepository->save($comment, $sync);
     }
 }

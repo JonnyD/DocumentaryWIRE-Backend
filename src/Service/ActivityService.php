@@ -135,7 +135,8 @@ class ActivityService
                 }
             }
 
-            $this->addActivity($user, $documentary->getId(), ActivityType::WATCHLIST, ComponentType::DOCUMENTARY, $groupNumber);
+            $createdAt = new \DateTime();
+            $this->addActivity($user, $documentary->getId(), ActivityType::WATCHLIST, ComponentType::DOCUMENTARY, $groupNumber, $createdAt);
         }
     }
 
@@ -185,7 +186,7 @@ class ActivityService
     /**
      * @param Comment $comment
      */
-    public function addCommentActivity(Comment $comment, \Datetime $createdAt)
+    public function addCommentActivity(Comment $comment)
     {
         $user = $comment->getUser();
 
@@ -194,6 +195,7 @@ class ActivityService
             $groupNumber = $latestActivity->getGroupNumber();
             $groupNumber++;
 
+            $createdAt = new \DateTime();
             $this->addActivity($user, $comment->getId(), ActivityType::COMMENT, ComponentType::DOCUMENTARY, $groupNumber, $createdAt);
         }
     }

@@ -90,7 +90,7 @@ class UserService
         $encodedPass = $this->encoder->encodePassword($user, $user->getPassword());
         $user->setPassword($encodedPass);
 
-        $this->userRepository->save($user);
+        $this->save($user);
     }
 
     /**
@@ -103,7 +103,7 @@ class UserService
         $confirmationToken = sha1(mt_rand(10000,99999).time().$user->getEmail());
         $user->setConfirmationToken($confirmationToken);
 
-        $this->userRepository->save($user);
+        $this->save($user);
 
         return $confirmationToken;
     }
@@ -121,7 +121,7 @@ class UserService
         $user->setResetKey($resetKey);
         $user->setPasswordRequestedAt(new \DateTime());
 
-        $this->userRepository->save($user);
+        $this->save($user);
 
         return $resetKey;
     }
@@ -131,7 +131,8 @@ class UserService
      */
     public function resetPassword(User $user)
     {
-        $this->userRepository->save($user);
+        //@TODO
+        $this->save($user);
     }
 
     /**
@@ -213,6 +214,12 @@ class UserService
      */
     public function save(User $user, $sync = true)
     {
+        if ($user->getCreatedAt() == null) {
+            $user->setCreatedAt(new \DateTime());
+        } else {
+            $user->setUpdatedAt(new \DateTime());
+        }
+
         $this->userRepository->save($user, $sync);
     }
 

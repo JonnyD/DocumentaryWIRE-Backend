@@ -56,6 +56,12 @@ class VideoSourceService
      */
     public function save(VideoSource $videoSource, bool $sync = true)
     {
+        if ($videoSource->getCreatedAt() == null) {
+            $videoSource->setCreatedAt(new \DateTime());
+        } else {
+            $videoSource->setUpdatedAt(new \DateTime());
+        }
+
         $this->videoSourceRepository->save($videoSource, $sync);
 
         $videoSourceFromDatabase = $this->videoSourceRepository->find($videoSource->getId());

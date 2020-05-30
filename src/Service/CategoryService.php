@@ -53,7 +53,7 @@ class CategoryService
     {
         $categoryCriteria = new CategoryCriteria();
         $categoryCriteria->setStatus(CategoryStatus::ENABLED);
-        $categoryCriteria->setGreaterThanEqual(1);
+        $categoryCriteria->setDocumentaryCountGreaterThanEqual(1);
         $categoryCriteria->setSort([
             CategoryOrderBy::NAME => Order::ASC
         ]);

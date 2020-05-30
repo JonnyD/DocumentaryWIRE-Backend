@@ -65,6 +65,12 @@ class SubscriptionService
      */
     public function save(Subscription $subscription, bool $sync = true)
     {
+        if ($subscription->getCreatedAt() == null) {
+            $subscription->setCreatedAt(new \DateTime());
+        } else {
+            $subscription->setUpdatedAt(new \DateTime());
+        }
+
         $this->subscriptionRepository->save($subscription, $sync);
     }
 

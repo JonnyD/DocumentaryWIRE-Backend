@@ -120,6 +120,12 @@ class DocumentaryVideoSourceService
      */
     public function save(DocumentaryVideoSource $documentaryVideoSource, $sync = true)
     {
+        if ($documentaryVideoSource->getCreatedAt() == null) {
+            $documentaryVideoSource->setCreatedAt(new \DateTime());
+        } else {
+            $documentaryVideoSource->setUpdatedAt(new \DateTime());
+        }
+
         $this->documentaryVideoSourceRepository->save($documentaryVideoSource, $sync);
     }
 }

@@ -21,6 +21,12 @@ class SeasonService
 
     public function save(Season $season, $sync = true)
     {
+        if ($season->getCreatedAt() == null) {
+            $season->setCreatedAt(new \DateTime());
+        } else {
+            $season->setUpdatedAt(new \DateTime());
+        }
+
         $this->seasonRepository->save($season, $sync);
     }
 }
