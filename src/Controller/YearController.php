@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Criteria\DocumentaryCriteria;
 use App\Entity\Activity;
 use App\Service\ActivityService;
+use App\Service\DocumentaryService;
 use App\Service\YearService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -18,6 +20,9 @@ class YearController extends BaseController implements ClassResourceInterface
      */
     private $yearService;
 
+    /**
+     * @param YearService $yearService
+     */
     public function __construct(YearService $yearService)
     {
         $this->yearService = $yearService;
@@ -30,7 +35,7 @@ class YearController extends BaseController implements ClassResourceInterface
      */
     public function listAction()
     {
-        $years = $this->yearService->getYears();
+        $years = $this->yearService->getYearsExtractedFromDocumentaries();
 
         return $this->createApiResponse($years, 200);
     }

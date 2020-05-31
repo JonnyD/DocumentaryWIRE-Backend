@@ -56,11 +56,12 @@ class DocumentaryRepository extends ServiceEntityRepository
     /**
      * @return mixed
      */
-    public function findYears()
+    public function findYearsExtractedFromDocumentaries()
     {
         $rsm = new ResultSetMapping();
 
         $sql = "SELECT DISTINCT(year_from) 
+                AS year
                 FROM documentary 
                 WHERE status = 'publish' 
                   AND year_from IS NOT NULL 

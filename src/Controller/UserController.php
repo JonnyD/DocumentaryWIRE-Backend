@@ -164,13 +164,9 @@ class UserController extends BaseController implements ClassResourceInterface
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $loggedInUser = $this->getLoggedInUser();
+        $this->userService->updateLastLogin($loggedInUser);
+
         $data = $this->serializeUser($loggedInUser);
-
-        $disableUpdateLastLogin = $request->query->get('disableLastLogin');
-        if ($disableUpdateLastLogin === false) {
-            $this->userService->updateLastLogin($loggedInUser);
-        }
-
         return $this->createApiResponse($data, 200);
     }
 

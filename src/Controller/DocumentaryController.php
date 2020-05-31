@@ -193,7 +193,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             $criteria->setIsParent(YesNo::YES);
         }
 
-        $yearFrom = $request->query->get('yearFrom');
+        $yearFrom = $request->query->get('year');
         if (isset($yearFrom)) {
             $criteria->setYear($yearFrom);
         }

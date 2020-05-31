@@ -15,23 +15,23 @@ use Doctrine\ORM\QueryBuilder;
 class YearService
 {
     /**
-     * @var DocumentaryRepository
+     * @var DocumentaryService
      */
-    private $documentaryRepository;
+    private $documentaryService;
 
     /**
-     * @param DocumentaryRepository $documentaryRepository
+     * @param DocumentaryService $documentaryService
      */
-    public function __construct(DocumentaryRepository $documentaryRepository)
+    public function __construct(DocumentaryService $documentaryService)
     {
-        $this->documentaryRepository = $documentaryRepository;
+        $this->documentaryService = $documentaryService;
     }
 
     /**
      * @return array
      */
-    public function getYears()
+    public function getYearsExtractedFromDocumentaries()
     {
-        return $this->documentaryRepository->findYears();
+        return $this->documentaryService->getYearsExtractedFromDocumentaries();
     }
 }
