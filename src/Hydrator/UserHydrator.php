@@ -50,14 +50,14 @@ class UserHydrator implements HydratorInterface
         $array = [
             'name' => $this->user->getName(),
             'username' => $this->user->getUsername(),
-            'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar(),
+            'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $this->user->getAvatar(),
             'roles' => $this->user->getRoles(),
             'createdAt' => $this->user->getCreatedAt(),
             'lastLogin' => $this->user->getLastLogin()
         ];
 
         $isUser = false;
-        if ($this->loggedInUser === $user) {
+        if ($this->loggedInUser === $this->user) {
             $isUser = true;
         }
 
