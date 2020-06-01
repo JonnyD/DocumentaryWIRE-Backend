@@ -8,6 +8,7 @@ use App\Enum\CommentOrderBy;
 use App\Enum\CommentStatus;
 use App\Enum\Order;
 use App\Form\CommentForm;
+use App\Hydrator\CommentHydrator;
 use App\Service\CommentService;
 use App\Service\DocumentaryService;
 use App\Service\UserService;
@@ -81,12 +82,6 @@ class CommentController extends BaseController implements ClassResourceInterface
         if (isset($status)) {
             $hasStatus = CommentStatus::hasStatus($status);
             if (!$hasStatus) {
-                return $this->createApiResponse('Status does not exist', 400);
-            }
-        }
-        if (isset($status)) {
-            $hasStatus = CommentStatus::hasStatus($status);
-            if (!$hasStatus) {
                 return $this->createApiResponse('Status ' . $status . ' does not exist', 404);
             }
             if (!$isRoleAdmin) {
@@ -131,7 +126,8 @@ class CommentController extends BaseController implements ClassResourceInterface
 
         $serialized = [];
         foreach ($items as $item) {
-            $serialized[] = $this->serialiseComment($item);
+            $commentHydrator = new CommentHydrator($item);
+            $serialized[] = $commentHydrator->toArray();
         }
 
         $data = [
@@ -166,7 +162,8 @@ class CommentController extends BaseController implements ClassResourceInterface
             return $this->createApiResponse('Unauthorized to view this comment', 400);
         }
 
-        $serialized = $this->serialiseComment($comment);
+        $commentHydrator = new CommentHydrator($comment);
+        $serialized = $commentHydrator->toArray();
 
         return $this->createApiResponse($serialized, 200);
     }
@@ -221,7 +218,8 @@ class CommentController extends BaseController implements ClassResourceInterface
 
                 //@TODO $this->documentaryService->updateCommentCountForDocumentary($comment->getDocumentary());
 
-                $serializedComment = $this->serialiseComment($comment);
+                $commentHydrator = new CommentHydrator($comment);
+                $serializedComment = $commentHydrator->toArray();
                 return $this->createApiResponse($serializedComment, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -233,38 +231,5 @@ class CommentController extends BaseController implements ClassResourceInterface
     public function createCommentAction()
     {
         //@TODO
-    }
-
-    /**
-     * @param Comment $comment
-     * @return array
-     */
-    private function serialiseComment(Comment $comment)
-    {
-        $serialized = [
-            'id' => $comment->getId(),
-            'commentText' => $comment->getCommentText(),
-            'email' => $comment->getEmail(),
-            'status' => $comment->getStatus(),
-            'author' => $comment->getAuthor(),
-            'createdAt' => $comment->getCreatedAt(),
-            'updatedAt' => $comment->getUpdatedAt()
-       ];
-
-        if ($comment->getUser() != null) {
-            $serialized['user'] = [
-                'id' => $comment->getUser()->getId(),
-                'username' => $comment->getUser()->getUsername()
-            ];
-        }
-
-        if ($comment->getDocumentary() != null) {
-            $serialized['documentary'] = [
-                'id' => $comment->getDocumentary()->getId(),
-                'title' => $comment->getDocumentary()->getTitle()
-            ];
-        }
-
-        return $serialized;
     }
 }

@@ -20,6 +20,9 @@ use App\Form\DocumentaryMovieForm;
 use App\Form\DocumentarySeriesForm;
 use App\Form\SeriesForm;
 use App\Form\MovieForm;
+use App\Hydrator\EpisodeHydrator;
+use App\Hydrator\MovieHydrator;
+use App\Hydrator\SeriesHydrator;
 use App\Service\ActivityService;
 use App\Service\CategoryService;
 use App\Service\DocumentaryService;
@@ -246,11 +249,14 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         /** @var Documentary $item */
         foreach ($items as $item) {
             if ($item->isMovie()) {
-                $serialized[] = $this->serializeMovie($item);
+                $movieHydrator = new MovieHydrator($item, $this->request);
+                $serialized[] = $movieHydrator->toArray();
             } else if ($item->isSeries()) {
-                $serialized[] = $this->serializeSeries($item);
+                $seriesHydrator = new SeriesHydrator($item, $this->request);
+                $serialized[] = $seriesHydrator->toArray();
             } else if ($item->isEpisode()) {
-                $serialized[] = $this->serializeEpisode($item);
+                $episodeHydrator = new EpisodeHydrator($item, $this->request);
+                $serialized[] = $episodeHydrator->toArray();
             } else {
                 throw new \Exception();
             }
@@ -282,9 +288,11 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $this->documentaryService->updateViews($documentary);
 
         if ($documentary->isMovie()) {
-            $serialized = $this->serializeMovie($documentary);
+            $movieHydrator = new MovieHydrator($documentary, $this->request);
+            $serialized = $movieHydrator->toArray();
         } else if ($documentary->isSeries()) {
-            $serialized = $this->serializeSeries($documentary);
+            $seriesHydrator = new SeriesHydrator($documentary, $this->request);
+            $serialized = $seriesHydrator->toArray();
         }
 
         return $this->createApiResponse($serialized, 200);
@@ -332,7 +340,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
                 $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
 
-                $serialized = $this->serializeMovie($documentary);
+                $movieHydrator = new MovieHydrator($documentary, $this->request);
+                $serialized = $movieHydrator->toArray();
                 return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -372,7 +381,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
                 $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
 
-                $serialized = $this->serializeSeries($documentary);
+                $seriesHydrator = new SeriesHydrator($documentary, $this->request);
+                $serialized = $seriesHydrator->toArray();
                 return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -466,7 +476,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 $this->categoryService->updateDocumentaryCountForCategories(
                     $newCategory, $oldCategory, $documentary);
 
-                $serialized = $this->serializeMovie($documentary);
+                $movieHydrator = new MovieHydrator($documentary, $this->request);
+                $serialized = $movieHydrator->toArray();
                 return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -515,7 +526,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 $this->categoryService->updateDocumentaryCountForCategories(
                     $newCategory, $oldCategory, $documentary);
 
-                $serialized = $this->serializeSeries($documentary);
+                $seriesHydrator = new SeriesHydrator($documentary, $this->request);
+                $serialized = $seriesHydrator->toArray();
                 return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -555,7 +567,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
         $this->documentaryService->removeMovie($movie);
 
-        $serialise = $this->serializeSeries($documentary);
+        $seriesHydrator = new SeriesHydrator($documentary, $this->request);
+        $serialise = $seriesHydrator->toArray();
         return $this->createApiResponse($serialise, 200);
 
     }
@@ -567,6 +580,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
      */
     public function mapArrayToObject(array $data, Documentary $documentary)
     {
+        //@TODO - is this neccrssary?
         if (isset($data['title'])) {
             $documentary->setTitle($data['title']);
         }
@@ -609,227 +623,5 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         }
 
         return $documentary;
-    }
-
-    /**
-     * @param Documentary $documentary
-     * @return array
-     */
-    private function serializeMovie(Documentary $documentary)
-    {
-        $serialized = [
-            'id' => $documentary->getId(),
-            'type' => $documentary->getType(),
-            'title' => $documentary->getTitle(),
-            'slug' => $documentary->getSlug(),
-            'storyline' => $documentary->getStoryline(),
-            'summary' => $documentary->getSummary(),
-            'year' => $documentary->getYearFrom(),
-            'length' => $documentary->getLength(),
-            'status' => $documentary->getStatus(),
-            'views' => $documentary->getViews(),
-            'shortUrl' => $documentary->getShortUrl(),
-            'featured' => $documentary->getFeatured(),
-            'imdbId' => $documentary->getImdbId(),
-            'category' => [
-                'id' => $documentary->getCategory()->getId(),
-                'name' => $documentary->getCategory()->getName(),
-                'slug' => $documentary->getCategory()->getSlug()
-            ],
-            'createdAt' => $documentary->getCreatedAt(),
-            'updatedAt' => $documentary->getUpdatedAt()
-        ];
-
-        if ($documentary->getPoster() != null) {
-            $serialized['poster'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPoster();
-        } else {
-            $serialized['poster'] = null;
-        }
-
-        if ($documentary->getWideImage() != null) {
-           $serialized['wideImage'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/wide/' . $documentary->getWideImage();
-        } else {
-            $serialized['wideImage'] = null;
-        }
-
-        if ($documentary->getAddedBy() != null) {
-            $serialized['addedBy'] = [
-                'username' => $documentary->getAddedBy()->getUsername()
-            ];
-        }
-
-        if ($documentary->getDocumentaryVideoSources() != null) {
-            $videoSources = [];
-
-            foreach ($documentary->getDocumentaryVideoSources() as $documentaryVideoSource) {
-                $videoSources[] = $documentaryVideoSource->getVideoSource()->getName();
-            }
-
-            $serialized['videoSources'] = $videoSources;
-        }
-
-        $movie = $documentary->getMovie();
-
-        if ($movie->getVideoSource() != null) {
-            $serialized['movie']['videoSource'] = [
-                'id' => $movie->getVideoSource()->getId(),
-                'name' => $movie->getVideoSource()->getName()
-            ];
-        }
-
-        if ($movie->getVideoId() != null) {
-            $serialized['movie']['videoId'] = $movie->getVideoId();
-        }
-
-        return $serialized;
-    }
-
-    private function serializeEpisode(Documentary $documentary)
-    {
-        $serialized = [
-            'id' => $documentary->getId(),
-            'type' => $documentary->getType(),
-            'title' => $documentary->getTitle(),
-            'slug' => $documentary->getSlug(),
-            'storyline' => $documentary->getStoryline(),
-            'summary' => $documentary->getSummary(),
-            'year' => $documentary->getYearFrom(),
-            'length' => $documentary->getLength(),
-            'status' => $documentary->getStatus(),
-            'views' => $documentary->getViews(),
-            'shortUrl' => $documentary->getShortUrl(),
-            'featured' => $documentary->getFeatured(),
-            'imdbId' => $documentary->getImdbId(),
-            'createdAt' => $documentary->getCreatedAt(),
-            'updatedAt' => $documentary->getUpdatedAt()
-        ];
-
-        if ($documentary->getPoster() != null) {
-            $serialized['poster'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPoster();
-        } else {
-            $serialized['poster'] = null;
-        }
-
-        if ($documentary->getWideImage() != null) {
-            $serialized['wideImage'] = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/wide/' . $documentary->getWideImage();
-        } else {
-            $serialized['wideImage'] = null;
-        }
-
-        if ($documentary->getAddedBy() != null) {
-            $serialized['addedBy'] = [
-                'username' => $documentary->getAddedBy()->getUsername()
-            ];
-        }
-
-        /**
-        if ($documentary->getDocumentaryVideoSources() != null) {
-            $videoSources = [];
-
-            foreach ($documentary->getDocumentaryVideoSources() as $documentaryVideoSource) {
-                $videoSources[] = $documentaryVideoSource->getVideoSource()->getName();
-            }
-
-            $serialized['videoSources'] = $videoSources;
-        } **/
-
-        $episode = $documentary->getEpisode();
-
-        if ($episode->getVideoSource() != null) {
-            $serialized['movie']['videoSource'] = [
-                'id' => $episode->getVideoSource()->getId(),
-                'name' => $episode->getVideoSource()->getName()
-            ];
-        }
-
-        if ($episode->getVideoId() != null) {
-            $serialized['movie']['videoId'] = $episode->getVideoId();
-        }
-
-        return $serialized;
-    }
-    /**
-     * @param Documentary $documentary
-     * @return array
-     */
-    private function serializeSeries(Documentary $documentary)
-    {
-        $serialized = [
-            'id' => $documentary->getId(),
-            'type' => $documentary->getType(),
-            'title' => $documentary->getTitle(),
-            'slug' => $documentary->getSlug(),
-            'storyline' => $documentary->getStoryline(),
-            'summary' => $documentary->getSummary(),
-            'status' => $documentary->getStatus(),
-            'views' => $documentary->getViews(),
-            'shortUrl' => $documentary->getShortUrl(),
-            'featured' => $documentary->getFeatured(),
-            'imdbId' => $documentary->getImdbId(),
-            'yearFrom' => $documentary->getYearFrom(),
-            'yearTo' => $documentary->getYearTo(),
-            'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $documentary->getPosterImagePath(),
-            'wideImage' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $documentary->getWideImagePath(),
-            'category' => [
-                'id' => $documentary->getCategory()->getId(),
-                'name' => $documentary->getCategory()->getName()
-            ],
-            'createdAt' => $documentary->getCreatedAt(),
-            'updatedAt' => $documentary->getUpdatedAt()
-        ];
-
-        /**
-        if ($documentary->getDocumentaryVideoSources() != null) {
-            $videoSources = [];
-
-            foreach ($documentary->getDocumentaryVideoSources() as $documentaryVideoSource) {
-                $videoSources[] = $documentaryVideoSource->getVideoSource()->getName();
-            }
-
-            $serialized['videoSources'] = $videoSources;
-        }
-         **/
-
-        if ($documentary->getAddedBy() != null) {
-            $serialized['addedBy'] = [
-                'username' => $documentary->getAddedBy()->getUsername()
-            ];
-        }
-
-        $seasonsArray = [];
-        foreach ($documentary->getChildren() as $child) {
-            $episode = $child->getEpisode();
-
-            $episodesArray = [];
-            $episodesArray[] = [
-                'id' => $child->getId(),
-                'number' => $episode->getEpisodeNumber(),
-                'title' => $child->getTitle(),
-                'imdbId' => $child->getImdbId(),
-                'storyline' => $child->getStoryline(),
-                'summary' => $child->getSummary(),
-                'duration' => $child->getLength(),
-                'yearFrom' => $child->getYearFrom(),
-                'videoSource' => $episode->getVideoSource()->getName(),
-                'videoId' => $episode->getVideoId(),
-                'thumbnail' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . $child->getPosterImagePath(),
-            ];
-
-            $season = $episode->getSeason();
-            $seasonArray = [
-                'id' => $season->getId(),
-                'number' => $season->getSeasonNumber(),
-                'seasonSummary' => $season->getSummary(),
-                'episodes' => $episodesArray
-            ];
-
-            $seasonsArray[] = $seasonArray;
-        }
-
-        $serialized['series'] = [
-            'seasons' => $seasonsArray
-        ];
-
-        return $serialized;
     }
 }

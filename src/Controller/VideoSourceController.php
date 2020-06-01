@@ -7,6 +7,7 @@ use App\Entity\VideoSource;
 use App\Enum\VideoSourceStatus;
 use App\Enum\YesNo;
 use App\Form\EditVideoSourceForm;
+use App\Hydrator\VideoSourceHydrator;
 use App\Service\VideoSourceService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -70,7 +71,8 @@ class VideoSourceController extends BaseController implements ClassResourceInter
 
         $formatted = [];
         foreach ($videoSources as $videoSource) {
-            $formatted[] = $videoSource->jsonSerialize();
+            $videoSourceHydrator = new VideoSourceHydrator($videoSource);
+            $formatted[] = $videoSourceHydrator->toArray();
         }
         
         return $this->createApiResponse($formatted, 200);
@@ -96,7 +98,8 @@ class VideoSourceController extends BaseController implements ClassResourceInter
             }
         }
 
-        $data = $this->serializeVideoSource($videoSource);
+        $videoSourceHydrator = new VideoSourceHydrator($videoSource);
+        $data = $videoSourceHydrator->toArray();
         $response = $this->createApiResponse($data, 200);
 
         return $response;
@@ -132,24 +135,11 @@ class VideoSourceController extends BaseController implements ClassResourceInter
             }
         }
 
-        $data = $this->serializeVideoSource($videoSource);
+        $videoSourceHydrator = new VideoSourceHydrator($videoSource);
+        $data = $videoSourceHydrator->toArray();
         $response = $this->createApiResponse($data, 200);
 
         return $response;
     }
 
-    /**
-     * @param VideoSource $videoSource
-     * @return array
-     */
-    public function serializeVideoSource(VideoSource $videoSource)
-    {
-        return [
-            'id' => $videoSource->getId(),
-            'name' => $videoSource->getName(),
-            'embedAllowed' => $videoSource->getEmbedAllowed(),
-            'embedCode' => $videoSource->getEmbedCode(),
-            'status' => $videoSource->getStatus()
-        ];
-    }
 }

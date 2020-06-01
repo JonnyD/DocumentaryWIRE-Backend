@@ -7,6 +7,7 @@ use App\Entity\Activity;
 use App\Enum\ActivityOrderBy;
 use App\Enum\ActivityType;
 use App\Enum\Order;
+use App\Hydrator\ActivityHydrator;
 use App\Object\Activity\Strategy\DataStrategyContext;
 use App\Service\ActivityService;
 use App\Service\CommentService;
@@ -115,57 +116,28 @@ class CommunityController extends BaseController implements ClassResourceInterfa
         $pagerfanta->setMaxPerPage($amountPerPage);
         $pagerfanta->setCurrentPage($page);
 
-        $items = (array) $pagerfanta->getCurrentPageResults();
+        $items = (array)$pagerfanta->getCurrentPageResults();
 
         $serialized = [];
         foreach ($items as $item) {
-            $serialized[] = $this->serializeActivity($item);
+            $activiyHydrator = new ActivityHydrator(
+                $item,
+                $this->request,
+                $this->documentaryService,
+                $this->commentService);
+            $serialized[] = $activiyHydrator->toArray();
         }
 
         $data = [
-            'items'             => $serialized,
-            'count_results'     => $pagerfanta->getNbResults(),
-            'current_page'      => $pagerfanta->getCurrentPage(),
-            'number_of_pages'   => $pagerfanta->getNbPages(),
-            'next'              => ($pagerfanta->hasNextPage()) ? $pagerfanta->getNextPage() : null,
-            'prev'              => ($pagerfanta->hasPreviousPage()) ? $pagerfanta->getPreviousPage() : null,
-            'paginate'          => $pagerfanta->haveToPaginate(),
+            'items' => $serialized,
+            'count_results' => $pagerfanta->getNbResults(),
+            'current_page' => $pagerfanta->getCurrentPage(),
+            'number_of_pages' => $pagerfanta->getNbPages(),
+            'next' => ($pagerfanta->hasNextPage()) ? $pagerfanta->getNextPage() : null,
+            'prev' => ($pagerfanta->hasPreviousPage()) ? $pagerfanta->getPreviousPage() : null,
+            'paginate' => $pagerfanta->haveToPaginate(),
         ];
 
         return $this->createApiResponse($data, 200);
-    }
-
-    /**
-     * @param Activity $activityItem
-     * @return array
-     */
-    private function serializeActivity(Activity $activityItem)
-    {
-        $type = $activityItem->getType();
-        $createdAt = $activityItem->getCreatedAt();
-
-        $dataStrategyContext = new DataStrategyContext(
-            $type,
-            $this->request,
-            $this->documentaryService,
-            $this->commentService);
-        $data = $dataStrategyContext->createData($activityItem);
-
-        $user = $activityItem->getUser();
-        $name = $user->getName();
-        $avatar = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar();
-        $username = $user->getUsername();
-
-        $activityObject = new ActivityObject();
-        $activityObject->setName($name);
-        $activityObject->setUsername($username);
-        $activityObject->setAvatar($avatar);
-        $activityObject->setData($data);
-        $activityObject->setType($type);
-        $activityObject->setCreatedAt($createdAt);
-        $activityObject->setComponent($activityItem->getComponent());
-        $activityObject->setGroupNumber($activityItem->getGroupNumber());
-
-        return $activityObject->toArray();
     }
 }

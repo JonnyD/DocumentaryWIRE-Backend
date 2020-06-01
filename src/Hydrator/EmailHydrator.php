@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Hydrator;
+
+
+use App\Entity\Email;
+
+class EmailHydrator implements HydratorInterface
+{
+    /**
+     * @var Email
+     */
+    private $email;
+
+    /**
+     * @param Email $email
+     */
+    public function __construct(
+        Email $email)
+    {
+        $this->email = $email;
+    }
+
+    public function toArray()
+    {
+        $array = [
+            'id' => $this->email->getId(),
+            'email' => $this->email->getEmail(),
+            'subscribed' => $this->email->getSubscribed(),
+            'subscriptionKey' => $this->email->getSubscriptionKey(),
+            'createdAt' => $this->email->getCreatedAt(),
+            'updatedAt' => $this->email->getUpdatedAt()
+        ];
+
+        return $array;
+    }
+}

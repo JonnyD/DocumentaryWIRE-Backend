@@ -12,6 +12,7 @@ use App\Form\ForgotUsernameForm;
 use App\Form\RegisterForm;
 use App\Form\ResetPasswordForm;
 use App\Form\UserForm;
+use App\Hydrator\UserHydrator;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -147,7 +148,14 @@ class UserController extends BaseController implements ClassResourceInterface
 
             //@TODO send activation code email
 
-            return $this->createApiResponse($this->serializeUser($user), 200);
+            $userHydrator = new UserHydrator(
+                $user,
+                $this->request,
+                $this->getLoggedInUser(),
+                $this->isGranted("ROLE_ADMIN")
+            );
+            $serialized = $userHydrator->toArray();
+            return $this->createApiResponse($serialized, 200);
         } else {
             $errors = (string)$form->getErrors(true, false);
             return $this->createApiResponse($errors, 400);
@@ -166,7 +174,13 @@ class UserController extends BaseController implements ClassResourceInterface
         $loggedInUser = $this->getLoggedInUser();
         $this->userService->updateLastLogin($loggedInUser);
 
-        $data = $this->serializeUser($loggedInUser);
+        $userHydrator = new UserHydrator(
+            $loggedInUser,
+            $this->request,
+            $this->getLoggedInUser(),
+            $this->isGranted("ROLE_ADMIN")
+        );
+        $data = $userHydrator->toArray();
         return $this->createApiResponse($data, 200);
     }
 
@@ -391,7 +405,13 @@ class UserController extends BaseController implements ClassResourceInterface
 
         $serialized = [];
         foreach ($items as $item) {
-            $serialized[] = $this->serializeUser($item);
+            $userHydrator = new UserHydrator(
+                $item,
+                $this->request,
+                $this->getLoggedInUser(),
+                $this->isGranted("ROLE_ADMIN")
+            );
+            $serialized[] = $userHydrator->toArray();
         }
 
         $data = [
@@ -420,7 +440,13 @@ class UserController extends BaseController implements ClassResourceInterface
             $data = null;
             return $this->createApiResponse("User cannot be found", 404);
         } else {
-            $data = $this->serializeUser($user);
+            $userHydrator = new UserHydrator(
+                $user,
+                $this->request,
+                $this->getLoggedInUser(),
+                $this->isGranted("ROLE_ADMIN")
+            );
+            $data = $userHydrator->toArray();
             return $this->createApiResponse($data, 200);
         }
     }
@@ -469,7 +495,14 @@ class UserController extends BaseController implements ClassResourceInterface
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $this->userService->save($user);
-                $serialized = $this->serializeUser($user);
+
+                $userHydrator = new UserHydrator(
+                    $user,
+                    $this->request,
+                    $this->getLoggedInUser(),
+                    $this->isGranted("ROLE_ADMIN")
+                );
+                $serialized = $userHydrator->toArray();
                 return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -531,7 +564,13 @@ class UserController extends BaseController implements ClassResourceInterface
                     $user->setPassword($newPassword);
                     $this->userService->save($user);
 
-                    $serialized = $this->serializeUser($user);
+                    $userHydrator = new UserHydrator(
+                        $user,
+                        $this->request,
+                        $this->getLoggedInUser(),
+                        $this->isGranted("ROLE_ADMIN")
+                    );
+                    $serialized = $userHydrator->toArray();
                     return $this->createApiResponse($serialized, 200);
                 }
             }
@@ -601,44 +640,5 @@ To reset your password, visit the following address: " . $url</p>');
 
         $errors = (string)$form->getErrors(true, false);
         return $this->createApiResponse($errors, 400);
-    }
-
-    /**
-     * @param User $user
-     * @return array
-     */
-    private function serializeUser(User $user)
-    {
-        $serialized = [
-            'name' => $user->getName(),
-            'username' => $user->getUsername(),
-            'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar(),
-            'roles' => $user->getRoles(),
-            'createdAt' => $user->getCreatedAt(),
-            'lastLogin' => $user->getLastLogin()
-        ];
-
-        $isUser = false;
-        if ($this->getLoggedInUser() === $user) {
-            $isUser = true;
-        }
-
-        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
-        if ($isUser || $isRoleAdmin) {
-            $serialized['id'] = $user->getId();
-            $serialized['usernameCanonical'] = $user->getUsernameCanonical();
-            $serialized['email'] = $user->getEmail();
-            $serialized['emailCanonical'] = $user->getEmailCanonical();
-            $serialized['resetKey'] = $user->getResetKey();
-            $serialized['activatedAt'] = $user->getActivatedAt();
-            $serialized['enabled'] = $user->isEnabled();
-            $serialized['password'] = $user->getPassword();
-            $serialized['lastLogin'] = $user->getLastLogin();
-            $serialized['confirmationToken'] = $user->getConfirmationToken();
-            $serialized['passwordRequestedAt'] = $user->getPasswordRequestedAt();
-            $serialized['updatedAt'] = $user->getUpdatedAt();
-        }
-
-        return $serialized;
     }
 }

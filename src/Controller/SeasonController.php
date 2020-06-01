@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Season;
 use App\Form\SeasonForm;
+use App\Hydrator\SeasonHydrator;
 use App\Service\SeasonService;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,27 +49,13 @@ class SeasonController extends BaseController implements ClassResourceInterface
             if ($form->isSubmitted() && $form->isValid()) {
                 $this->seasonService->save($season);
 
-                $serialized = $this->serializeSeason($season);
+                $seasonHydrator = new SeasonHydrator($season);
+                $serialized = $seasonHydrator->toArray();
                 return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
                 return $this->createApiResponse($errors, 400);
             }
         }
-    }
-
-    /**
-     * @param Season $season
-     * @return array
-     */
-    private function serializeSeason(Season $season)
-    {
-        $serialized = [
-            'id' => $season->getId(),
-            'seasonNumber' => $season->getSeasonNumber(),
-            'summary' => $season->getSummary()
-        ];
-
-        return $serialized;
     }
 }

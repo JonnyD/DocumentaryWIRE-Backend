@@ -6,6 +6,7 @@ use App\Criteria\WatchlistCriteria;
 use App\Entity\Documentary;
 use App\Entity\Watchlist;
 use App\Enum\WatchlistOrderBy;
+use App\Hydrator\WatchlistHydrator;
 use App\Service\DocumentaryService;
 use App\Service\UserService;
 use App\Service\WatchlistService;
@@ -122,7 +123,8 @@ class WatchlistController extends BaseController implements ClassResourceInterfa
 
         $serialized = [];
         foreach ($items as $item) {
-            $serialized[] = $this->serializeWatchlist($item);
+            $watchlistHydrator = new WatchlistHydrator($item, $this->request);
+            $serialized[] = $watchlistHydrator->toArray();
         }
 
         $data = [
@@ -136,24 +138,5 @@ class WatchlistController extends BaseController implements ClassResourceInterfa
         ];
 
         return $this->createApiResponse($data, 200);
-    }
-
-    private function serializeWatchlist(Watchlist $watchlist)
-    {
-        $user = $watchlist->getUser();
-        $documentary = $watchlist->getDocumentary();
-
-        return [
-            'user' => [
-                'username' => $user->getUsername(),
-                'name' => $user->getName()
-            ],
-            'documentary' => [
-                'title' => $documentary->getTitle(),
-                'slug' => $documentary->getSlug(),
-                'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPoster(),
-                'summary' => $documentary->getSummary()
-            ]
-        ];
     }
 }

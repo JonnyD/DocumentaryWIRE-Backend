@@ -10,6 +10,7 @@ use App\Enum\YesNo;
 use App\Form\CategoryForm;
 use App\Form\EmailForm;
 use App\Form\UnsubscribeEmailSubscriptionForm;
+use App\Hydrator\EmailHydrator;
 use App\Service\CategoryService;
 use App\Service\EmailService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -119,7 +120,8 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
             return $this->createApiResponse('Email not found', 404);
         }
 
-        $serialized = $this->serializeEmail($email);;
+        $emailHydrator = new EmailHydrator($email);
+        $serialized = $emailHydrator->toArray();
 
         return $this->createApiResponse($serialized, 200);
     }
@@ -154,8 +156,9 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
                 $email->setSubscribed(YesNo::YES);
                 $this->emailService->save($email);
 
-                $serialized = $this->serializeEmail($email);
-                return $this->createApiResponse($serialized, 200,);
+                $emailHydrator = new EmailHydrator($email);
+                $serialized = $emailHydrator->toArray();
+                return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
                 return $this->createApiResponse($errors, 400);
@@ -191,7 +194,8 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
                 $email->setSubscribed($subscribed);
                 $this->emailService->save($email);
 
-                $serialized = $this->serializeEmail($email);
+                $emailHydrator = new EmailHydrator($email);
+                $serialized = $emailHydrator->toArray();
                 return $this->createApiResponse($serialized, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -261,26 +265,10 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
         $serialized = [];
 
         foreach ($emails as $email) {
-            $serialized[] = $this->serializeEmail($email);
+            $emailHydrator = new EmailHydrator($email);
+            $serialized[] = $emailHydrator->toArray();
         }
 
         return $serialized;
-    }
-    /**
-     * @param Email $email
-     * @return array
-     */
-    private function serializeEmail(Email $email)
-    {
-        $serializedEmail = [
-            'id' => $email->getId(),
-            'email' => $email->getEmail(),
-            'subscribed' => $email->getSubscribed(),
-            'subscriptionKey' => $email->getSubscriptionKey(),
-            'createdAt' => $email->getCreatedAt(),
-            'updatedAt' => $email->getUpdatedAt()
-        ];
-
-        return $serializedEmail;
     }
 }

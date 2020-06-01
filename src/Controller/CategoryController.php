@@ -8,6 +8,7 @@ use App\Enum\CategoryOrderBy;
 use App\Enum\CategoryStatus;
 use App\Enum\Order;
 use App\Form\CategoryForm;
+use App\Hydrator\CategoryHydrator;
 use App\Service\CategoryService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -96,7 +97,8 @@ class CategoryController extends BaseController implements ClassResourceInterfac
             return $this->createApiResponse("Not authorixed", 403);
         }
 
-        $serialized = $this->serializeCategory($category);
+        $categoryHydrator = new CategoryHydrator($category);
+        $serialized = $categoryHydrator->toArray();
 
         return $this->createApiResponse($serialized, 200);
     }
@@ -127,7 +129,9 @@ class CategoryController extends BaseController implements ClassResourceInterfac
 
             if ($form->isValid()) {
                 $this->categoryService->save($category);
-                $serializedCategory = $this->serializeCategory($category);
+
+                $categoryHydrator = new CategoryHydrator($category);
+                $serializedCategory = $categoryHydrator->toArray();
                 return $this->createApiResponse($serializedCategory, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -145,27 +149,11 @@ class CategoryController extends BaseController implements ClassResourceInterfac
         $serialized = [];
 
         foreach ($categories as $category) {
-            $serializedCategory = $this->serializeCategory($category);
+            $categoryHydrator = new CategoryHydrator($category);
+            $serializedCategory = $categoryHydrator->toArray();
             $serialized[] = $serializedCategory;
         }
 
         return $serialized;
-    }
-
-    /**
-     * @param Category $category
-     * @return array
-     */
-    private function serializeCategory(Category $category)
-    {
-        $serializedCategory = [
-            'id' => $category->getId(),
-            'name' => $category->getName(),
-            'slug' => $category->getSlug(),
-            'status' => $category->getStatus(),
-            'documentaryCount' => $category->getDocumentaryCount()
-        ];
-
-        return $serializedCategory;
     }
 }

@@ -6,6 +6,7 @@ use App\Criteria\SubscriptionCriteria;
 use App\Entity\Subscription;
 use App\Entity\User;
 use App\Form\SubscriptionForm;
+use App\Hydrator\SubscriptionHydrator;
 use App\Service\SubscriptionService;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -184,7 +185,8 @@ class SubscriptionController extends BaseController implements ClassResourceInte
 
         $serialized = [];
         foreach ($items as $item) {
-            $serialized[] = $this->serializeSubscription($item);
+            $subscriptionHydrator = new SubscriptionHydrator($item);
+            $serialized[] = $subscriptionHydrator->toArray();
         }
 
         $data = [
@@ -231,26 +233,5 @@ class SubscriptionController extends BaseController implements ClassResourceInte
         }
 
         return $this->createApiResponse("Deleted", 200);
-    }
-
-    /**
-     * @param Subscription $subscription
-     * @return array
-     */
-    private function serializeSubscription(Subscription $subscription)
-    {
-        return [
-            'id' => $subscription->getId(),
-            'userFrom' => [
-                'id' => $subscription->getUserFrom()->getId(),
-                'username' => $subscription->getUserFrom()->getUsername()
-            ],
-            'userTo' => [
-                'id' => $subscription->getUserTo()->getId(),
-                'username' => $subscription->getUserTo()->getUsername()
-            ],
-            'createdAt' => $subscription->getCreatedAt(),
-            'updatedAt' => $subscription->getUpdatedAt()
-        ];
     }
 }
