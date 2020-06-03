@@ -2,14 +2,14 @@
 
 namespace App\Form;
 
-use App\Entity\Subscription;
+use App\Entity\Follow;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class SubscriptionForm extends AbstractType
+class FollowForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -28,12 +28,12 @@ class SubscriptionForm extends AbstractType
     {
         $resolver->setDefaults([
             'csrf_protection' => false,
-            'data_class' => Subscription::class,
+            'data_class' => Follow::class,
         ]);
     }
 
     public function getName()
     {
-        return "subscription";
+        return "follow";
     }
 }

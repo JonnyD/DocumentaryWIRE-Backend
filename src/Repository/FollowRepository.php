@@ -2,34 +2,34 @@
 
 namespace App\Repository;
 
-use App\Criteria\SubscriptionCriteria;
-use App\Entity\Subscription;
+use App\Criteria\FollowCriteria;
+use App\Entity\Follow;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 
-class SubscriptionRepository extends ServiceEntityRepository
+class FollowRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Subscription::class);
+        parent::__construct($registry, Follow::class);
     }
 
-    public function findSubscriptionByCriteriaQueryBuilder(SubscriptionCriteria $criteria)
+    public function findFollowByCriteriaQueryBuilder(FollowCriteria $criteria)
     {
         $em = $this->getEntityManager();
         $qb = $em->createQueryBuilder();
 
-        $qb->select('subscription')
-            ->from('App\Entity\Subscription', 'subscription');
+        $qb->select('follow')
+            ->from('App\Entity\Follow', 'follow');
 
         if ($criteria->getFrom()) {
-            $qb->andWhere('subscription.userFrom = :from')
+            $qb->andWhere('follow.userFrom = :from')
                 ->setParameter('from', $criteria->getFrom());
         }
 
         if ($criteria->getTo()) {
-            $qb->andWhere('subscription.userTo = :to')
+            $qb->andWhere('follow.userTo = :to')
                 ->setParameter('to', $criteria->getTo());
         }
 
@@ -47,12 +47,12 @@ class SubscriptionRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param SubscriptionCriteria $criteria
-     * @return ArrayCollection|Subscription[]
+     * @param FollowCriteria $criteria
+     * @return ArrayCollection|Follow[]
      */
-    public function findSubscriptionsByCriteria(SubscriptionCriteria $criteria)
+    public function findSubscriptionsByCriteria(FollowCriteria $criteria)
     {
-        $qb = $this->findSubscriptionByCriteriaQueryBuilder($criteria);
+        $qb = $this->findFollowByCriteriaQueryBuilder($criteria);
 
         $query = $qb->getQuery();
         $query->useResultCache(true, 3600, 'my_region')
@@ -63,13 +63,13 @@ class SubscriptionRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param SubscriptionCriteria $criteria
-     * @return Subscription
+     * @param FollowCriteria $criteria
+     * @return Follow
      */
-    public function findSubscriptionByCriteria(SubscriptionCriteria $criteria)
+    public function findFollowByCriteria(FollowCriteria $criteria)
     {
         $criteria->setLimit(1);
-        $qb = $this->findSubscriptionByCriteriaQueryBuilder($criteria);
+        $qb = $this->findFollowByCriteriaQueryBuilder($criteria);
 
         $query = $qb->getQuery();
         $result = $query->getOneOrNullResult();
@@ -78,13 +78,13 @@ class SubscriptionRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param Subscription $subscription
+     * @param Follow $follow
      * @param bool $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Subscription $subscription, bool $sync = true)
+    public function save(Follow $follow, bool $sync = true)
     {
-        $this->getEntityManager()->persist($subscription);
+        $this->getEntityManager()->persist($follow);
         if ($sync) {
             $this->flush();
         }
@@ -96,12 +96,12 @@ class SubscriptionRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param Subscription $subscription
+     * @param Follow $follow
      * @throws \Doctrine\ORM\ORMException
      */
-    public function remove(Subscription $subscription)
+    public function remove(Follow $follow)
     {
-        $this->getEntityManager()->remove($subscription);
+        $this->getEntityManager()->remove($follow);
         $this->flush();
     }
 }

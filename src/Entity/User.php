@@ -132,14 +132,14 @@ class User extends BaseUser
     private $documentaries;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Subscription", mappedBy="userFrom", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Follow", mappedBy="userFrom", orphanRemoval=true)
      */
-    private $subscribedFrom;
+    private $followFrom;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Subscription", mappedBy="userTo", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Follow", mappedBy="userTo", orphanRemoval=true)
      */
-    private $subscribedTo;
+    private $followTo;
 
     public function __construct()
     {
@@ -148,8 +148,8 @@ class User extends BaseUser
         $this->activities = new ArrayCollection();
         $this->socialAccounts = new ArrayCollection();
         $this->documentaries = new ArrayCollection();
-        $this->subscribedFrom = new ArrayCollection();
-        $this->subscribedTo = new ArrayCollection();
+        $this->followFrom = new ArrayCollection();
+        $this->followTo = new ArrayCollection();
         $this->enabled = false;
     }
 
@@ -441,30 +441,38 @@ class User extends BaseUser
     }
 
     /**
-     * @return Collection|Subscription[]
+     * @return Collection|Follow[]
      */
-    public function getSubscribedFrom(): Collection
+    public function getFollowFrom(): Collection
     {
-        return $this->subscribedFrom;
+        return $this->followFrom;
     }
 
-    public function addSubscribedFrom(Subscription $subscribedFrom): self
+    /**
+     * @param Follow $followFrom
+     * @return User
+     */
+    public function addFollowFrom(Follow $followFrom): self
     {
-        if (!$this->subscribedFrom->contains($subscribedFrom)) {
-            $this->subscribedFrom[] = $subscribedFrom;
-            $subscribedFrom->setUserFrom($this);
+        if (!$this->followFrom->contains($followFrom)) {
+            $this->followFrom[] = $followFrom;
+            $followFrom->setUserFrom($this);
         }
 
         return $this;
     }
 
-    public function removeSubscribedFrom(Subscription $subscribedFrom): self
+    /**
+     * @param Follow $followFrom
+     * @return User
+     */
+    public function removeFollowFrom(Follow $followFrom): self
     {
-        if ($this->subscribedFrom->contains($subscribedFrom)) {
-            $this->subscribedFrom->removeElement($subscribedFrom);
+        if ($this->followFrom->contains($followFrom)) {
+            $this->subscribedFrom->removeElement($followFrom);
             // set the owning side to null (unless already changed)
-            if ($subscribedFrom->getUserFrom() === $this) {
-                $subscribedFrom->setUserFrom(null);
+            if ($followFrom->getUserFrom() === $this) {
+                $followFrom->setUserFrom(null);
             }
         }
 
@@ -472,30 +480,38 @@ class User extends BaseUser
     }
 
     /**
-     * @return Collection|Subscription[]
+     * @return Collection|Follow[]
      */
-    public function getSubscribedTo(): Collection
+    public function getFollowTo(): Collection
     {
-        return $this->subscribedTo;
+        return $this->followTo;
     }
 
-    public function addSubcribedTo(Subscription $subscribedTo): self
+    /**
+     * @param Follow $followTo
+     * @return User
+     */
+    public function addFollowTo(Follow $followTo): self
     {
-        if (!$this->subscribedTo->contains($subscribedTo)) {
-            $this->subscribedTo[] = $subscribedTo;
-            $subscribedTo->setUserTo($this);
+        if (!$this->followTo->contains($followTo)) {
+            $this->followTo[] = $followTo;
+            $followTo->setUserTo($this);
         }
 
         return $this;
     }
 
-    public function removeSubcribedTo(Subscription $subcribedTo): self
+    /**
+     * @param Follow $followTo
+     * @return User
+     */
+    public function removeFollowTo(Follow $followTo): self
     {
-        if ($this->subcribedTo->contains($subcribedTo)) {
-            $this->subcribedTo->removeElement($subcribedTo);
+        if ($this->followTo->contains($followTo)) {
+            $this->followTo->removeElement($followTo);
             // set the owning side to null (unless already changed)
-            if ($subcribedTo->getUserTo() === $this) {
-                $subcribedTo->setUserTo(null);
+            if ($followTo->getUserTo() === $this) {
+                $followTo->setUserTo(null);
             }
         }
 

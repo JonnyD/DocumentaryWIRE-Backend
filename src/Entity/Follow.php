@@ -7,10 +7,10 @@ use App\Traits\Timestampable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\SubscriptionRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\FollowRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class Subscription
+class Follow
 {
 
     use Timestampable;
@@ -44,11 +44,18 @@ class Subscription
         return $this->id;
     }
 
+    /**
+     * @return User|null
+     */
     public function getUserFrom(): ?User
     {
         return $this->userFrom;
     }
 
+    /**
+     * @param User|null $userFrom
+     * @return Follow
+     */
     public function setUserFrom(?User $userFrom): self
     {
         $this->userFrom = $userFrom;
@@ -56,11 +63,18 @@ class Subscription
         return $this;
     }
 
+    /**
+     * @return User|null
+     */
     public function getUserTo(): ?User
     {
         return $this->userTo;
     }
 
+    /**
+     * @param User|null $userTo
+     * @return Follow
+     */
     public function setUserTo(?User $userTo): self
     {
         $this->userTo = $userTo;

@@ -61,10 +61,10 @@ api_watchlist:
   prefix:   api/v1
   resource: App\Controller\WatchlistController
 
-api_subscription:
+api_follow:
   type:     rest
   prefix:   api/v1
-  resource: App\Controller\SubscriptionController
+  resource: App\Controller\FollowController
 
 api_omdb:
   type:     rest

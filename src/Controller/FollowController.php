@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
-use App\Criteria\SubscriptionCriteria;
-use App\Entity\Subscription;
+use App\Criteria\FollowCriteria;
+use App\Entity\Follow;
 use App\Entity\User;
-use App\Form\SubscriptionForm;
-use App\Hydrator\SubscriptionHydrator;
-use App\Service\SubscriptionService;
+use App\Form\FollowForm;
+use App\Hydrator\FollowHydrator;
+use App\Service\FollowService;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -20,12 +20,12 @@ use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class SubscriptionController extends BaseController implements ClassResourceInterface
+class FollowController extends BaseController implements ClassResourceInterface
 {
     /**
-     * @var SubscriptionService
+     * @var FollowService
      */
-    private $subscriptionService;
+    private $followService;
 
     /**
      * @var UserService
@@ -38,54 +38,55 @@ class SubscriptionController extends BaseController implements ClassResourceInte
     private $tokenStorage;
 
     /**
-     * @param SubscriptionService $subscriptionService
+     * @param FollowService $followService
      * @param UserService $userService
      * @param TokenStorageInterface $tokenStorage
      */
     public function __construct(
-        SubscriptionService $subscriptionService,
+        FollowService $followService,
         UserService $userService,
         TokenStorageInterface $tokenStorage)
     {
-        $this->subscriptionService = $subscriptionService;
+        $this->followService = $followService;
         $this->userService = $userService;
         $this->tokenStorage = $tokenStorage;
     }
 
     /**
-     * @FOSRest\Get("/subscription/{id}", name="get_subscription", options={ "method_prefix" = false })
+     * @FOSRest\Get("/follow/{id}", name="get_follow", options={ "method_prefix" = false })
      *
      * @param int $id
      * @return JsonResponse|null
      */
-    public function getSubscriptionAction(int $id)
+    public function getFollowAction(int $id)
     {
-        $subscription = $this->subscriptionService->getSubscriptionById($id);
-        if ($subscription == null) {
-            return $this->createApiResponse('Subscription not found', 404);
+        $follow = $this->followService->getFollowById($id);
+        if ($follow == null) {
+            return $this->createApiResponse('Follow not found', 404);
         }
 
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
-        $isOwner = $this->isLoggedIn() && $this->getLoggedInUser()->getId() === $subscription->getUserFrom()->getId();
+        $isOwner = $this->isLoggedIn() && $this->getLoggedInUser()->getId() === $follow->getUserFrom()->getId();
         if (!$isRoleAdmin && !$isOwner) {
             return $this->createApiResponse('Not authorized', 401);
         }
 
-        $serialized = $this->serializeSubscription($subscription);
+        $followHydrator = new FollowHydrator($follow);
+        $serialized = $followHydrator->toArray();
         return $this->createApiResponse($serialized, 200);
     }
 
     /**
-     * @FOSRest\Post("/subscription", name="create_subscription", options={ "method_prefix" = false })
+     * @FOSRest\Post("/follow", name="create_follow", options={ "method_prefix" = false })
      *
      * @param Request $request
      * @return JsonResponse
      */
-    public function createSubscriptionAction(Request $request)
+    public function createFollowAction(Request $request)
     {
-        $subscription = new Subscription();
+        $follow = new Follow();
 
-        $form = $this->createForm(SubscriptionForm::class, $subscription);
+        $form = $this->createForm(FollowForm::class, $follow); //@TODO
         $form->handleRequest($request);
 
         if ($request->isMethod('POST')) {
@@ -118,19 +119,21 @@ class SubscriptionController extends BaseController implements ClassResourceInte
                 }
             }
 
-            $criteria = new SubscriptionCriteria();
+            $criteria = new FollowCriteria();
             $criteria->setFrom($userFrom);
             $criteria->setTo($userTo);
 
-            $existingSubscription = $this->subscriptionService->getSubscriptionByCriteria($criteria);
-            if ($existingSubscription) {
-                $form->addError(new FormError("Subscription already exists"));
+            $existingFollow = $this->followService->getFollowByCriteria($criteria);
+            if ($existingFollow) {
+                $form->addError(new FormError("Follow already exists"));
             }
 
             if ($form->isSubmitted() && $form->isValid()) {
-                $this->subscriptionService->save($subscription);
-                $subscription = $this->serializeSubscription($subscription);
-                return $this->createApiResponse($subscription, 200);
+                $this->followService->save($follow);
+
+                $followHydrator = new FollowHydrator($follow);
+                $follow = $followHydrator->toArray();
+                return $this->createApiResponse($follow, 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
                 return $this->createApiResponse($errors, 200,);
@@ -139,7 +142,7 @@ class SubscriptionController extends BaseController implements ClassResourceInte
     }
 
     /**
-     * @FOSRest\Get("/subscription", name="get_subscription_list", options={ "method_prefix" = false })
+     * @FOSRest\Get("/follow", name="get_follow_list", options={ "method_prefix" = false })
      *
      * @param Request $request
      * @throws \Doctrine\ORM\ORMException
@@ -151,7 +154,7 @@ class SubscriptionController extends BaseController implements ClassResourceInte
         $userFromId = $request->query->get('from');
         $userToId = $request->query->get('to');
 
-        $criteria = new SubscriptionCriteria();
+        $criteria = new FollowCriteria();
 
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
         if (!$isRoleAdmin && !isset($userFromId) && !isset($userToId)) {
@@ -174,7 +177,7 @@ class SubscriptionController extends BaseController implements ClassResourceInte
             $criteria->setTo($user);
         }
 
-        $qb = $this->subscriptionService->getSubscriptionsByCriteriaQueryBuilder($criteria);
+        $qb = $this->followService->getFollowsByCriteriaQueryBuilder($criteria);
 
         $adapter = new DoctrineORMAdapter($qb, false);
         $pagerfanta = new Pagerfanta($adapter);
@@ -185,8 +188,8 @@ class SubscriptionController extends BaseController implements ClassResourceInte
 
         $serialized = [];
         foreach ($items as $item) {
-            $subscriptionHydrator = new SubscriptionHydrator($item);
-            $serialized[] = $subscriptionHydrator->toArray();
+            $followHydrator = new FollowHydrator($item);
+            $serialized[] = $followHydrator->toArray();
         }
 
         $data = [
@@ -203,33 +206,33 @@ class SubscriptionController extends BaseController implements ClassResourceInte
     }
 
     /**
-     * @FOSRest\Delete("/subscription/{id}", name="delete_subscription", options={ "method_prefix" = false })
+     * @FOSRest\Delete("/follow/{id}", name="delete_follow", options={ "method_prefix" = false })
      *
      * @param int $id
      * @return JsonResponse|null
      */
-    public function removeSubscriptionAction(int $id)
+    public function removeFollowAction(int $id)
     {
         if (!$this->isLoggedIn()) {
             return $this->createApiResponse('Not authorized', 401);
         }
 
-        $subscription = $this->subscriptionService->getSubscriptionById($id);
-        if (!$subscription) {
-            return $this->createApiResponse('Subscription does not exist', 404);
+        $follow = $this->followService->getFollowById($id);
+        if (!$follow) {
+            return $this->createApiResponse('Follow does not exist', 404);
         }
 
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
         $loggedInUser = $this->getLoggedInUser();
-        $userFrom = $subscription->getUserFrom();
+        $userFrom = $follow->getUserFrom();
 
         $isLoggedInUserEqualsUserFrom = $loggedInUser->getId() === $userFrom->getId();
         if (!$isLoggedInUserEqualsUserFrom && !$isRoleAdmin) {
-            return $this->createApiResponse('You are not allowed to change this subscription', 401);
+            return $this->createApiResponse('You are not allowed to change this follow', 401);
         }
 
         if ($isLoggedInUserEqualsUserFrom  || $isRoleAdmin) {
-            $this->subscriptionService->remove($subscription);
+            $this->followService->remove($follow);
         }
 
         return $this->createApiResponse("Deleted", 200);

@@ -2,7 +2,7 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Subscription;
+use App\Entity\Follow;
 use App\Entity\User;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -40,23 +40,23 @@ class SubscriptionFixtures extends Fixture implements DependentFixtureInterface
     /**
      * @param User $userFrom
      * @param User $userTo
-     * @return Subscription
+     * @return Follow
      */
     private function createSubscription(
         User $userFrom,
         User $userTo
     )
     {
-        $subscription = new Subscription();
+        $subscription = new Follow();
         $subscription->setUserFrom($userFrom);
         $subscription->setUserTo($userTo);
         return $subscription;
     }
 
     /**
-     * @param Subscription $subscription
+     * @param Follow $subscription
      */
-    private function createReference(Subscription $subscription)
+    private function createReference(Follow $subscription)
     {
         $this->addReference('subscription.'.$subscription->getUserFrom()->getUsername().'&'.$subscription->getUserTo()->getUsername(), $subscription);
     }

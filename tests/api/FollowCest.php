@@ -1,22 +1,22 @@
 <?php 
 
-class SubscriptionCest
+class FollowCest
 {
     public function _before(ApiTester $I)
     {
     }
 
-    public function getSubscriptionSubscriptionDoesNotExistAsGuest(ApiTester $I)
+    public function getFollowDoesNotExistAsGuest(ApiTester $I)
     {
-        $I->sendGET('api/v1/subscription/9999999');
+        $I->sendGET('api/v1/follow/9999999');
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::NOT_FOUND);
-        $I->seeResponseContains('Subscription not found');
+        $I->seeResponseContains('Follow not found');
     }
 
-    public function getSubscriptionAsGuest(ApiTester $I)
+    public function getFollowAsGuest(ApiTester $I)
     {
         $userClass = \App\Entity\User::class;
-        $subscriptionClass = \App\Entity\Subscription::class;
+        $followClass = \App\Entity\Follow::class;
 
         /** @var \App\Entity\User $userFrom */
         $userFrom = $I->grabEntityFromRepository($userClass, [
@@ -27,18 +27,18 @@ class SubscriptionCest
             'username' => 'user2'
         ]);
 
-        /** @var \App\Entity\Subscription $subscription */
-        $subscription = $I->grabEntityFromRepository($subscriptionClass, [
+        /** @var \App\Entity\Follow $follow */
+        $follow = $I->grabEntityFromRepository($followClass, [
             'userFrom' => $userFrom,
             'userTo' => $userTo
         ]);
 
-        $I->sendGET('api/v1/subscription/' . $subscription->getId());
+        $I->sendGET('api/v1/follow/' . $follow->getId());
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::UNAUTHORIZED);
         $I->seeResponseContains('Not authorized');
     }
 
-    public function getSubscriptionAsOwner(ApiTester $I)
+    public function getFollowAsOwner(ApiTester $I)
     {
         $username = 'user2';
         $password = 'password';
@@ -62,8 +62,9 @@ class SubscriptionCest
         $response = json_decode($I->grabResponse(), true);
         $accessToken = $response['access_token'];
         $I->amBearerAuthenticated($accessToken);
+
         $userClass = \App\Entity\User::class;
-        $subscriptionClass = \App\Entity\Subscription::class;
+        $followClass = \App\Entity\Follow::class;
 
         /** @var \App\Entity\User $userFrom */
         $userFrom = $I->grabEntityFromRepository($userClass, [
@@ -74,13 +75,13 @@ class SubscriptionCest
             'username' => 'user1'
         ]);
 
-        /** @var \App\Entity\Subscription $subscription */
-        $subscription = $I->grabEntityFromRepository($subscriptionClass, [
+        /** @var \App\Entity\Follow $follow */
+        $follow = $I->grabEntityFromRepository($followClass, [
             'userFrom' => $userFrom,
             'userTo' => $userTo
         ]);
 
-        $I->sendGET('api/v1/subscription/' . $subscription->getId());
+        $I->sendGET('api/v1/follow/' . $follow->getId());
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
 
         $expectedResponse = [
@@ -95,7 +96,7 @@ class SubscriptionCest
     }
 
 
-    public function getSubscriptionAsAdmin(ApiTester $I)
+    public function getFollowAsAdmin(ApiTester $I)
     {
         $username = 'user1';
         $password = 'password';
@@ -121,7 +122,7 @@ class SubscriptionCest
         $I->amBearerAuthenticated($accessToken);
 
         $userClass = \App\Entity\User::class;
-        $subscriptionClass = \App\Entity\Subscription::class;
+        $followClass = \App\Entity\Follow::class;
 
         /** @var \App\Entity\User $userFrom */
         $userFrom = $I->grabEntityFromRepository($userClass, [
@@ -135,13 +136,13 @@ class SubscriptionCest
         $I->assertEquals('user2', $userFrom->getUsername());
         $I->assertEquals('user1', $userTo->getUsername());
 
-        /** @var \App\Entity\Subscription $subscription */
-        $subscription = $I->grabEntityFromRepository($subscriptionClass, [
+        /** @var \App\Entity\Follow $follow */
+        $follow = $I->grabEntityFromRepository($followClass, [
             'userFrom' => $userFrom,
             'userTo' => $userTo
         ]);
 
-        $I->sendGET('api/v1/subscription/' . $subscription->getId());
+        $I->sendGET('api/v1/follow/' . $follow->getId());
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
 
         $expectedResponse = [
@@ -155,11 +156,11 @@ class SubscriptionCest
         $I->seeResponseContainsJson($expectedResponse);
     }
 
-    public function createSubscriptionAsGuest(ApiTester $I)
+    public function createFollowAsGuest(ApiTester $I)
     {
         $data = [];
 
-        $I->sendPOST('api/v1/subscription', $data);
+        $I->sendPOST('api/v1/follow', $data);
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::UNAUTHORIZED);
 
         $expectedResponse = [
@@ -169,7 +170,7 @@ class SubscriptionCest
         $I->seeResponseContainsJson($expectedResponse);
     }
 
-    public function createSubscriptionAsOwner(ApiTester $I)
+    public function createFollowAsOwner(ApiTester $I)
     {
         $username = 'user2';
         $password = 'password';
@@ -209,7 +210,7 @@ class SubscriptionCest
             'userTo' => $userTo->getId()
         ];
 
-        $I->sendPOST('api/v1/subscription', json_encode($data));
+        $I->sendPOST('api/v1/follow', json_encode($data));
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
 
         $expectedResponse = [
@@ -223,7 +224,7 @@ class SubscriptionCest
         $I->seeResponseContainsJson($expectedResponse);
     }
 
-    public function createSubscriptionAsNotOwner(ApiTester $I)
+    public function createFollowAsNotOwner(ApiTester $I)
     {
         $username = 'user2';
         $password = 'password';
@@ -263,12 +264,12 @@ class SubscriptionCest
             'userTo' => $userTo->getId()
         ];
 
-        $I->sendPOST('api/v1/subscription', json_encode($data));
+        $I->sendPOST('api/v1/follow', json_encode($data));
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
         $I->seeResponseContains('Unauthorized');
     }
 
-    public function createSubscriptionAsAdmin(ApiTester $I)
+    public function createFollowAsAdmin(ApiTester $I)
     {
         $username = 'user1';
         $password = 'password';
@@ -308,7 +309,7 @@ class SubscriptionCest
             'userTo' => $userTo->getId()
         ];
 
-        $I->sendPOST('api/v1/subscription', json_encode($data));
+        $I->sendPOST('api/v1/follow', json_encode($data));
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
 
         $expectedResponse = [
@@ -322,14 +323,14 @@ class SubscriptionCest
         $I->seeResponseContainsJson($expectedResponse);
     }
 
-    public function listSubscriptionsAsGuest(ApiTester $I)
+    public function listFollowsAsGuest(ApiTester $I)
     {
-        $I->sendGET('api/v1/subscription');
+        $I->sendGET('api/v1/follow');
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::UNAUTHORIZED);
         $I->seeResponseContains('You must set either a User From or User To');
     }
 
-    public function listSubscriptionWithUserFromId(ApiTester $I)
+    public function listFollowWithUserFromId(ApiTester $I)
     {
         $userClass = \App\Entity\User::class;
         /** @var \App\Entity\User $userFrom */
@@ -337,7 +338,7 @@ class SubscriptionCest
             'username' => 'user1'
         ]);
 
-        $I->sendGET('api/v1/subscription?from=' . $userFrom->getId());
+        $I->sendGET('api/v1/follow?from=' . $userFrom->getId());
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
 
         $expectedResponse = [
@@ -363,7 +364,7 @@ class SubscriptionCest
         $I->seeResponseContainsJson($expectedResponse);
     }
 
-    public function listSubscriptionWithUserToId(ApiTester $I)
+    public function listFollowWithUserToId(ApiTester $I)
     {
         $userClass = \App\Entity\User::class;
         /** @var \App\Entity\User $userFrom */
@@ -371,7 +372,7 @@ class SubscriptionCest
             'username' => 'user2'
         ]);
 
-        $I->sendGET('api/v1/subscription?to=' . $userTo->getId());
+        $I->sendGET('api/v1/follow?to=' . $userTo->getId());
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
 
         $expectedResponse = [
@@ -389,7 +390,7 @@ class SubscriptionCest
         $I->seeResponseContainsJson($expectedResponse);
     }
 
-    public function listSubscriptionWithUserFromAndUserToId(ApiTester $I)
+    public function listFollowWithUserFromAndUserToId(ApiTester $I)
     {
         $userClass = \App\Entity\User::class;
         /** @var \App\Entity\User $userFrom */
@@ -401,7 +402,7 @@ class SubscriptionCest
             'username' => 'user2'
         ]);
 
-        $I->sendGET('api/v1/subscription?from=' . $userFrom->getId() . '&to=' . $userTo->getId());
+        $I->sendGET('api/v1/follow?from=' . $userFrom->getId() . '&to=' . $userTo->getId());
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
 
         $expectedResponse = [
@@ -419,7 +420,7 @@ class SubscriptionCest
         $I->seeResponseContainsJson($expectedResponse);
     }
 
-    public function listSubscriptionsAsAdmin(ApiTester $I)
+    public function listFollowsAsAdmin(ApiTester $I)
     {
         $username = 'user1';
         $password = 'password';
@@ -444,7 +445,7 @@ class SubscriptionCest
         $accessToken = $response['access_token'];
         $I->amBearerAuthenticated($accessToken);
 
-        $I->sendGET('api/v1/subscription');
+        $I->sendGET('api/v1/follow');
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
 
         $expectedResponse = [
@@ -502,9 +503,9 @@ class SubscriptionCest
         $I->seeResponseContainsJson($expectedResponse);
     }
 
-    public function removeSubscriptionAsGuest(ApiTester $I)
+    public function removeFollowAsGuest(ApiTester $I)
     {
-        $I->sendDELETE('api/v1/subscription/1');
+        $I->sendDELETE('api/v1/follow/1');
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::UNAUTHORIZED);
         $expectedResponse = [
             'error' => 'access_denied',
@@ -513,7 +514,7 @@ class SubscriptionCest
         $I->seeResponseContainsJson($expectedResponse);
     }
 
-    public function removeSubscriptionWhichDoesNotExistAsLoggedInUser(ApiTester $I)
+    public function removeFollowWhichDoesNotExistAsLoggedInUser(ApiTester $I)
     {
         $username = 'user2';
         $password = 'password';
@@ -538,12 +539,14 @@ class SubscriptionCest
         $accessToken = $response['access_token'];
         $I->amBearerAuthenticated($accessToken);
 
-        $I->sendDELETE('api/v1/subscription/999999999');
+        //@TODO check first is owner
+
+        $I->sendDELETE('api/v1/follow/999999999');
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::NOT_FOUND);
-        $I->seeResponseContains('Subscription does not exist');
+        $I->seeResponseContains('Follow does not exist');
     }
 
-    public function removeSubscriptionWithWrongUser(ApiTester $I)
+    public function removeFollowWithWrongUser(ApiTester $I)
     {
         $username = 'user2';
         $password = 'password';
@@ -578,19 +581,19 @@ class SubscriptionCest
             'username' => 'user3'
         ]);
 
-        $subscriptionClass = \App\Entity\Subscription::class;
-        /** @var \App\Entity\Subscription $subscription */
-        $subscription = $I->grabEntityFromRepository($subscriptionClass, [
+        $followClass = \App\Entity\Follow::class;
+        /** @var \App\Entity\Follow $follow */
+        $follow = $I->grabEntityFromRepository($followClass, [
             'userFrom' => $userFrom,
             'userTo' => $userTo
         ]);
 
-        $I->sendDELETE('api/v1/subscription/' . $subscription->getId());
+        $I->sendDELETE('api/v1/follow/' . $follow->getId());
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::UNAUTHORIZED);
-        $I->seeResponseContains('You are not allowed to change this subscription');
+        $I->seeResponseContains('You are not allowed to change this follow');
     }
 
-    public function removeSubscriptionWithCorrectUser(ApiTester $I)
+    public function removeFollowWithCorrectUser(ApiTester $I)
     {
         $username = 'user2';
         $password = 'password';
@@ -625,14 +628,14 @@ class SubscriptionCest
             'username' => 'user1'
         ]);
 
-        $subscriptionClass = \App\Entity\Subscription::class;
-        /** @var \App\Entity\Subscription $subscription */
-        $subscription = $I->grabEntityFromRepository($subscriptionClass, [
+        $followClass = \App\Entity\Follow::class;
+        /** @var \App\Entity\Follow $follow */
+        $follow = $I->grabEntityFromRepository($followClass, [
             'userFrom' => $userFrom,
             'userTo' => $userTo
         ]);
 
-        $I->sendDELETE('api/v1/subscription/' . $subscription->getId());
+        $I->sendDELETE('api/v1/follow/' . $follow->getId());
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
         $I->seeResponseContains('Deleted');
 
@@ -640,7 +643,7 @@ class SubscriptionCest
             'userFrom' => $userFrom->getId(),
             'userTo' => $userTo->getId()
         ];
-        $I->sendPOST('api/v1/subscription', json_encode($data));
+        $I->sendPOST('api/v1/follow', json_encode($data));
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
 
         $expectedResponse = [
@@ -654,7 +657,7 @@ class SubscriptionCest
         $I->seeResponseContainsJson($expectedResponse);
     }
 
-    public function removeSubscriptionWithWrongUserAsAdmin(ApiTester $I)
+    public function removeFollowWithWrongUserAsAdmin(ApiTester $I)
     {
         $username = 'user1';
         $password = 'password';
@@ -689,14 +692,14 @@ class SubscriptionCest
             'username' => 'user1'
         ]);
 
-        $subscriptionClass = \App\Entity\Subscription::class;
-        /** @var \App\Entity\Subscription $subscription */
-        $subscription = $I->grabEntityFromRepository($subscriptionClass, [
+        $followClass = \App\Entity\Follow::class;
+        /** @var \App\Entity\Follow $follow */
+        $follow = $I->grabEntityFromRepository($followClass, [
             'userFrom' => $userFrom,
             'userTo' => $userTo
         ]);
 
-        $I->sendDELETE('api/v1/subscription/' . $subscription->getId());
+        $I->sendDELETE('api/v1/follow/' . $follow->getId());
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
         $I->seeResponseContains('Deleted');
 
@@ -704,7 +707,7 @@ class SubscriptionCest
             'userFrom' => $userFrom->getId(),
             'userTo' => $userTo->getId()
         ];
-        $I->sendPOST('api/v1/subscription', json_encode($data));
+        $I->sendPOST('api/v1/follow', json_encode($data));
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
 
         $expectedResponse = [

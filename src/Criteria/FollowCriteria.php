@@ -4,7 +4,7 @@ namespace App\Criteria;
 
 use App\Entity\User;
 
-class SubscriptionCriteria
+class FollowCriteria
 {
     /**
      * @var User

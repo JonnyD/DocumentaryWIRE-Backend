@@ -177,16 +177,16 @@ security:
             stateless:  false
             anonymous: true
 #
-        api_public_subscription:
+        api_public_follow:
             methods: [GET]
-            pattern: ^/api/v1/subscription
+            pattern: ^/api/v1/follow
             fos_oauth:  true
             stateless:  false
             anonymous: true
 
-        api_subscription:
+        api_follow:
             methods: [PUT, POST, PATCH, DELETE]
-            pattern:    ^/api/v1/subscription
+            pattern:    ^/api/v1/follow
             fos_oauth:  true
             stateless:  false
 
