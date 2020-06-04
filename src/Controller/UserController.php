@@ -128,7 +128,8 @@ class UserController extends BaseController implements ClassResourceInterface
             }
 
             $usernameAlreadyExists = $this->userManager->findUserByUsername($username);
-            if ($usernameAlreadyExists) {
+            $isUsernameEqualToMe = $username == "me";
+            if ($usernameAlreadyExists || $isUsernameEqualToMe) {
                 return $this->createApiResponse("Username ".$username." already exists", 200);
             }
 
