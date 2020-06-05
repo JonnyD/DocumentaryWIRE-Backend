@@ -128,7 +128,7 @@ class UserController extends BaseController implements ClassResourceInterface
             }
 
             $usernameAlreadyExists = $this->userManager->findUserByUsername($username);
-            $isUsernameEqualToMe = $username == "me";
+            $isUsernameEqualToMe = $username === "me";
             if ($usernameAlreadyExists || $isUsernameEqualToMe) {
                 return $this->createApiResponse("Username ".$username." already exists", 200);
             }
@@ -152,8 +152,8 @@ class UserController extends BaseController implements ClassResourceInterface
             $userHydrator = new UserHydrator(
                 $user,
                 $this->request,
-                $this->getLoggedInUser(),
-                $this->isGranted("ROLE_ADMIN")
+                $this->isGranted("ROLE_ADMIN"),
+                $this->getLoggedInUser()
             );
             $serialized = $userHydrator->toArray();
             return $this->createApiResponse($serialized, 200);
@@ -178,8 +178,8 @@ class UserController extends BaseController implements ClassResourceInterface
         $userHydrator = new UserHydrator(
             $loggedInUser,
             $this->request,
-            $this->getLoggedInUser(),
-            $this->isGranted("ROLE_ADMIN")
+            $this->isGranted("ROLE_ADMIN"),
+            $loggedInUser
         );
         $data = $userHydrator->toArray();
         return $this->createApiResponse($data, 200);
@@ -403,14 +403,13 @@ class UserController extends BaseController implements ClassResourceInterface
         $pagerfanta->setCurrentPage($page);
 
         $items = (array) $pagerfanta->getCurrentPageResults();
-
         $serialized = [];
         foreach ($items as $item) {
             $userHydrator = new UserHydrator(
                 $item,
                 $this->request,
-                $this->getLoggedInUser(),
-                $this->isGranted("ROLE_ADMIN")
+                $isRoleAdmin,
+                $this->getLoggedInUser()
             );
             $serialized[] = $userHydrator->toArray();
         }
@@ -444,8 +443,8 @@ class UserController extends BaseController implements ClassResourceInterface
             $userHydrator = new UserHydrator(
                 $user,
                 $this->request,
-                $this->getLoggedInUser(),
-                $this->isGranted("ROLE_ADMIN")
+                $this->isGranted("ROLE_ADMIN"),
+                $this->getLoggedInUser()
             );
             $data = $userHydrator->toArray();
             return $this->createApiResponse($data, 200);
@@ -500,8 +499,8 @@ class UserController extends BaseController implements ClassResourceInterface
                 $userHydrator = new UserHydrator(
                     $user,
                     $this->request,
-                    $this->getLoggedInUser(),
-                    $this->isGranted("ROLE_ADMIN")
+                    $this->isGranted("ROLE_ADMIN"),
+                    $loggedInUser
                 );
                 $serialized = $userHydrator->toArray();
                 return $this->createApiResponse($serialized, 200);
@@ -568,8 +567,8 @@ class UserController extends BaseController implements ClassResourceInterface
                     $userHydrator = new UserHydrator(
                         $user,
                         $this->request,
-                        $this->getLoggedInUser(),
-                        $this->isGranted("ROLE_ADMIN")
+                        $this->isGranted("ROLE_ADMIN"),
+                        $loggedInUser
                     );
                     $serialized = $userHydrator->toArray();
                     return $this->createApiResponse($serialized, 200);

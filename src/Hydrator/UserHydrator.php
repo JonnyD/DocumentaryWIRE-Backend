@@ -36,8 +36,8 @@ class UserHydrator implements HydratorInterface
     public function __construct(
         User $user,
         Request $request,
-        User $loggedInUser,
-        string $isRoleAdmin)
+        string $isRoleAdmin,
+        User $loggedInUser = null)
     {
         $this->user = $user;
         $this->request = $request;
