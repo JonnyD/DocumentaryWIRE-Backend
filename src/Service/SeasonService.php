@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Season;
+use App\Enum\Sync;
 use App\Repository\SeasonRepository;
 
 class SeasonService
@@ -19,7 +20,12 @@ class SeasonService
         $this->seasonRepository = $seasonRepository;
     }
 
-    public function save(Season $season, $sync = true)
+    /**
+     * @param Season $season
+     * @param string $sync
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function save(Season $season, string $sync = Sync::YES)
     {
         if ($season->getCreatedAt() == null) {
             $season->setCreatedAt(new \DateTime());

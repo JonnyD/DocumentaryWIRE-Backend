@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Criteria\VideoSourceCriteria;
 use App\Entity\VideoSource;
+use App\Enum\Sync;
 use App\Repository\VideoSourceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -50,11 +51,11 @@ class VideoSourceService
 
     /**
      * @param VideoSource $videoSource
-     * @param bool $sync
+     * @param string $sync
      * @return VideoSource|null
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(VideoSource $videoSource, bool $sync = true)
+    public function save(VideoSource $videoSource, string $sync = Sync::YES)
     {
         if ($videoSource->getCreatedAt() == null) {
             $videoSource->setCreatedAt(new \DateTime());

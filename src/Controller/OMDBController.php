@@ -932,6 +932,7 @@ class OMDBController extends BaseController implements ClassResourceInterface
                     "number": 11,
                     "title": "Alien Breeders",
                     "year": 2014,
+         *
                     "length": 45,
                     "storyline": "Demonic seduction... hybrid offspring... and strange abductions. In cultures throughout the world, there are tales of intimate encounters with otherworldly beings. But could these stories be more than just mythology? Scientific deconstruction of human genetic makeup has revealed that our origins are not what we once believed. Biologists have determined that early humans mated with several other species of intelligent hominids. Neanderthals, Denisovans, and a third--as of yet unidentified--species may also be represented in our DNA. Is it possible that tales spanning from fallen angels to Greek gods, medieval incubus and succubus to today\'s extraterrestrial sexual encounters are all one in the same? And if so, is it all part of a greater agenda? Might examining these experiences provide not only evidence of extraterrestrial sexual intervention in the remote past, but also reveal the true nature of mankind\'s origins?",
                     "thumbnail": "https://m.media-amazon.com/images/M/MV5BMjAzNzAzMTc1Nl5BMl5BanBnXkFtZTgwOTA3MjU1MjE@._V1_SX300.jpg",

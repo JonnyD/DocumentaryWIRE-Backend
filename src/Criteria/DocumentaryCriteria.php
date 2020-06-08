@@ -5,6 +5,10 @@ namespace App\Criteria;
 use App\Entity\Category;
 use App\Entity\User;
 use App\Entity\VideoSource;
+use App\Enum\DocumentaryStatus;
+use App\Enum\Featured;
+use App\Enum\IsParent;
+use Codeception\Lib\Generator\Feature;
 
 class DocumentaryCriteria
 {
@@ -84,14 +88,20 @@ class DocumentaryCriteria
      */
     public function isFeatured()
     {
-        return $this->featured;
+        return ($this->featured === Featured::YES);
     }
 
     /**
-     * @param boolean $featured
+     * @param string $featured
+     * @throws \Exception
      */
-    public function setFeatured(bool $featured)
+    public function setFeatured(string $featured)
     {
+        $hasFeatured = Featured::hasStatus($featured);
+        if (!$hasFeatured) {
+            throw new \Exception('Featured status does not exist');
+        }
+
         $this->featured = $featured;
     }
 
@@ -105,9 +115,15 @@ class DocumentaryCriteria
 
     /**
      * @param string $status
+     * @throws \Exception
      */
-    public function setStatus($status)
+    public function setStatus(string $status)
     {
+        $hasStatus = DocumentaryStatus::hasStatus($status);
+        if (!$hasStatus) {
+            throw new \Exception('Status does not exist');
+        }
+
         $this->status = $status;
     }
 
@@ -124,6 +140,11 @@ class DocumentaryCriteria
      */
     public function setIsParent(string $isParent)
     {
+        $isParent = IsParent::hasStatus($isParent);
+        if (!$isParent) {
+            throw new \Exception('Is Parent status does not exist');
+        }
+
         $this->isParent = $isParent;
     }
 
@@ -220,6 +241,7 @@ class DocumentaryCriteria
      */
     public function setSort(array $sort)
     {
+        //@TODO check sort
         $this->sort = $sort;
     }
 

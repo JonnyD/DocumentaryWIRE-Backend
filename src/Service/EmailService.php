@@ -4,7 +4,8 @@ namespace App\Service;
 
 use App\Criteria\EmailCriteria;
 use App\Entity\Email;
-use App\Enum\YesNo;
+use App\Enum\Subscribed;
+use App\Enum\Sync;
 use App\Repository\EmailRepository;
 use App\Repository\ActivityRepository;
 use Carbon\Carbon;
@@ -29,10 +30,10 @@ class EmailService
 
     /**
      * @param Email $email
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Email $email, $sync = true)
+    public function save(Email $email, string $sync = Sync::YES)
     {
         if ($email->getCreatedAt() == null) {
             $email->setCreatedAt(new \DateTime());
@@ -50,14 +51,9 @@ class EmailService
     public function saveAll($emails)
     {
         foreach ($emails as $email) {
-            $this->save($email, false);
+            $this->save($email, Sync::NO);
         }
 
-        $this->emailRepository->flush();
-    }
-
-    public function flush()
-    {
         $this->emailRepository->flush();
     }
 
@@ -185,7 +181,7 @@ class EmailService
 
         $existingEmail = $this->getEmailByEmailAddress($emailAddress);
         if ($existingEmail) {
-            $existingEmail->setSubscribed(true); //@TODO YesNo
+            $existingEmail->setSubscribed(Subscribed::YES);
             $existingEmail->setSubscriptionKey($subscriptionKey);
             $existingEmail->setUpdatedAt(new \DateTime());
 
@@ -195,7 +191,7 @@ class EmailService
             $email->setCreatedAt(new \DateTime());
             $email->setEmail($emailAddress);
             $email->setSubscriptionKey($subscriptionKey);
-            $email->setSubscribed(true); //@TODO YesNo
+            $email->setSubscribed(Subscribed::YES);
 
             $this->save($email);
         }
@@ -208,7 +204,7 @@ class EmailService
     public function unsubscribe(string $emailAddress)
     {
         $existingEmail = $this->getEmailByEmailAddress($emailAddress);
-        $existingEmail->setSubscribed(YesNo::NO);
+        $existingEmail->setSubscribed(Subscribed::NO);
         $existingEmail->setUpdatedAt(new \DateTime());
 
         $this->save($existingEmail);

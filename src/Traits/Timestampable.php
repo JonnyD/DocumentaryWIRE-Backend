@@ -71,24 +71,4 @@ trait Timestampable
     {
         return $this->updatedAt;
     }
-
-    /**
-     * Gets triggered only on insert
-
-     * @ORM\PrePersist
-     */
-    public function onPrePersist()
-    {
-        $this->createdAt = new \DateTime();
-    }
-
-    /**
-     * Gets triggered every time on update
-
-     * @ORM\PreUpdate
-     */
-    public function onPreUpdate()
-    {
-        $this->updatedAt = new \DateTime();
-    }
 }

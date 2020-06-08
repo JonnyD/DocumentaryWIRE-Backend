@@ -3,11 +3,13 @@
 namespace App\Criteria;
 
 use App\Entity\VideoSource;
+use App\Enum\EmbedAllowed;
+use App\Enum\VideoSourceStatus;
 
 class VideoSourceCriteria
 {
     /**
-     * @var bool
+     * @var string
      */
     private $embedAllowed;
 
@@ -19,16 +21,22 @@ class VideoSourceCriteria
     /**
      * @return bool
      */
-    public function isEmbedAllowed(): ?bool
+    public function isEmbedAllowed(): ?string
     {
         return $this->embedAllowed;
     }
 
     /**
-     * @param bool $embedAllowed
+     * @param string $embedAllowed
+     * @throws \Exception
      */
-    public function setEmbedAllowed(bool $embedAllowed): void
+    public function setEmbedAllowed(string $embedAllowed): void
     {
+        $hasStatus = EmbedAllowed::hasStatus($embedAllowed);
+        if (!$hasStatus) {
+            throw new \Exception('Wrong embed allowed');
+        }
+
         $this->embedAllowed = $embedAllowed;
     }
 
@@ -42,9 +50,15 @@ class VideoSourceCriteria
 
     /**
      * @param string $status
+     * @throws \Exception
      */
     public function setStatus(string $status): void
     {
+        $hasStatus = VideoSourceStatus::hasStatus($status);
+        if (!$hasStatus) {
+            throw new \Exception('Video source status does not exist');
+        }
+
         $this->status = $status;
     }
 }

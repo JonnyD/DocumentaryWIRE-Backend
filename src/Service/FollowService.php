@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Criteria\FollowCriteria;
 use App\Entity\Follow;
+use App\Enum\Sync;
 use App\Repository\FollowRepository;
 
 class FollowService
@@ -60,10 +61,10 @@ class FollowService
 
     /**
      * @param Follow $follow
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Follow $follow, bool $sync = true)
+    public function save(Follow $follow, string $sync = Sync::YES)
     {
         if ($follow->getCreatedAt() == null) {
             $follow->setCreatedAt(new \DateTime());

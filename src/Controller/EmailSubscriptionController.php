@@ -6,7 +6,7 @@ use App\Criteria\EmailCriteria;
 use App\Entity\Category;
 use App\Entity\Email;
 use App\Enum\EmailOrderBy;
-use App\Enum\YesNo;
+use App\Enum\Subscribed;
 use App\Form\CategoryForm;
 use App\Form\EmailForm;
 use App\Form\UnsubscribeEmailSubscriptionForm;
@@ -69,7 +69,7 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
 
         $subscribed = $request->query->get('subscribed');
         if (isset($subscribed)) {
-            $hasSubscribed = YesNo::hasStatus($subscribed);
+            $hasSubscribed = Subscribed::hasStatus($subscribed);
             if (!$hasSubscribed) {
                 return $this->createApiResponse('Subscribed status ' . $subscribed . ' does not exist', 404);
             }
@@ -153,7 +153,7 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
 
                 $subscriptionKey = sha1(mt_rand(10000,99999).time().$email->getEmail());
                 $email->setSubscriptionKey($subscriptionKey);
-                $email->setSubscribed(YesNo::YES);
+                $email->setSubscribed(Subscribed::YES);
                 $this->emailService->save($email);
 
                 $emailHydrator = new EmailHydrator($email);

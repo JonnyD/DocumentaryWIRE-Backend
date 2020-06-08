@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\EmbedAllowed;
 use App\Enum\VideoSourceStatus;
 use App\Traits\Timestampable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -58,8 +59,8 @@ class VideoSource
     {
         $this->documentaries = new ArrayCollection();
         $this->documentaryVideoSources = new ArrayCollection();
-        $this->embedAllowed = "no";
-        $this->status = "disabled";
+        $this->embedAllowed = EmbedAllowed::NO;
+        $this->status = VideoSourceStatus::DISABLED;
     }
 
     public function getId(): ?int

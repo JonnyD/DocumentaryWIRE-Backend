@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Criteria\ActivityCriteria;
 use App\Entity\Activity;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -134,24 +135,24 @@ class ActivityRepository extends ServiceEntityRepository
 
     /**
      * @param Activity $activity
-     * @param bool $sync
+     * @param string $sync
      */
-    public function save(Activity $activity, bool $sync = true)
+    public function save(Activity $activity, string $sync = Sync::YES)
     {
         $this->getEntityManager()->persist($activity);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }
 
     /**
      * @param Activity $activity
-     * @param bool $sync
+     * @param string $sync
      */
-    public function remove(Activity $activity, bool $sync = true)
+    public function remove(Activity $activity, string $sync = Sync::YES)
     {
         $this->getEntityManager()->remove($activity);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }

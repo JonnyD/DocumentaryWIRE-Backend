@@ -4,6 +4,7 @@ namespace App\Criteria;
 
 use App\Entity\Documentary;
 use App\Entity\User;
+use App\Enum\CategoryStatus;
 
 class CategoryCriteria
 {
@@ -37,9 +38,14 @@ class CategoryCriteria
 
     /**
      * @param string $status
+     * @throws \Exception
      */
     public function setStatus(string $status): void
     {
+        $hasStatus = CategoryStatus::hasStatus($status);
+        if (!$hasStatus) {
+            throw new \Exception("Category status does not exist");
+        }
         $this->status = $status;
     }
 
@@ -72,6 +78,7 @@ class CategoryCriteria
      */
     public function setSort(array $sort): void
     {
+        //@TODO check sort
         $this->sort = $sort;
     }
 

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Criteria\FollowCriteria;
 use App\Entity\Follow;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
@@ -79,13 +80,13 @@ class FollowRepository extends ServiceEntityRepository
 
     /**
      * @param Follow $follow
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Follow $follow, bool $sync = true)
+    public function save(Follow $follow, string $sync = Sync::YES)
     {
         $this->getEntityManager()->persist($follow);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }

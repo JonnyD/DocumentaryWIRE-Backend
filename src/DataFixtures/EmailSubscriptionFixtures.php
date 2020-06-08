@@ -5,7 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Email;
 use App\Entity\User;
 use App\Enum\CategoryStatus;
-use App\Enum\YesNo;
+use App\Enum\Subscribed;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -24,37 +24,37 @@ class EmailSubscriptionFixtures extends Fixture implements DependentFixtureInter
         $user3 = $this->getUser('user3');
         $user4 = $this->getUser('user4');
 
-        $isSubscribed = YesNo::YES;
+        $isSubscribed = Subscribed::YES;
         $subscriptionKey = '1';
         $emailAddress = $user1->getEmail();
         $email1 = $this->createEmailSubscription(
             $isSubscribed, $subscriptionKey, $emailAddress);
 
-        $isSubscribed = YesNo::YES;
+        $isSubscribed = Subscribed::YES;
         $subscriptionKey = '2';
         $emailAddress = $user2->getEmail();
         $email2 = $this->createEmailSubscription(
             $isSubscribed, $subscriptionKey, $emailAddress);
 
-        $isSubscribed = YesNo::NO;
+        $isSubscribed = Subscribed::NO;
         $subscriptionKey = '3';
         $emailAddress = $user3->getEmail();
         $email3 = $this->createEmailSubscription(
             $isSubscribed, $subscriptionKey, $emailAddress);
 
-        $isSubscribed = YesNo::NO;
+        $isSubscribed = Subscribed::NO;
         $subscriptionKey = '4';
         $emailAddress = $user4->getEmail();
         $email4 = $this->createEmailSubscription(
             $isSubscribed, $subscriptionKey, $emailAddress);
 
-        $isSubscribed = YesNo::YES;
+        $isSubscribed = Subscribed::YES;
         $subscriptionKey = '5';
         $emailAddress = '1xxx@xxx.com';
         $email5 = $this->createEmailSubscription(
             $isSubscribed, $subscriptionKey, $emailAddress);
 
-        $isSubscribed = YesNo::YES;
+        $isSubscribed = Subscribed::YES;
         $subscriptionKey = '6';
         $emailAddress = '2xxx@xxx.com';
         $email6 = $this->createEmailSubscription(

@@ -4,8 +4,8 @@ namespace App\Controller;
 
 use App\Criteria\VideoSourceCriteria;
 use App\Entity\VideoSource;
+use App\Enum\EmbedAllowed;
 use App\Enum\VideoSourceStatus;
-use App\Enum\YesNo;
 use App\Form\EditVideoSourceForm;
 use App\Hydrator\VideoSourceHydrator;
 use App\Service\VideoSourceService;
@@ -58,7 +58,7 @@ class VideoSourceController extends BaseController implements ClassResourceInter
 
             $embedAllowed = $request->query->get('embed_allowed');
             if (isset($embedAllowed)) {
-                $hasStatus = YesNo::hasStatus($embedAllowed);
+                $hasStatus = EmbedAllowed::hasStatus($embedAllowed);
                 if (!$hasStatus) {
                     return $this->createApiResponse('Embed allowed ' . $embedAllowed . ' does not exist', 404);
                 } else {

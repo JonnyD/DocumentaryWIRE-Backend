@@ -2,6 +2,8 @@
 
 namespace App\Criteria;
 
+use App\Enum\Subscribed;
+
 class EmailCriteria
 {
     /**
@@ -34,9 +36,15 @@ class EmailCriteria
 
     /**
      * @param string $subscribed
+     * @throws \Exception
      */
     public function setSubscribed(string $subscribed): void
     {
+        $hasSubscribed = Subscribed::hasStatus($subscribed);
+        if (!$hasSubscribed) {
+            throw new \Exception('Subscribed status does not exist');
+        }
+
         $this->subscribed = $subscribed;
     }
 
@@ -69,6 +77,7 @@ class EmailCriteria
      */
     public function setSort(array $sort)
     {
+        //@TODO check sort
         $this->sort = $sort;
     }
 

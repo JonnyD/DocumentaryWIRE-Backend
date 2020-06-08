@@ -12,8 +12,9 @@ use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
+use App\Enum\Featured;
+use App\Enum\IsParent;
 use App\Enum\Order;
-use App\Enum\YesNo;
 use App\Form\AdminDocumentaryForm;
 use App\Form\DocumentaryEpisodeForm;
 use App\Form\DocumentaryMovieForm;
@@ -167,7 +168,9 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
         $featured = $request->query->get('featured');
         if (isset($featured)) {
-            $featured = $featured === 'true' ? true : false;
+            if (!Featured::hasStatus($featured)) {
+                return $this->createApiResponse('Featured status does not exist', 404);
+            }
             $criteria->setFeatured($featured);
         }
 
@@ -187,13 +190,16 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
         $isParent = $request->query->get('isParent');
         if (isset($isParent)) {
+            if (!IsParent::hasStatus($isParent)) {
+                return $this->createApiResponse('IsParent status does not exist', 404);
+            }
             if ($isRoleAdmin) {
                 $criteria->setIsParent($isParent);
             } else {
-                $criteria->setIsParent(YesNo::YES);
+                $criteria->setIsParent(IsParent::YES);
             }
         } else {
-            $criteria->setIsParent(YesNo::YES);
+            $criteria->setIsParent(IsParent::YES);
         }
 
         $yearFrom = $request->query->get('year');
@@ -365,7 +371,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $documentary->setType(DocumentaryType::SERIES);
         $documentary->setAddedBy($this->getLoggedInUser());
         $documentary->setStatus(DocumentaryStatus::PENDING);
-        $documentary->setIsParent(YesNo::YES);
+        $documentary->setIsParent(IsParent::YES);
 
         $form = $this->createForm(DocumentarySeriesForm::class, $documentary);
         $form->handleRequest($request);

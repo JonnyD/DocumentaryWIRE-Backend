@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Movie;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -15,12 +16,12 @@ class MovieRepository extends ServiceEntityRepository
 
     /**
      * @param Movie $movie
-     * @param bool $sync
+     * @param string $sync
      */
-    public function save(Movie $movie, bool $sync = true)
+    public function save(Movie $movie, string $sync = Sync::YES)
     {
         $this->getEntityManager()->persist($movie);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }
@@ -32,13 +33,13 @@ class MovieRepository extends ServiceEntityRepository
 
     /**
      * @param Movie $movie
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function remove(Movie $movie, $sync = true)
+    public function remove(Movie $movie, string $sync = Sync::YES)
     {
         $this->getEntityManager()->remove($movie);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }

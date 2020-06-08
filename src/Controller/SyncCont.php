@@ -15,9 +15,9 @@ use App\Enum\ActivityType;
 use App\Enum\CommentOrderBy;
 use App\Enum\CommentStatus;
 use App\Enum\DocumentaryStatus;
+use App\Enum\IsParent;
 use App\Enum\Order;
 use App\Enum\UserOrderBy;
-use App\Enum\YesNo;
 use App\Service\ActivityService;
 use App\Service\CategoryService;
 use App\Service\CommentService;
@@ -328,7 +328,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         $documentaries = $this->documentaryService->getAllDocumentaries();
 
         foreach ($documentaries as $documentary) {
-            $documentary->setIsParent(YesNo::YES);
+            $documentary->setIsParent(IsParent::YES);
 
             $this->documentaryService->save($documentary, false);
         }

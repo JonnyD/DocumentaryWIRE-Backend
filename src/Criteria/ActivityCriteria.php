@@ -3,6 +3,7 @@
 namespace App\Criteria;
 
 use App\Entity\User;
+use App\Enum\ActivityType;
 
 class ActivityCriteria
 {
@@ -96,6 +97,10 @@ class ActivityCriteria
      */
     public function setType(string $type)
     {
+        $hasType = ActivityType::hasType($type);
+        if (!$hasType) {
+            throw new \Exception('Wrong type');
+        }
         $this->type = $type;
     }
 

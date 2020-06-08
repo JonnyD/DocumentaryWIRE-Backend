@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Documentary;
+use App\Enum\Sync;
 use App\Object\Activity\Activity as ActivityObject;
 use App\Object\Activity\ActivityItemObject;
 use App\Object\Activity\Strategy\DataStrategyContext;
@@ -432,7 +433,7 @@ class ActivityService
 
         foreach ($activity as $activityItem) {
             $activityItem->setUser($user);
-            $this->activityRepository->save($activityItem, false);
+            $this->activityRepository->save($activityItem, Sync::NO);
         }
 
         $this->activityRepository->flush();
@@ -442,7 +443,7 @@ class ActivityService
      * @param Activity $activity
      * @param bool $sync
      */
-    public function save(Activity $activity, bool $sync = true)
+    public function save(Activity $activity, string $sync = Sync::YES)
     {
         $this->activityRepository->save($activity, $sync);
     }

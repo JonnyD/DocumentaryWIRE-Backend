@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Criteria\EmailCriteria;
 use App\Entity\Email;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -52,13 +53,13 @@ class EmailRepository extends ServiceEntityRepository
 
     /**
      * @param Email $email
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Email $email, bool $sync = true)
+    public function save(Email $email, string $sync = Sync::YES)
     {
         $this->getEntityManager()->persist($email);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }

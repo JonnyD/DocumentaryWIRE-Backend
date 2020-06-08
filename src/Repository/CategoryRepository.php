@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Criteria\CategoryCriteria;
 use App\Entity\Category;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
@@ -132,13 +133,13 @@ class CategoryRepository extends ServiceEntityRepository
 
     /**
      * @param Category $category
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Category $category, bool $sync = true)
+    public function save(Category $category, string $sync = Sync::YES)
     {
         $this->getEntityManager()->persist($category);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }

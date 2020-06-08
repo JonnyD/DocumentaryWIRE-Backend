@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Criteria\UserCriteria;
 use App\Entity\User;
 use App\Enum\Order;
+use App\Enum\Sync;
 use App\Enum\UserOrderBy;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -209,10 +210,11 @@ class UserService
 
     /**
      * @param User $user
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(User $user, $sync = true)
+    public function save(User $user, string $sync = Sync::YES)
+
     {
         if ($user->getCreatedAt() == null) {
             $user->setCreatedAt(new \DateTime());

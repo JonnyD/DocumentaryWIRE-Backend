@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Criteria\DocumentaryCriteria;
 use App\Entity\Documentary;
 use App\Enum\DurationType;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Query\ResultSetMapping;
@@ -196,10 +197,10 @@ class DocumentaryRepository extends ServiceEntityRepository
      * @param Documentary $documentary
      * @param bool $sync
      */
-    public function save(Documentary $documentary, bool $sync = true)
+    public function save(Documentary $documentary, string $sync = Sync::YES)
     {
         $this->getEntityManager()->persist($documentary);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }

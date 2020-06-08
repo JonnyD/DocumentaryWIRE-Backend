@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\DocumentaryVideoSource;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -15,26 +16,26 @@ class DocumentaryVideoSourceRepository extends ServiceEntityRepository
 
     /**
      * @param DocumentaryVideoSource $documentaryVideoSource
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function remove(DocumentaryVideoSource $documentaryVideoSource, bool $sync = true)
+    public function remove(DocumentaryVideoSource $documentaryVideoSource, string $sync = Sync::YES)
     {
         $this->getEntityManager()->remove($documentaryVideoSource);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }
 
     /**
      * @param DocumentaryVideoSource $documentaryVideoSource
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(DocumentaryVideoSource $documentaryVideoSource, $sync = true)
+    public function save(DocumentaryVideoSource $documentaryVideoSource, string $sync = Sync::YES)
     {
         $this->getEntityManager()->persist($documentaryVideoSource);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }

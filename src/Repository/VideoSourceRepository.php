@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Criteria\VideoSourceCriteria;
 use App\Entity\VideoSource;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
@@ -98,7 +99,7 @@ class VideoSourceRepository extends ServiceEntityRepository
     public function save(VideoSource $videoSource, bool $sync = true)
     {
         $this->getEntityManager()->persist($videoSource);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }

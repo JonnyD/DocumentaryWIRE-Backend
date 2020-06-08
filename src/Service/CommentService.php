@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Criteria\CommentCriteria;
 use App\Entity\Comment;
 use App\Entity\User;
+use App\Enum\Sync;
 use App\Repository\CommentRepository;
 
 class CommentService
@@ -67,9 +68,9 @@ class CommentService
 
     /**
      * @param Comment $comment
-     * @param bool $sync
+     * @param string $sync
      */
-    public function save(Comment $comment, $sync = true)
+    public function save(Comment $comment, string $sync = Sync::YES)
     {
         if ($comment->getCreatedAt() == null) {
             $comment->setCreatedAt(new \DateTime());

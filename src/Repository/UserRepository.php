@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Criteria\UserCriteria;
 use App\Entity\User;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -107,13 +108,13 @@ class UserRepository extends ServiceEntityRepository
 
     /**
      * @param User $user
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(User $user, $sync = true)
+    public function save(User $user, string $sync = Sync::YES)
     {
         $this->getEntityManager()->persist($user);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }

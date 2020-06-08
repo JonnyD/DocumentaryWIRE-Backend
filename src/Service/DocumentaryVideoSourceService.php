@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Documentary;
 use App\Entity\DocumentaryVideoSource;
 use App\Entity\Episode;
+use App\Enum\Sync;
 use App\Repository\DocumentaryVideoSourceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -108,17 +109,17 @@ class DocumentaryVideoSourceService
      * @param bool $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function remove(DocumentaryVideoSource $documentaryVideoSource, bool $sync = true)
+    public function remove(DocumentaryVideoSource $documentaryVideoSource, string $sync = Sync::YES)
     {
         $this->documentaryVideoSourceRepository->remove($documentaryVideoSource, $sync);
     }
 
     /**
      * @param DocumentaryVideoSource $documentaryVideoSource
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(DocumentaryVideoSource $documentaryVideoSource, $sync = true)
+    public function save(DocumentaryVideoSource $documentaryVideoSource, string $sync = Sync::YES)
     {
         if ($documentaryVideoSource->getCreatedAt() == null) {
             $documentaryVideoSource->setCreatedAt(new \DateTime());

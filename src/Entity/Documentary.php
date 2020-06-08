@@ -4,8 +4,10 @@ namespace App\Entity;
 
 use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
-use App\Enum\YesNo;
+use App\Enum\Featured;
+use App\Enum\IsParent;
 use App\Traits\Timestampable;
+use Codeception\Lib\Generator\Feature;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -115,7 +117,7 @@ class Documentary
     private $shortUrl;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="string")
      * @Gedmo\Versioned
      */
     private $featured;
@@ -256,13 +258,13 @@ class Documentary
         $this->watchlists = new ArrayCollection();
         $this->documentaryVideoSources = new ArrayCollection();
         $this->children = new ArrayCollection();
-        $this->featured = false;
         $this->views = 0;
         $this->todayViews = 0;
         $this->viewsDate = new \DateTime();
         $this->commentCount = 0;
         $this->watchlistCount = 0;
-        $this->isParent = YesNo::NO;
+        $this->featured = Featured::NO;
+        $this->isParent = IsParent::NO;
     }
 
     public function getId(): ?int
@@ -425,7 +427,7 @@ class Documentary
      */
     public function isParent()
     {
-        return $this->isParent;
+        return ($this->isParent === IsParent::YES);
     }
 
     /**
@@ -464,14 +466,20 @@ class Documentary
         return $this;
     }
 
+    /**
+     * @return bool
+     */
+    public function isFeatured(): bool
+    {
+        return ($this->featured === Featured::YES);
+    }
 
-
-    public function getFeatured(): ?bool
+    public function getFeatured(): ?string
     {
         return $this->featured;
     }
 
-    public function setFeatured(bool $featured): self
+    public function setFeatured(string $featured): self
     {
         $this->featured = $featured;
 

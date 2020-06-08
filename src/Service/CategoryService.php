@@ -8,6 +8,7 @@ use App\Entity\Documentary;
 use App\Enum\CategoryOrderBy;
 use App\Enum\CategoryStatus;
 use App\Enum\Order;
+use App\Enum\Sync;
 use App\Repository\CategoryRepository;
 
 class CategoryService
@@ -46,8 +47,8 @@ class CategoryService
     }
 
     /**
-     * @return Category[]|null
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @return Category[]|\Doctrine\Common\Collections\ArrayCollection
+     * @throws \Exception
      */
     public function getEnabledCategoriesOrderedByName()
     {
@@ -112,9 +113,9 @@ class CategoryService
 
     /**
      * @param Category $category
-     * @param bool $sync
+     * @param string $sync
      */
-    public function save(Category $category, bool $sync = true)
+    public function save(Category $category, string $sync = Sync::YES)
     {
         $this->categoryRepository->save($category, $sync);
     }

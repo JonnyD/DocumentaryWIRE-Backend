@@ -9,8 +9,10 @@ use App\Entity\DocumentaryVideoSource;
 use App\Entity\Movie;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
+use App\Enum\Featured;
+use App\Enum\IsParent;
 use App\Enum\Order;
-use App\Enum\YesNo;
+use App\Enum\Sync;
 use App\Repository\DocumentaryRepository;
 use App\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -91,7 +93,7 @@ class DocumentaryService
     public function getFeaturedDocumentaries()
     {
         $criteria = new DocumentaryCriteria();
-        $criteria->setFeatured(true);
+        $criteria->setFeatured(Featured::YES);
         $criteria->setStatus(DocumentaryStatus::PUBLISH);
 
         $documentaries = $this->documentaryRepository->findDocumentariesByCriteria($criteria);
@@ -236,7 +238,7 @@ class DocumentaryService
         $criteria = new DocumentaryCriteria();
         $criteria->setStatus(DocumentaryStatus::PUBLISH);
         $criteria->setLimit($limit);
-        $criteria->setIsParent(YesNo::YES);
+        $criteria->setIsParent(IsParent::YES);
         $criteria->setSort([
             DocumentaryOrderBy::CREATED_AT => Order::DESC
         ]);
@@ -297,22 +299,6 @@ class DocumentaryService
     public function updateViews(Documentary $documentary)
     {
         $documentary->incrementViews();
-
-        $now = new \DateTime();
-        $viewsDate = $documentary->getViewsDate();
-
-        if ($viewsDate == null) {
-            $documentary->setTodayViews(0);
-            $documentary->setViewsDate($now);
-        } else {
-            if ($now->diff($viewsDate)->d >= 1) {
-                $documentary->setViewsDate($now);
-                $documentary->setTodayViews(0);
-            } else {
-                $documentary->incrementTodayViews();
-            }
-        }
-
         $this->saveAndDontUpdateTimestamps($documentary);
     }
 
@@ -367,9 +353,9 @@ class DocumentaryService
 
     /**
      * @param Documentary $documentary
-     * @param bool $sync
+     * @param string $sync
      */
-    public function saveAndDontUpdateTimestamps(Documentary $documentary, bool $sync = true)
+    public function saveAndDontUpdateTimestamps(Documentary $documentary, string $sync = Sync::YES)
     {
         $this->documentaryRepository->save($documentary, $sync);
     }
@@ -389,10 +375,10 @@ class DocumentaryService
 
     /**
      * @param Movie $movie
-     * @param bool $sync
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function removeMovie(Movie $movie, $sync = true)
+    public function removeMovie(Movie $movie, string $sync = Sync::YES)
     {
         $this->movieRepository->remove($movie, $sync);
     }

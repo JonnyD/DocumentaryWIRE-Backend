@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Criteria\CommentCriteria;
 use App\Entity\Comment;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
@@ -140,24 +141,24 @@ class CommentRepository extends ServiceEntityRepository
 
     /**
      * @param Comment $comment
-     * @param bool $sync
+     * @param string $sync
      */
-    public function save(Comment $comment, bool $sync = true)
+    public function save(Comment $comment, string $sync = Sync::YES)
     {
         $this->getEntityManager()->persist($comment);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }
 
     /**
      * @param Comment $comment
-     * @param bool $sync
+     * @param string $sync
      */
-    public function remove(Comment $comment, bool $sync = true)
+    public function remove(Comment $comment, string $sync = Sync::YES)
     {
         $this->getEntityManager()->remove($comment);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }

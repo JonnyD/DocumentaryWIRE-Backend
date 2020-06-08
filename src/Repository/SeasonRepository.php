@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Season;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -47,10 +48,10 @@ class SeasonRepository extends ServiceEntityRepository
      * @param bool $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Season $season, $sync = true)
+    public function save(Season $season, string $sync = Sync::YES)
     {
         $this->getEntityManager()->persist($season);
-        if ($sync) {
+        if ($sync === Sync::YES) {
             $this->flush();
         }
     }
