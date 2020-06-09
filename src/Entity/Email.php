@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\OnMailingList;
 use App\Enum\Subscribed;
 use App\Traits\Timestampable;
 use Doctrine\ORM\Mapping as ORM;
@@ -51,9 +52,17 @@ class Email
      */
     private $subscriptionKey;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string")
+     */
+    private $onMailingList;
+
     public function __construct()
     {
         $this->subscribed = Subscribed::YES;
+        $this->onMailingList = OnMailingList::NO;
     }
 
     /**
@@ -134,5 +143,29 @@ class Email
     public function setSubscriptionKey(string $subscriptionKey): void
     {
         $this->subscriptionKey = $subscriptionKey;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isOnMailingList()
+    {
+        return ($this->onMailingList === OnMailingList::YES);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getOnMailingList(): ?string
+    {
+        return $this->onMailingList;
+    }
+
+    /**
+     * @param string $onMailingList
+     */
+    public function setOnMailingList(string $onMailingList)
+    {
+        $this->onMailingList = $onMailingList;
     }
 }

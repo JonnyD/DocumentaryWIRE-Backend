@@ -8,6 +8,7 @@ use App\Criteria\DocumentaryCriteria;
 use App\Criteria\UserCriteria;
 use App\Criteria\WatchlistCriteria;
 use App\Entity\Activity;
+use App\Entity\DocumentaryVideoSource;
 use App\Entity\Email;
 use App\Entity\Follow;
 use App\Enum\ActivityOrderBy;
@@ -22,9 +23,11 @@ use App\Service\ActivityService;
 use App\Service\CategoryService;
 use App\Service\CommentService;
 use App\Service\DocumentaryService;
+use App\Service\DocumentaryVideoSourceService;
 use App\Service\EmailService;
 use App\Service\FollowService;
 use App\Service\UserService;
+use App\Service\VideoSourceService;
 use App\Service\WatchlistService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -69,6 +72,11 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
      */
     private $emailService;
 
+    /**
+     * @var DocumentaryVideoSourceService
+     */
+    private $documentaryVideoSourceService;
+
     public function __construct(
         ActivityService $activityService,
         CommentService $commentService,
@@ -76,7 +84,8 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         CategoryService $categoryService,
         DocumentaryService $documentaryService,
         WatchlistService $watchlistService,
-        EmailService $emailService)
+        EmailService $emailService,
+        DocumentaryVideoSourceService $documentaryVideoSourceService)
     {
         $this->activityService = $activityService;
         $this->commentService = $commentService;
@@ -85,6 +94,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         $this->documentaryService = $documentaryService;
         $this->watchlistService = $watchlistService;
         $this->emailService = $emailService;
+        $this->documentaryVideoSourceService = $documentaryVideoSourceService;
     }
 
     /**
@@ -114,7 +124,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
          **/
 
         //$this->updateJoinedActivity();
-        $this->fixActivity();
+        //$this->fixActivity();
         //$this->updateCommentCountForDocumentaries();
         //$this->updateDocumentaryCountForCategories();
         //$this->updateWatchlistCountForDocumentaries();
@@ -122,6 +132,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         //$this->updateYearFrom0ToNull();
         //$this->updateIsParent();
         //$this->updateSubscriptionKeys();
+        $this->updateCreatedAtForDocumentaryVideoSources();
     }
 
     public function updateJoinedActivity()
@@ -340,5 +351,10 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
     {
         $emails = $this->emailService->getAllEmails();
         $this->emailService->updateSubscriptionKeysForEmailsUsingModulos($emails, 100);
+    }
+
+    private function updateCreatedAtForDocumentaryVideoSources()
+    {
+        $this->documentaryVideoSourceService->updateCreatedAtForDocumentaryVideoSources();
     }
 }

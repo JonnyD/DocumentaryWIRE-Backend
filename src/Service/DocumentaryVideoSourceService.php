@@ -33,6 +33,36 @@ class DocumentaryVideoSourceService
         $this->videoSourceService = $videoSourceService;
     }
 
+    /**
+     * @return DocumentaryVideoSource[]
+     */
+    public function getAllDocumentaryVideoSources()
+    {
+        return $this->documentaryVideoSourceRepository->findAll();
+    }
+
+    public function updateCreatedAtForDocumentaryVideoSources()
+    {
+        $documentaryVideoSources = $this->getAllDocumentaryVideoSources();
+
+        $chunkSize = 100;
+        $chunkDocumentaryVideoSources = array_chunk($documentaryVideoSources, $chunkSize, true);
+
+        $editedDocumentaryVideoSources = [];
+
+        /** @var DocumentaryVideoSource[] $chunkDocumentaryVideoSources */
+        foreach ($chunkDocumentaryVideoSources as $documentaryVideoSource) {
+            $documentaryCreatedAt = $documentaryVideoSource->getDocumentary()->getCreatedAt();
+            $documentaryVideoSource->setCreatedAt($documentaryCreatedAt);
+
+            $editedDocumentaryVideoSources[] = $documentaryVideoSource;
+        }
+
+        if (count($editedDocumentaryVideoSources) > 0) {
+            $this->saveAll($editedDocumentaryVideoSources);
+        }
+    }
+
     public function addDocumentaryVideoSourcesFromMovieDocumentary($movie, Documentary $documentary)
     {
         if (!$documentary->isMovie()) {
@@ -128,5 +158,28 @@ class DocumentaryVideoSourceService
         }
 
         $this->documentaryVideoSourceRepository->save($documentaryVideoSource, $sync);
+    }
+
+    /**
+     * @param DocumentaryVideoSource $documentaryVideoSource
+     * @param string $sync
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function saveButDontUpdateTimestamps(DocumentaryVideoSource $documentaryVideoSource, string $sync = Sync::YES)
+    {
+        $this->documentaryVideoSourceRepository->save($documentaryVideoSource, $sync);
+    }
+
+    /**
+     * @param DocumentaryVideoSource[] $documentaryVideoSources
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function saveAll($documentaryVideoSources)
+    {
+        foreach ($documentaryVideoSources as $documentaryVideoSource) {
+            $this->saveButDontUpdateTimestamps($documentaryVideoSource, Sync::NO);
+        }
+
+        $this->documentaryVideoSourceRepository->flush();
     }
 }
