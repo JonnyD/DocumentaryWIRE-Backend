@@ -137,11 +137,12 @@ class DocumentaryCriteria
 
     /**
      * @param string $isParent
+     * @throws \Exception
      */
     public function setIsParent(string $isParent)
     {
-        $isParent = IsParent::hasStatus($isParent);
-        if (!$isParent) {
+        $hasStatus = IsParent::hasStatus($isParent);
+        if (!$hasStatus) {
             throw new \Exception('Is Parent status does not exist');
         }
 
