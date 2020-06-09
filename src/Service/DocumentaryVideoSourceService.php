@@ -46,20 +46,22 @@ class DocumentaryVideoSourceService
         $documentaryVideoSources = $this->getAllDocumentaryVideoSources();
 
         $chunkSize = 100;
-        $chunkDocumentaryVideoSources = array_chunk($documentaryVideoSources, $chunkSize, true);
+        $chunks = array_chunk($documentaryVideoSources, $chunkSize, true);
 
-        $editedDocumentaryVideoSources = [];
+        foreach ($chunks as $chunkDocumentaryVideoSources) {
+            $editedDocumentaryVideoSources = [];
 
-        /** @var DocumentaryVideoSource[] $chunkDocumentaryVideoSources */
-        foreach ($chunkDocumentaryVideoSources as $documentaryVideoSource) {
-            $documentaryCreatedAt = $documentaryVideoSource->getDocumentary()->getCreatedAt();
-            $documentaryVideoSource->setCreatedAt($documentaryCreatedAt);
+            /** @var DocumentaryVideoSource[] $chunkDocumentaryVideoSources */
+            foreach ($chunkDocumentaryVideoSources as $documentaryVideoSource) {
+                $documentaryCreatedAt = $documentaryVideoSource->getDocumentary()->getCreatedAt();
+                $documentaryVideoSource->setCreatedAt($documentaryCreatedAt);
 
-            $editedDocumentaryVideoSources[] = $documentaryVideoSource;
-        }
+                $editedDocumentaryVideoSources[] = $documentaryVideoSource;
+            }
 
-        if (count($editedDocumentaryVideoSources) > 0) {
-            $this->saveAll($editedDocumentaryVideoSources);
+            if (count($editedDocumentaryVideoSources) > 0) {
+                $this->saveAll($editedDocumentaryVideoSources);
+            }
         }
     }
 
