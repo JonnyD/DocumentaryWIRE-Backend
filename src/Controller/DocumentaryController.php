@@ -202,7 +202,6 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             $criteria->setIsParent(IsParent::YES);
         }
 
-        /**
         $yearFrom = $request->query->get('year');
         if (isset($yearFrom)) {
             $criteria->setYear($yearFrom);
@@ -237,7 +236,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 DocumentaryOrderBy::CREATED_AT => Order::DESC
             ]);
         }
-**/
+        
         $amountPerPage = $request->query->get('amountPerPage', 20);
         if (isset($amountPerPage) && $amountPerPage > 50) {
             throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException();
