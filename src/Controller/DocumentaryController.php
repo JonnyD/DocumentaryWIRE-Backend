@@ -163,7 +163,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         }
 
         if (!$isRoleAdmin) {
-            $criteria->setStatus(DocumentaryStatus::PUBLISH);
+            $criteria->setStatus(DocumentaryStatus::PUBLISHED);
         }
 
         $featured = $request->query->get('featured');
@@ -236,7 +236,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 DocumentaryOrderBy::CREATED_AT => Order::DESC
             ]);
         }
-        
+
         $amountPerPage = $request->query->get('amountPerPage', 20);
         if (isset($amountPerPage) && $amountPerPage > 50) {
             throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException();

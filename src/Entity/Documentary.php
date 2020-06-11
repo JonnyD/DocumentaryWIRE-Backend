@@ -365,7 +365,7 @@ class Documentary
      */
     public function isPublished()
     {
-        return ($this->status === DocumentaryStatus::PUBLISH);
+        return ($this->status === DocumentaryStatus::PUBLISHED);
     }
 
     /**
@@ -399,27 +399,6 @@ class Documentary
     public function incrementViews()
     {
         $this->views++;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTodayViews(): int
-    {
-        return $this->todayViews;
-    }
-
-    /**
-     * @param int $todayViews
-     */
-    public function setTodayViews(int $todayViews): void
-    {
-        $this->todayViews = $todayViews;
-    }
-
-    public function incrementTodayViews()
-    {
-        $this->todayViews++;
     }
 
     /**

@@ -4,7 +4,7 @@ namespace App\Enum;
 
 class DocumentaryStatus
 {
-    const PUBLISH = "publish";
+    const PUBLISHED = "published";
     const REJECTED = "rejected";
     const PENDING = "pending";
     const DRAFT = "draft";
@@ -15,7 +15,7 @@ class DocumentaryStatus
     public static function getAllStatuses()
     {
         return [
-            self::PUBLISH,
+            self::PUBLISHED,
             self::REJECTED,
             self::PENDING,
             self::DRAFT

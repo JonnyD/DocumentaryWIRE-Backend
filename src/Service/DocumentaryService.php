@@ -94,7 +94,7 @@ class DocumentaryService
     {
         $criteria = new DocumentaryCriteria();
         $criteria->setFeatured(Featured::YES);
-        $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        $criteria->setStatus(DocumentaryStatus::PUBLISHED);
 
         $documentaries = $this->documentaryRepository->findDocumentariesByCriteria($criteria);
         shuffle($documentaries);
@@ -111,7 +111,7 @@ class DocumentaryService
         $criteria->setSort([
             DocumentaryOrderBy::UPDATED_AT => Order::DESC
         ]);
-        $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        $criteria->setStatus(DocumentaryStatus::PUBLISHED);
 
         return $this->documentaryRepository->findDocumentaryByCriteria($criteria);
     }
@@ -123,7 +123,7 @@ class DocumentaryService
     public function getPublishedDocumentariesInCategory(Category $category)
     {
         $criteria = new DocumentaryCriteria();
-        $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        $criteria->setStatus(DocumentaryStatus::PUBLISHED);
         $criteria->setCategory($category);
         $criteria->setSort([
             DocumentaryOrderBy::CREATED_AT => Order::DESC
@@ -139,7 +139,7 @@ class DocumentaryService
     public function getLatestDocumentaryInCategory(Category $category)
     {
         $criteria = new DocumentaryCriteria();
-        $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        $criteria->setStatus(DocumentaryStatus::PUBLISHED);
         $criteria->setCategory($category);
         $criteria->setLimit(1);
         $criteria->setSort([
@@ -157,7 +157,7 @@ class DocumentaryService
     {
         $criteria = new DocumentaryCriteria();
         $criteria->setLimit($limit);
-        $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        $criteria->setStatus(DocumentaryStatus::PUBLISHED);
         $criteria->setSort([
             DocumentaryOrderBy::VIEWS => Order::DESC
         ]);
@@ -173,7 +173,7 @@ class DocumentaryService
     {
         $criteria = new DocumentaryCriteria();
         $criteria->setLimit($limit);
-        $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        $criteria->setStatus(DocumentaryStatus::PUBLISHED);
         $criteria->setSort([
             DocumentaryOrderBy::COMMENT_COUNT => Order::DESC
         ]);
@@ -189,7 +189,7 @@ class DocumentaryService
     {
         $criteria = new DocumentaryCriteria();
         $criteria->setLimit($limit);
-        $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        $criteria->setStatus(DocumentaryStatus::PUBLISHED);
         $criteria->setSort([
             DocumentaryOrderBy::WATCHLIST_COUNT => Order::DESC
         ]);
@@ -207,7 +207,7 @@ class DocumentaryService
         $criteria = new DocumentaryCriteria();
         $criteria->setCategory($category);
         $criteria->setLimit($limit);
-        $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        $criteria->setStatus(DocumentaryStatus::PUBLISHED);
         $criteria->setSort([
             DocumentaryOrderBy::RANDOM => Order::ASC
         ]);
@@ -221,7 +221,7 @@ class DocumentaryService
     public function getPublishedDocumentaries()
     {
         $criteria = new DocumentaryCriteria();
-        $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        $criteria->setStatus(DocumentaryStatus::PUBLISHED);
         $criteria->setSort([
             DocumentaryOrderBy::CREATED_AT => Order::DESC
         ]);
@@ -236,7 +236,7 @@ class DocumentaryService
     public function getLatestDocumentaries(int $limit)
     {
         $criteria = new DocumentaryCriteria();
-        $criteria->setStatus(DocumentaryStatus::PUBLISH);
+        $criteria->setStatus(DocumentaryStatus::PUBLISHED);
         $criteria->setLimit($limit);
         $criteria->setIsParent(IsParent::YES);
         $criteria->setSort([

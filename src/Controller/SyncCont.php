@@ -221,7 +221,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         $updatedCategories = [];
         foreach ($categories as $category) {
             $documentaryCriteria = new DocumentaryCriteria();
-            $documentaryCriteria->setStatus(DocumentaryStatus::PUBLISH);
+            $documentaryCriteria->setStatus(DocumentaryStatus::PUBLISHED);
             $documentaryCriteria->setCategory($category);
             $documentaries = $this->documentaryService->getDocumentariesByCriteria($documentaryCriteria);
 
