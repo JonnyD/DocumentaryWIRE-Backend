@@ -27,7 +27,9 @@ class CommentHydrator implements HydratorInterface
             'commentText' => $this->comment->getCommentText(),
             'author' => $this->comment->getAuthor(),
             'createdAt' => $this->comment->getCreatedAt(),
-            'updatedAt' => $this->comment->getUpdatedAt()
+            'updatedAt' => $this->comment->getUpdatedAt(),
+            'status' => $this->comment->getStatus(),
+            'email' => $this->comment->getEmail()
         ];
 
         if ($this->comment->getUser() != null) {
