@@ -218,7 +218,7 @@ class CommentController extends BaseController implements ClassResourceInterface
 
                 //@TODO $this->documentaryService->updateCommentCountForDocumentary($comment->getDocumentary());
 
-                $commentHydrator = new CommentHydrator($comment);
+                $commentHydrator = new CommentHydrator($comment, $this->isGranted('ROLE_ADMIN'));
                 $serializedComment = $commentHydrator->toArray();
                 return $this->createApiResponse($serializedComment, 200);
             } else {

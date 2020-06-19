@@ -12,12 +12,20 @@ class CommentHydrator implements HydratorInterface
     private $comment;
 
     /**
+     * @var string
+     */
+    private $isRoleAdmin;
+
+    /**
      * @param Comment $comment
+     * @param string $isRoleAdmin
      */
     public function __construct(
-        Comment $comment)
+        Comment $comment,
+        string $isRoleAdmin)
     {
         $this->comment = $comment;
+        $this->isRoleAdmin = $isRoleAdmin;
     }
 
     public function toArray()
@@ -28,9 +36,12 @@ class CommentHydrator implements HydratorInterface
             'author' => $this->comment->getAuthor(),
             'createdAt' => $this->comment->getCreatedAt(),
             'updatedAt' => $this->comment->getUpdatedAt(),
-            'status' => $this->comment->getStatus(),
-            'email' => $this->comment->getEmail()
+            'status' => $this->comment->getStatus()
         ];
+
+        if ($this->isRoleAdmin) {
+            $array['email'] = $this->comment->getEmail();
+        }
 
         if ($this->comment->getUser() != null) {
             $array['user'] = [
