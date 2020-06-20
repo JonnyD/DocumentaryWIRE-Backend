@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Criteria\DocumentaryCriteria;
 use App\Entity\Documentary;
+use App\Enum\DocumentaryStatus;
 use App\Enum\DurationType;
 use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -64,7 +65,7 @@ class DocumentaryRepository extends ServiceEntityRepository
         $sql = "SELECT DISTINCT(year_from) 
                 AS year
                 FROM documentary 
-                WHERE status = 'publish' 
+                WHERE status = '" . DocumentaryStatus::PUBLISHED . "'
                   AND year_from IS NOT NULL 
                 ORDER BY year_from";
 
