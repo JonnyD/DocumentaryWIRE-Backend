@@ -18,11 +18,11 @@ class CommentHydrator implements HydratorInterface
 
     /**
      * @param Comment $comment
-     * @param string $isRoleAdmin
+     * @param bool $isRoleAdmin
      */
     public function __construct(
         Comment $comment,
-        string $isRoleAdmin)
+        bool $isRoleAdmin)
     {
         $this->comment = $comment;
         $this->isRoleAdmin = $isRoleAdmin;

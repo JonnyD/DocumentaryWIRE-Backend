@@ -126,7 +126,7 @@ class CommentController extends BaseController implements ClassResourceInterface
 
         $serialized = [];
         foreach ($items as $item) {
-            $commentHydrator = new CommentHydrator($item);
+            $commentHydrator = new CommentHydrator($item, $this->isGranted('ROLE_ADMIN'));
             $serialized[] = $commentHydrator->toArray();
         }
 
