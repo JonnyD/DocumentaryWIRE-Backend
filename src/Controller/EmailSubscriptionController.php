@@ -6,6 +6,7 @@ use App\Criteria\EmailCriteria;
 use App\Entity\Category;
 use App\Entity\Email;
 use App\Enum\EmailOrderBy;
+use App\Enum\EmailSource;
 use App\Enum\Subscribed;
 use App\Form\CategoryForm;
 use App\Form\EmailForm;
@@ -74,6 +75,15 @@ class EmailSubscriptionController extends BaseController implements ClassResourc
                 return $this->createApiResponse('Subscribed status ' . $subscribed . ' does not exist', 404);
             }
             $criteria->setSubscribed($subscribed);
+        }
+
+        $source = $request->query->get('source');
+        if (isset($source)) {
+            $hasEmailSource = EmailSource::hasEmailSource($source);
+            if (!$hasEmailSource) {
+                return $this->createApiResponse('Email source ' . $source . ' does not exist', 404);
+            }
+            $criteria->setSource($source);
         }
 
         $email = $request->query->get('email');

@@ -26,6 +26,7 @@ class EmailHydrator implements HydratorInterface
         $array = [
             'id' => $this->email->getId(),
             'email' => $this->email->getEmail(),
+            'source' => $this->email->getSource(),
             'subscribed' => $this->email->getSubscribed(),
             'subscriptionKey' => $this->email->getSubscriptionKey(),
             'createdAt' => $this->email->getCreatedAt(),

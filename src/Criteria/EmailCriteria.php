@@ -17,6 +17,11 @@ class EmailCriteria
     private $email;
 
     /**
+     * @var string
+     */
+    private $source;
+
+    /**
      * @var int
      */
     private $limit;
@@ -62,6 +67,22 @@ class EmailCriteria
     public function setEmail(string $email): void
     {
         $this->email = $email;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    /**
+     * @param string $source
+     */
+    public function setSource(string $source)
+    {
+        $this->source = $source;
     }
 
     /**

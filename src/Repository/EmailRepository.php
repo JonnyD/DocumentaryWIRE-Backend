@@ -38,6 +38,11 @@ class EmailRepository extends ServiceEntityRepository
                 ->setParameter('email', $criteria->getEmail());
         }
 
+        if ($criteria->getSource()) {
+            $qb->andWhere('email.source = :source')
+                ->setParameter('source', $criteria->getSource());
+        }
+
         if ($criteria->getSort()) {
             foreach ($criteria->getSort() as $column => $direction) {
                 $qb->addOrderBy($qb->getRootAliases()[0] . '.' . $column, $direction);
