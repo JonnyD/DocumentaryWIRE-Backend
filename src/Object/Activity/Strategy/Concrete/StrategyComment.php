@@ -46,6 +46,7 @@ class StrategyComment implements StrategyInterface
         $comment = $this->commentService->getCommentById($commentId);
         $documentary = $comment->getDocumentary();
 
+
         $commentData = new CommentData();
         $commentData->setCommentId($comment->getId());
         $commentData->setCommentText($comment->getCommentText());

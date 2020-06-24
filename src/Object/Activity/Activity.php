@@ -6,6 +6,11 @@
 class Activity
 {
     /**
+     * @var int
+     */
+    private $id;
+
+    /**
      * @var Data
      */
     private $data;
@@ -44,6 +49,22 @@ class Activity
      * @var string
      */
     private $component;
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
 
     /**
      * @return Data
@@ -176,6 +197,7 @@ class Activity
      public function toArray()
      {
        return [
+           'id' => $this->id,
            'type' => $this->type,
              'data' => $this->data->toArray(),
            'component' => $this->component,

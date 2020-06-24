@@ -216,6 +216,28 @@ class ActivityService
     }
 
     /**
+     * @param int $id
+     */
+    public function removeById(int $id)
+    {
+        $activity = $this->activityRepository->find($id);
+        $this->activityRepository->remove($activity);
+    }
+
+    /**
+     * @param int $objectId
+     */
+    public function removeByObjectId(int $objectId)
+    {
+        $criteria = new ActivityCriteria();
+        $criteria->setObjectId($objectId);
+
+        $activity = $this->getActivityByCriteria($criteria);
+
+        $this->activityRepository->remove($activity);
+    }
+
+    /**
      * @return Activity
      */
     public function getLatestActivity()

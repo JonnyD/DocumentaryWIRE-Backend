@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Criteria\ActivityCriteria;
 use App\Entity\Activity;
+use App\Enum\ActivityComponent;
 use App\Enum\ActivityOrderBy;
 use App\Enum\ActivityType;
 use App\Enum\Order;
@@ -85,6 +86,24 @@ class ActivityController extends BaseController implements ClassResourceInterfac
             $criteria->setUser($user);
         }
 
+        $type = $request->query->get('type');
+        if (isset($type)) {
+            $hasType = ActivityType::hasType($type);
+            if (!$hasType) {
+                return $this->createApiResponse('Type ' . $type . ' does not exist', 404);
+            }
+            $criteria->setType($type);
+        }
+
+        $component = $request->query->get('component');
+        if (isset($component)) {
+            $hasType = ActivityComponent::hasType($component);
+            if (!$hasType) {
+                return $this->createApiResponse('Component ' . $component . ' does not exist', 404);
+            }
+            $criteria->setComponent($component);
+        }
+
         $sort = $request->query->get('sort');
         if (isset($sort)) {
             $exploded = explode("-", $sort);
@@ -162,6 +181,7 @@ class ActivityController extends BaseController implements ClassResourceInterfac
         $username = $user->getUsername();
 
         $activityObject = new \App\Object\Activity\Activity();
+        $activityObject->setId($activity->getId());
         $activityObject->setName($name);
         $activityObject->setUsername($username);
         $activityObject->setAvatar($avatar);

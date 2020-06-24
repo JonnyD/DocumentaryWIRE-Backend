@@ -132,7 +132,8 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         //$this->updateYearFrom0ToNull();
         //$this->updateIsParent();
         //$this->updateSubscriptionKeys();
-        $this->updateCreatedAtForDocumentaryVideoSources();
+        //$this->updateCreatedAtForDocumentaryVideoSources();
+        $this->removeCommentActivity();
     }
 
     public function updateJoinedActivity()
@@ -351,6 +352,24 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
     {
         $emails = $this->emailService->getAllEmails();
         $this->emailService->updateSubscriptionKeysForEmailsUsingModulos($emails, 100);
+    }
+
+    private function removeCommentActivity()
+    {
+        $criteria = new ActivityCriteria();
+        $criteria->setType(ActivityType::COMMENT);
+        $criteria->setSort([
+            ActivityOrderBy::CREATED_AT => Order::ASC
+        ]);
+
+        $activity = $this->activityService->getAllActivityByCriteria($criteria);
+        foreach ($activity as $act) {
+            $commentId = $act->getObjectId();
+            $comment = $this->commentService->getCommentById($commentId);
+            if ($comment == null) {
+                $this->activityService->removeByObjectId($commentId);
+            }
+        }
     }
 
     private function updateCreatedAtForDocumentaryVideoSources()

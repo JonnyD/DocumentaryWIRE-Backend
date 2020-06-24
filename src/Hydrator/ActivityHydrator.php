@@ -67,6 +67,7 @@ class ActivityHydrator implements HydratorInterface
         $username = $user->getUsername();
 
         $activityObject = new ActivityObject();
+        $activityObject->setId($this->activityItem->getId());
         $activityObject->setName($name);
         $activityObject->setUsername($username);
         $activityObject->setAvatar($avatar);
