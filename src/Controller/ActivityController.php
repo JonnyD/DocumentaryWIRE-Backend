@@ -8,6 +8,7 @@ use App\Enum\ActivityComponent;
 use App\Enum\ActivityOrderBy;
 use App\Enum\ActivityType;
 use App\Enum\Order;
+use App\Hydrator\ActivityHydrator;
 use App\Object\Activity\Strategy\DataStrategyContext;
 use App\Service\ActivityService;
 use App\Service\CommentService;
@@ -160,6 +161,22 @@ class ActivityController extends BaseController implements ClassResourceInterfac
     }
 
     /**
+     * @FOSRest\Get("/activity/{id}", name="get_activity_item", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @return Activity|null
+     */
+    public function getActivityAction(int $id)
+    {
+        $activity = $this->activityService->getActivityById($id);
+
+        $activityHydrator = new ActivityHydrator($activity, $this->request, $this->documentaryService, $this->commentService);
+        $serialized = $activityHydrator->toArray();
+
+        return $this->createApiResponse($serialized, 200);
+    }
+
+    /**
      * @param Activity $activity
      * @return array
      */
@@ -182,6 +199,7 @@ class ActivityController extends BaseController implements ClassResourceInterfac
 
         $activityObject = new \App\Object\Activity\Activity();
         $activityObject->setId($activity->getId());
+        $activityObject->setObjectId($activity->getObjectId());
         $activityObject->setName($name);
         $activityObject->setUsername($username);
         $activityObject->setAvatar($avatar);

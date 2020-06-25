@@ -447,6 +447,15 @@ class ActivityService
     }
 
     /**
+     * @param int $id
+     * @return Activity|null
+     */
+    public function getActivityById(int $id)
+    {
+        return $this->activityRepository->find($id);
+    }
+
+    /**
      * @param User $user
      */
     public function mapActivityToUser(User $user)

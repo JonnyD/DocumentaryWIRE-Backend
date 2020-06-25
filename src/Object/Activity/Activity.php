@@ -11,6 +11,11 @@ class Activity
     private $id;
 
     /**
+     * @var int
+     */
+    private $objectId;
+
+    /**
      * @var Data
      */
     private $data;
@@ -64,6 +69,22 @@ class Activity
     public function setId(int $id): void
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getObjectId(): ?int
+    {
+        return $this->objectId;
+    }
+
+    /**
+     * @param int $objectId
+     */
+    public function setObjectId(int $objectId)
+    {
+        $this->objectId = $objectId;
     }
 
     /**
@@ -198,6 +219,7 @@ class Activity
      {
        return [
            'id' => $this->id,
+           'objectId' => $this->objectId,
            'type' => $this->type,
              'data' => $this->data->toArray(),
            'component' => $this->component,
