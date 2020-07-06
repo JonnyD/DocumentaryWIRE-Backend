@@ -6,12 +6,14 @@ class CommentStatus
 {
     const PUBLISHED = "published";
     const PENDING = "pending";
+    const REJECTED = "rejected";
 
     public static function getAllStatuses()
     {
         return [
             self::PUBLISHED,
-            self::PENDING
+            self::PENDING,
+            self::REJECTED
         ];
     }
 

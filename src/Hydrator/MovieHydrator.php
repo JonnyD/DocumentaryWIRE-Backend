@@ -51,7 +51,8 @@ class MovieHydrator implements HydratorInterface
                 'slug' => $this->documentary->getCategory()->getSlug()
             ],
             'createdAt' => $this->documentary->getCreatedAt(),
-            'updatedAt' => $this->documentary->getUpdatedAt()
+            'updatedAt' => $this->documentary->getUpdatedAt(),
+            'commentCount' => $this->documentary->getCommentCount()
         ];
 
         if ($this->documentary->getPoster() != null) {

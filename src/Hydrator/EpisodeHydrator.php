@@ -46,7 +46,8 @@ class EpisodeHydrator implements HydratorInterface
             'featured' => $this->documentary->getFeatured(),
             'imdbId' => $this->documentary->getImdbId(),
             'createdAt' => $this->documentary->getCreatedAt(),
-            'updatedAt' => $this->documentary->getUpdatedAt()
+            'updatedAt' => $this->documentary->getUpdatedAt(),
+            'commentCount' => $this->documentary->getCommentCount()
         ];
 
         if ($this->documentary->getPoster() != null) {
@@ -68,6 +69,7 @@ class EpisodeHydrator implements HydratorInterface
         }
 
         /**
+         * @TODO
         if ($documentary->getDocumentaryVideoSources() != null) {
         $videoSources = [];
 

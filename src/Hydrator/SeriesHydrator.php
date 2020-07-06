@@ -52,7 +52,8 @@ class SeriesHydrator implements HydratorInterface
                 'name' => $this->documentary->getCategory()->getName()
             ],
             'createdAt' => $this->documentary->getCreatedAt(),
-            'updatedAt' => $this->documentary->getUpdatedAt()
+            'updatedAt' => $this->documentary->getUpdatedAt(),
+            'commentCount' => $this->documentary->getCommentCount()
         ];
 
         /**

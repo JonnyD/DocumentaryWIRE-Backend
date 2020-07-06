@@ -185,6 +185,9 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $categorySlug = $request->query->get('category');
         if (isset($categorySlug)) {
             $category = $this->categoryService->getCategoryBySlug($categorySlug);
+            if ($category == null) {
+                return $this->createApiResponse('Category does not exist', 404);
+            }
             $criteria->setCategory($category);
         }
 
@@ -202,12 +205,12 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             $criteria->setIsParent(IsParent::YES);
         }
 
-        $yearFrom = $request->query->get('year');
+        $yearFrom = $request->query->get('year'); //TODO
         if (isset($yearFrom)) {
             $criteria->setYear($yearFrom);
         }
 
-        $duration = $request->query->get('duration');
+        $duration = $request->query->get('duration'); //TODO
         if (isset($duration)) {
             $criteria->setDuration($duration);
         }

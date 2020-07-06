@@ -53,7 +53,9 @@ class CommentHydrator implements HydratorInterface
         if ($this->comment->getDocumentary() != null) {
             $array['documentary'] = [
                 'id' => $this->comment->getDocumentary()->getId(),
-                'title' => $this->comment->getDocumentary()->getTitle()
+                'title' => $this->comment->getDocumentary()->getTitle(),
+                'type' => $this->comment->getDocumentary()->getType(),
+                'slug' => $this->comment->getDocumentary()->getSlug()
             ];
         }
 

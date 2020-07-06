@@ -162,7 +162,7 @@ class CommentController extends BaseController implements ClassResourceInterface
             return $this->createApiResponse('Unauthorized to view this comment', 400);
         }
 
-        $commentHydrator = new CommentHydrator($comment);
+        $commentHydrator = new CommentHydrator($comment, $isRoleAdmin);
         $serialized = $commentHydrator->toArray();
 
         return $this->createApiResponse($serialized, 200);
