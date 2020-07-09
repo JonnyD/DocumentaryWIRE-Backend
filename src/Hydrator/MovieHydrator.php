@@ -52,7 +52,8 @@ class MovieHydrator implements HydratorInterface
             ],
             'createdAt' => $this->documentary->getCreatedAt(),
             'updatedAt' => $this->documentary->getUpdatedAt(),
-            'commentCount' => $this->documentary->getCommentCount()
+            'commentCount' => $this->documentary->getCommentCount(),
+            'watchlistCount' => $this->documentary->getWatchlistCount()
         ];
 
         if ($this->documentary->getPoster() != null) {

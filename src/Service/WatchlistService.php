@@ -44,6 +44,15 @@ class WatchlistService
     }
 
     /**
+     * @param int $id
+     * @return Watchlist|null
+     */
+    public function getWatchlistById(int $id)
+    {
+        return $this->watchlistRepository->find($id);
+    }
+
+    /**
      * @param WatchlistCriteria $criteria
      * @return Watchlist[]|ArrayCollection
      */

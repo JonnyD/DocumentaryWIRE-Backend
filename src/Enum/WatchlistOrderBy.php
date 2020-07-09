@@ -6,6 +6,7 @@ class WatchlistOrderBy
 {
     const USER_ID = 'userId';
     const DOCUMENTARY_ID = 'documentaryId';
+    const CREATED_AT = 'createdAt';
 
     /**
      * @return array
@@ -14,7 +15,8 @@ class WatchlistOrderBy
     {
         return [
             self::USER_ID,
-            self::DOCUMENTARY_ID
+            self::DOCUMENTARY_ID,
+            self::CREATED_AT
         ];
     }
 

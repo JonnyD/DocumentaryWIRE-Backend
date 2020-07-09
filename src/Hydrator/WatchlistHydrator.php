@@ -35,16 +35,20 @@ class WatchlistHydrator implements HydratorInterface
         $documentary = $this->watchlist->getDocumentary();
 
         return [
+            'id' => $this->watchlist->getId(),
             'user' => [
                 'username' => $user->getUsername(),
                 'name' => $user->getName()
             ],
             'documentary' => [
+                'type' => $documentary->getType(),
                 'title' => $documentary->getTitle(),
                 'slug' => $documentary->getSlug(),
                 'poster' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/posters/' . $documentary->getPoster(),
                 'summary' => $documentary->getSummary()
-            ]
+            ],
+            'createdAt' => $this->watchlist->getCreatedAt(),
+            'updatedAt' => $this->watchlist->getUpdatedAt()
         ];
     }
 }

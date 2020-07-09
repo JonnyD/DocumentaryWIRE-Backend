@@ -133,7 +133,8 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         //$this->updateIsParent();
         //$this->updateSubscriptionKeys();
         //$this->updateCreatedAtForDocumentaryVideoSources();
-        $this->removeCommentActivity();
+        //$this->removeCommentActivity();
+        $this->removeActivityWhereDocumentaryDoesNotExist();
     }
 
     public function updateJoinedActivity()
@@ -368,6 +369,23 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
             $comment = $this->commentService->getCommentById($commentId);
             if ($comment == null) {
                 $this->activityService->removeByObjectId($commentId);
+            }
+        }
+    }
+
+    private function removeActivityWhereDocumentaryDoesNotExist()
+    {
+        $criteria =  new ActivityCriteria();
+        $allActivity = $this->activityService->getAllActivityByCriteria($criteria);
+
+        foreach ($allActivity as $activity) {
+            if ($activity->isWatchlist()) {
+                $objectId = $activity->getObjectId();
+
+                $documentary = $this->documentaryService->getDocumentaryById($objectId);
+                if ($documentary === null) {
+                    $this->activityService->removeActivity($activity);
+                }
             }
         }
     }

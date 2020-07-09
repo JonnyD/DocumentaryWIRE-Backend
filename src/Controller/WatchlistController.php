@@ -87,9 +87,9 @@ class WatchlistController extends BaseController implements ClassResourceInterfa
             $criteria->setUser($user);
         }
 
-        $documentarySlug = $request->query->get('documentary');
-        if (isset($documentary)) {
-            $documentary = $this->documentaryService->getDocumentaryBySlug($documentarySlug);
+        $documentaryId = $request->query->get('documentary');
+        if (isset($documentaryId)) {
+            $documentary = $this->documentaryService->getDocumentaryById($documentaryId);
             $criteria->setDocumentary($documentary);
         }
 
@@ -138,5 +138,25 @@ class WatchlistController extends BaseController implements ClassResourceInterfa
         ];
 
         return $this->createApiResponse($data, 200);
+    }
+
+    /**
+     * @FOSRest\Get("/watchlist/{id}", name="get_watchlist", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function getWatchlistAction(int $id)
+    {
+        $watchlist = $this->watchlistService->getWatchlistById($id);
+        if ($watchlist === null) {
+            return $this->createApiResponse('Watchlist not found', 404);
+        }
+
+        $watchlistHydrator = new WatchlistHydrator($watchlist, $this->request);
+        $data = $watchlistHydrator->toArray();
+        $response = $this->createApiResponse($data, 200);
+
+        return $response;
     }
 }

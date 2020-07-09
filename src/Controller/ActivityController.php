@@ -84,6 +84,9 @@ class ActivityController extends BaseController implements ClassResourceInterfac
         $username = $request->query->get('user');
         if (isset($username)) {
             $user = $this->userService->getUserByUsername($username);
+            if (!$user) {
+               return $this->createApiResponse("User does not ecist" , 404);
+            }
             $criteria->setUser($user);
         }
 

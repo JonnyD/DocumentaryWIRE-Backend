@@ -108,7 +108,7 @@ class FollowController extends BaseController implements ClassResourceInterface
             }
             $userTo = $this->userService->getUserById($userToId);
             if (!$userTo) {
-                return $this->createApiResponse('UserFrom does not exist', 404);
+                return $this->createApiResponse('UserTo does not exist', 404);
             }
 
             $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
@@ -151,28 +151,28 @@ class FollowController extends BaseController implements ClassResourceInterface
     {
         $page = $request->query->get('page', 1);
 
-        $userFromId = $request->query->get('from');
-        $userToId = $request->query->get('to');
+        $follower = $request->query->get('follower');
+        $following = $request->query->get('following');
 
         $criteria = new FollowCriteria();
 
         $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
-        if (!$isRoleAdmin && !isset($userFromId) && !isset($userToId)) {
-            return $this->createApiResponse('You must set either a User From or User To', 401);
+        if (!$isRoleAdmin && !isset($follower) && !isset($following)) {
+            return $this->createApiResponse('You must set either a Follower or Following', 401);
         }
 
-        if (isset($userFromId)) {
-            $user = $this->userService->getUserById($userFromId);
+        if (isset($following)) {
+            $user = $this->userService->getUserById($following);
             if (!$user) {
-                return $this->createApiResponse('User From not found', 404);
+                return $this->createApiResponse('Following not found', 404);
             }
             $criteria->setFrom($user);
         }
 
-        if (isset($userToId)) {
-            $user = $this->userService->getUserById($userToId);
+        if (isset($follower)) {
+            $user = $this->userService->getUserById($follower);
             if (!$user) {
-                return $this->createApiResponse('User To not found', 404);
+                return $this->createApiResponse('Follower not found', 404);
             }
             $criteria->setTo($user);
         }

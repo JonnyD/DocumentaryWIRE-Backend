@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Enum\ActivityType;
 use App\Traits\Timestampable;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -144,4 +145,46 @@ class Activity
 
         return $this;
     }
+
+    /**
+     * @return bool
+     */
+    public function isWatchlist(): bool
+    {
+        return ($this->type === ActivityType::WATCHLIST);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isJoined(): bool
+    {
+        return ($this->type === ActivityType::JOINED);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isComment(): bool
+    {
+        return ($this->type === ActivityType::COMMENT);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAdded(): bool
+    {
+        return ($this->type === ActivityType::ADDED);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFollow(): bool
+    {
+        return ($this->type === ActivityType::FOLLOW);
+    }
+
+
 }
