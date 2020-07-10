@@ -254,6 +254,41 @@ class UserService
 
     /**
      * @param User $user
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function updateFollowingCountForUser(User $user)
+    {
+        $count = 0;
+
+        $userFollowing = $user->getFollowFrom();
+        foreach ($userFollowing as $following) {
+            $count++;
+        }
+
+        $user->setFollowFromCount($count);
+        $this->saveAndDontUpdateTimestamps($user);
+    }
+
+    /**
+     * @param User $user
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function updateFollowerCountForUser(User $user)
+    {
+        $count = 0;
+
+        $userFollower = $user->getFollowTo();
+        foreach ($userFollower as $follower) {
+            $count++;
+        }
+
+        $user->setFollowToCount($count);
+        $this->saveAndDontUpdateTimestamps($user);
+    }
+
+
+    /**
+     * @param User $user
      * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */

@@ -15,13 +15,20 @@ class FollowService
     private $followRepository;
 
     /**
+     * @var UserService
+     */
+    private $userService;
+
+    /**
      * @param FollowRepository $followRepository
      */
     public function __construct(
-        FollowRepository $followRepository
+        FollowRepository $followRepository,
+        UserService $userService
     )
     {
         $this->followRepository = $followRepository;
+        $this->userService = $userService;
     }
 
     /**
@@ -73,6 +80,13 @@ class FollowService
         }
 
         $this->followRepository->save($follow, $sync);
+
+        //@TODO
+        //$userFrom = $follow->getUserFrom();
+        //$userTo = $follow->getUserTo();
+
+        //$this->userService->updateFollowerCountForUser($userTo);
+        //$this->userService->updateFollowingCountForUser($userFrom);
     }
 
     /**

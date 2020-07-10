@@ -147,9 +147,19 @@ class User extends BaseUser
     private $followFrom;
 
     /**
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private $followFromCount;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Follow", mappedBy="userTo", orphanRemoval=true)
      */
     private $followTo;
+
+    /**
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private $followToCount;
 
     public function __construct()
     {
@@ -163,6 +173,8 @@ class User extends BaseUser
         $this->enabled = false;
         $this->commentCount = 0;
         $this->watchlistCount = 0;
+        $this->followFromCount = 0;
+        $this->followToCount = 0;
     }
 
     public function getId(): ?int
@@ -524,6 +536,22 @@ class User extends BaseUser
     }
 
     /**
+     * @return int
+     */
+    public function getFollowFromCount(): int
+    {
+        return $this->followFromCount;
+    }
+
+    /**
+     * @param int $followFromCount
+     */
+    public function setFollowFromCount(int $followFromCount)
+    {
+        $this->followFromCount = $followFromCount;
+    }
+
+    /**
      * @return Collection|Follow[]
      */
     public function getFollowTo(): Collection
@@ -560,5 +588,21 @@ class User extends BaseUser
         }
 
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFollowToCount(): int
+    {
+        return $this->followToCount;
+    }
+
+    /**
+     * @param int $followToCount
+     */
+    public function setFollowToCount(int $followToCount)
+    {
+        $this->followToCount = $followToCount;
     }
 }

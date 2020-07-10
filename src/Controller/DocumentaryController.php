@@ -487,6 +487,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
                 $this->documentaryService->save($documentary);
 
+                //@TODO
                 $newCategory = $documentary->getCategory();
                 $this->categoryService->updateDocumentaryCountForCategories(
                     $newCategory, $oldCategory, $documentary);
@@ -586,57 +587,5 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $serialise = $seriesHydrator->toArray();
         return $this->createApiResponse($serialise, 200);
 
-    }
-
-    /**
-     * @param array $data
-     * @param Documentary $documentary
-     * @return Documentary
-     */
-    public function mapArrayToObject(array $data, Documentary $documentary)
-    {
-        //@TODO - is this neccrssary?
-        if (isset($data['title'])) {
-            $documentary->setTitle($data['title']);
-        }
-
-        if (isset($data['slug'])) {
-            $documentary->setSlug($data['slug']);
-        }
-
-        if (isset($data['storyline'])) {
-            $documentary->setStoryline($data['storyline']);
-        }
-
-        if (isset($data['summary'])) {
-            $documentary->setSummary($data['summary']);
-        }
-
-        if (isset($data['year'])) {
-            $documentary->setYear($data['year']);
-        }
-
-        if (isset($data['length'])) {
-            $documentary->setLength($data['length']);
-        }
-
-        if (isset($data['shortUrl'])) {
-            $documentary->setShortUrl($data['shortUrl']);
-        }
-
-        if (isset($data['status'])) {
-            $documentary->setStatus($data['status']);
-        }
-
-        if (isset($data['featured'])) {
-            $documentary->setFeatured($data['featured']);
-        }
-
-        if (isset($data['category'])) {
-            $category = $this->categoryService->getCategoryById($data['category']);
-            $documentary->setCategory($category);
-        }
-
-        return $documentary;
     }
 }

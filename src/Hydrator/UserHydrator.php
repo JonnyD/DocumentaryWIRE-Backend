@@ -55,7 +55,9 @@ class UserHydrator implements HydratorInterface
             'createdAt' => $this->user->getCreatedAt(),
             'lastLogin' => $this->user->getLastLogin(),
             'commentCount' => $this->user->getCommentCount(),
-            'watchlistCount' => $this->user->getWatchlistCount()
+            'watchlistCount' => $this->user->getWatchlistCount(),
+            'followingCount' => $this->user->getFollowFromCount(),
+            'followerCount' => $this->user->getFollowToCount()
         ];
 
         $isUser = false;
