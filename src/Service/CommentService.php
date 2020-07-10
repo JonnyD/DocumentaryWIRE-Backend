@@ -4,7 +4,9 @@ namespace App\Service;
 
 use App\Criteria\CommentCriteria;
 use App\Entity\Comment;
+use App\Entity\Documentary;
 use App\Entity\User;
+use App\Enum\CommentStatus;
 use App\Enum\Sync;
 use App\Repository\CommentRepository;
 
@@ -18,7 +20,8 @@ class CommentService
     /**
      * @param CommentRepository $commentRepository
      */
-    public function __construct(CommentRepository $commentRepository)
+    public function __construct(
+        CommentRepository $commentRepository)
     {
         $this->commentRepository = $commentRepository;
     }
@@ -49,6 +52,20 @@ class CommentService
     }
 
     /**
+     * @param Documentary $documentary
+     * @return Comment[]|\Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getPublishedCommentsByDocumentary(Documentary $documentary)
+    {
+        $criteria = new CommentCriteria();
+        $criteria->setDocumentary($documentary);
+        $criteria->setStatus(CommentStatus::PUBLISHED);
+
+        $comments = $this->getCommentsByCriteria($criteria);
+        return $comments;
+    }
+
+    /**
      * @param CommentCriteria $criteria
      * @return \Doctrine\ORM\QueryBuilder
      */
@@ -69,6 +86,7 @@ class CommentService
     /**
      * @param Comment $comment
      * @param string $sync
+     * @throws \Doctrine\ORM\ORMException
      */
     public function save(Comment $comment, string $sync = Sync::YES)
     {
@@ -78,6 +96,20 @@ class CommentService
             $comment->setUpdatedAt(new \DateTime());
         }
 
+        $this->saveAndDontUpdateTimestamps($comment, $sync);
+    }
+
+    /**
+     * @param Comment $comment
+     * @param string $sync
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function saveAndDontUpdateTimestamps(Comment $comment, string $sync = Sync::YES)
+    {
         $this->commentRepository->save($comment, $sync);
+
+        //@TODO
+        //$this->documentaryService->updateCommentCountForDocumentary($comment->getDocumentary());
+        //$this->userService->updateCommentCountForUser($comment->getUser());
     }
 }

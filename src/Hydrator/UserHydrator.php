@@ -53,7 +53,9 @@ class UserHydrator implements HydratorInterface
             'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $this->user->getAvatar(),
             'roles' => $this->user->getRoles(),
             'createdAt' => $this->user->getCreatedAt(),
-            'lastLogin' => $this->user->getLastLogin()
+            'lastLogin' => $this->user->getLastLogin(),
+            'commentCount' => $this->user->getCommentCount(),
+            'watchlistCount' => $this->user->getWatchlistCount()
         ];
 
         $isUser = false;

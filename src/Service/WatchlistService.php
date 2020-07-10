@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Criteria\WatchlistCriteria;
+use App\Enum\YesNo;
 use App\Repository\WatchlistRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
@@ -68,5 +69,19 @@ class WatchlistService
     public function getWatchlistByCriteriaQueryBuilder(WatchlistCriteria $criteria)
     {
         return $this->watchlistRepository->findWatchlistByCriteriaQueryBuilder($criteria);
+    }
+
+    /**
+     * @param Watchlist $watchlist
+     * @param bool $sync
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function save(Watchlist $watchlist, string $sync = YesNo::YES)
+    {
+        $this->watchlistRepository->save($watchlist, $sync);
+
+        //@TODO
+        //$this->documentaryService->updateWatchlistCountForDocumentary($watchlist->getDocumentary());
+        //$this->userService->updateWatchlistCountForUser($watchlist->getUser());
     }
 }

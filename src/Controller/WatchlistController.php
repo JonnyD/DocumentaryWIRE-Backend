@@ -6,6 +6,7 @@ use App\Criteria\WatchlistCriteria;
 use App\Entity\Documentary;
 use App\Entity\Watchlist;
 use App\Enum\WatchlistOrderBy;
+use App\Form\WatchlistForm;
 use App\Hydrator\WatchlistHydrator;
 use App\Service\DocumentaryService;
 use App\Service\UserService;
@@ -158,5 +159,30 @@ class WatchlistController extends BaseController implements ClassResourceInterfa
         $response = $this->createApiResponse($data, 200);
 
         return $response;
+    }
+
+    public function createWatchlistAction(Request $request)
+    {
+        $watchlist = new Watchlist();
+
+        $form = $this->createForm(WatchlistForm::class, $watchlist);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            if ($form->isValid()) {
+                $this->watchlistService->save($watchlist);
+
+                $watchlistHydrator = new WatchlistHydrator($watchlist, $this->request);
+                $serializedCategory = $watchlistHydrator->toArray();
+                return $this->createApiResponse($serializedCategory, 200);
+            } else {
+                $errors = (string)$form->getErrors(true, false);
+                return $this->createApiResponse($errors, 200);
+            }
+        }
+
     }
 }

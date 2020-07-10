@@ -3,12 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Documentary;
-use App\Entity\DocumentaryVideoSource;
 use App\Entity\Episode;
 use App\Entity\Movie;
-use App\Entity\Poster;
 use App\Entity\Series;
-use App\Entity\User;
 use App\Enum\DocumentaryOrderBy;
 use App\Enum\DocumentaryStatus;
 use App\Enum\DocumentaryType;
@@ -26,6 +23,7 @@ use App\Hydrator\MovieHydrator;
 use App\Hydrator\SeriesHydrator;
 use App\Service\ActivityService;
 use App\Service\CategoryService;
+use App\Service\CommentService;
 use App\Service\DocumentaryService;
 use App\Criteria\DocumentaryCriteria;
 use App\Service\DocumentaryVideoSourceService;
@@ -95,6 +93,11 @@ class DocumentaryController extends BaseController implements ClassResourceInter
     private $activityService;
 
     /**
+     * @var CommentService
+     */
+    private $commentService;
+
+    /**
      * @var Request
      */
     private $request;
@@ -108,6 +111,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
      * @param VideoSourceService $videoSourceService
      * @param DocumentaryVideoSourceService $documentaryVideoSourceService
      * @param ActivityService $activityService
+     * @param CommentService $commentService
      * @param RequestStack $requestStack
      */
     public function __construct(
@@ -119,6 +123,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         VideoSourceService $videoSourceService,
         DocumentaryVideoSourceService $documentaryVideoSourceService,
         ActivityService $activityService,
+        CommentService $commentService,
         RequestStack $requestStack)
     {
         $this->documentaryService = $documentaryService;
@@ -129,6 +134,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $this->videoSourceService = $videoSourceService;
         $this->documentaryVideoSourceService = $documentaryVideoSourceService;
         $this->activityService = $activityService;
+        $this->commentService = $commentService;
         $this->request = $requestStack->getCurrentRequest();
     }
 
@@ -258,7 +264,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         /** @var Documentary $item */
         foreach ($items as $item) {
             if ($item->isMovie()) {
-                $movieHydrator = new MovieHydrator($item, $this->request);
+                $movieHydrator = new MovieHydrator($item, $this->request, $this->commentService);
                 $serialized[] = $movieHydrator->toArray();
             } else if ($item->isSeries()) {
                 $seriesHydrator = new SeriesHydrator($item, $this->request);

@@ -112,9 +112,19 @@ class User extends BaseUser
     private $comments;
 
     /**
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private $commentCount;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Watchlist", mappedBy="user")
      */
     private $watchlists;
+
+    /**
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private $watchlistCount;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Activity", mappedBy="user")
@@ -151,6 +161,8 @@ class User extends BaseUser
         $this->followFrom = new ArrayCollection();
         $this->followTo = new ArrayCollection();
         $this->enabled = false;
+        $this->commentCount = 0;
+        $this->watchlistCount = 0;
     }
 
     public function getId(): ?int
@@ -242,6 +254,22 @@ class User extends BaseUser
     }
 
     /**
+     * @return int
+     */
+    public function getCommentCount(): ?int
+    {
+        return $this->commentCount;
+    }
+
+    /**
+     * @param int $commentCount
+     */
+    public function setCommentCount(int $commentCount)
+    {
+        $this->commentCount = $commentCount;
+    }
+
+    /**
      * @return Collection|Watchlist[]
      */
     public function getWatchlists(): Collection
@@ -270,6 +298,22 @@ class User extends BaseUser
         }
 
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWatchlistCount(): ?int
+    {
+        return $this->watchlistCount;
+    }
+
+    /**
+     * @param int $watchlistCount
+     */
+    public function setWatchlistCount(int $watchlistCount)
+    {
+        $this->watchlistCount = $watchlistCount;
     }
 
     /**

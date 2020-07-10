@@ -6,6 +6,7 @@ class UserOrderBy
 {
     const ENABLED = "enabled";
     const LAST_LOGIN = "lastLogin";
+    const ACTIVATED_AT = "activatedAt";
 
     /**
      * @return array
@@ -14,7 +15,8 @@ class UserOrderBy
     {
         return [
             self::ENABLED,
-            self::LAST_LOGIN
+            self::LAST_LOGIN,
+            self::ACTIVATED_AT
         ];
     }
 

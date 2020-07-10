@@ -53,6 +53,14 @@ class UserService
     }
 
     /**
+     * @return User[]
+     */
+    public function getAllUsers()
+    {
+        return $this->userRepository->findAll();
+    }
+
+    /**
      * @param int $id
      * @return User|null
      */
@@ -143,7 +151,7 @@ class UserService
     {
         $criteria = new UserCriteria();
         $criteria->setSort([
-            UserOrderBy::ACTIVATED => Order::DESC
+            UserOrderBy::ACTIVATED_AT => Order::DESC
         ]);
 
         return $this->userRepository->findUsersByCriteria($criteria);
@@ -206,6 +214,52 @@ class UserService
     {
         $user->setLastLogin(new \DateTime());
         $this->save($user);
+    }
+
+    /**
+     * @param User $user
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function updateWatchlistCountForUser(User $user)
+    {
+        $count = 0;
+
+        $watchlists = $user->getWatchlists();
+        foreach ($watchlists as $watchlist) {
+            $count++;
+        }
+
+        $user->setWatchlistCount($count);
+        $this->saveAndDontUpdateTimestamps($user);
+    }
+
+    /**
+     * @param User $user
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function updateCommentCountForUser(User $user)
+    {
+        $count = 0;
+
+        $comments = $user->getComments();
+        foreach ($comments as $comment) {
+            if ($comment->isPublished()) {
+                $count++;
+            }
+        }
+
+        $user->setCommentCount($count);
+        $this->saveAndDontUpdateTimestamps($user);
+    }
+
+    /**
+     * @param User $user
+     * @param string $sync
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function saveAndDontUpdateTimestamps(User $user, string $sync = Sync::YES)
+    {
+        $this->userRepository->save($user, $sync);
     }
 
     /**

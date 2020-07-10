@@ -126,15 +126,17 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         //$this->updateJoinedActivity();
         //$this->fixActivity();
         //$this->updateCommentCountForDocumentaries();
-        //$this->updateDocumentaryCountForCategories();
         //$this->updateWatchlistCountForDocumentaries();
+        //$this->updateDocumentaryCountForCategories();
         //$this->updateViewsDate();
         //$this->updateYearFrom0ToNull();
         //$this->updateIsParent();
         //$this->updateSubscriptionKeys();
         //$this->updateCreatedAtForDocumentaryVideoSources();
         //$this->removeCommentActivity();
-        $this->removeActivityWhereDocumentaryDoesNotExist();
+        //$this->removeActivityWhereDocumentaryDoesNotExist();
+        //$this->updateCommentCountForUsers();
+        //$this->updateWatchlistCountForUsers();
     }
 
     public function updateJoinedActivity()
@@ -277,6 +279,51 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
 
         foreach ($updatedDocumentaries as $updatedDocumentary) {
             $this->documentaryService->save($updatedDocumentary);
+        }
+    }
+
+    public function updateCommentCountForUsers()
+    {
+        $users = $this->userService->getAllUsers();
+
+        $updatedUsers = [];
+        foreach ($users as $user) {
+            $commentCriteria = new CommentCriteria();
+            $commentCriteria->setUser($user);
+            $commentCriteria->setStatus(CommentStatus::PUBLISHED);
+            $comments = $this->commentService->getCommentsByCriteria($commentCriteria);
+
+            $commentCount = count($comments);
+            if ($commentCount > 0) {
+                $user->setCommentCount($commentCount);
+                $updatedUsers[] = $user;
+            }
+        }
+
+        foreach ($updatedUsers as $updatedUser) {
+            $this->userService->saveAndDontUpdateTimestamps($updatedUser);
+        }
+    }
+
+    public function updateWatchlistCountForUsers()
+    {
+        $users = $this->userService->getAllUsers();
+
+        $updatedUsers = [];
+        foreach ($users as $user) {
+            $watchlistCriteria = new WatchlistCriteria();
+            $watchlistCriteria->setUser($user);
+            $watchlists = $this->watchlistService->getWatchlistsByCriteria($watchlistCriteria);
+
+            $watchlistCount = count($watchlists);
+            if ($watchlistCount > 0) {
+                $user->setWatchlistCount($watchlistCount);
+                $updatedUsers[] = $user;
+            }
+        }
+
+        foreach ($updatedUsers as $updatedUser) {
+            $this->userService->saveAndDontUpdateTimestamps($updatedUser);
         }
     }
 

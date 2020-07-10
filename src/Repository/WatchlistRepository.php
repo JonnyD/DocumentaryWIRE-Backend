@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Criteria\WatchlistCriteria;
 use App\Entity\Watchlist;
+use App\Enum\Sync;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
@@ -100,5 +101,23 @@ class WatchlistRepository extends ServiceEntityRepository
         }
 
         return $qb;
+    }
+
+    /**
+     * @param Watchlist $watchlist
+     * @param bool $sync
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function save(Watchlist $watchlist, bool $sync)
+    {
+        $this->getEntityManager()->persist($watchlist);
+        if ($sync === Sync::YES) {
+            $this->flush();
+        }
+    }
+
+    public function flush()
+    {
+        $this->getEntityManager()->flush();
     }
 }

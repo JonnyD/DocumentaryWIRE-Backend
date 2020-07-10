@@ -3,6 +3,7 @@
 namespace App\Hydrator;
 
 use App\Entity\Documentary;
+use App\Service\CommentService;
 use Symfony\Component\HttpFoundation\Request;
 
 class MovieHydrator implements HydratorInterface
@@ -18,15 +19,23 @@ class MovieHydrator implements HydratorInterface
     private $request;
 
     /**
+     * @var CommentService
+     */
+    private $commentService;
+
+    /**
      * @param Documentary $documentary
      * @param Request $request
+     * @param CommentService $commentService
      */
     public function __construct(
         Documentary $documentary,
-        Request $request)
+        Request $request,
+        CommentService $commentService)
     {
         $this->documentary = $documentary;
         $this->request = $request;
+        $this->commentService = $commentService;
     }
 
     public function toArray()
