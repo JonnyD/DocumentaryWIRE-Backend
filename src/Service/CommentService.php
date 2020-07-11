@@ -8,7 +8,10 @@ use App\Entity\Documentary;
 use App\Entity\User;
 use App\Enum\CommentStatus;
 use App\Enum\Sync;
+use App\Event\CommentEvent;
+use App\Event\CommentEvents;
 use App\Repository\CommentRepository;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CommentService
 {
@@ -18,12 +21,20 @@ class CommentService
     private $commentRepository;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * @param CommentRepository $commentRepository
+     * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
-        CommentRepository $commentRepository)
+        CommentRepository $commentRepository,
+        EventDispatcherInterface $eventDispatcher)
     {
         $this->commentRepository = $commentRepository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -108,8 +119,7 @@ class CommentService
     {
         $this->commentRepository->save($comment, $sync);
 
-        //@TODO
-        //$this->documentaryService->updateCommentCountForDocumentary($comment->getDocumentary());
-        //$this->userService->updateCommentCountForUser($comment->getUser());
+        $commentEvent = new CommentEvent($comment);
+        $this->eventDispatcher->dispatch($commentEvent, CommentEvents::COMMENT_CREATED);
     }
 }

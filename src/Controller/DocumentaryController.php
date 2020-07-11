@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\Documentary;
 use App\Entity\Episode;
 use App\Entity\Movie;
@@ -12,6 +13,8 @@ use App\Enum\DocumentaryType;
 use App\Enum\Featured;
 use App\Enum\IsParent;
 use App\Enum\Order;
+use App\Event\CommentEvent;
+use App\Event\CommentEvents;
 use App\Form\AdminDocumentaryForm;
 use App\Form\DocumentaryEpisodeForm;
 use App\Form\DocumentaryMovieForm;
@@ -36,6 +39,7 @@ use Gedmo\Sluggable\Util\Urlizer;
 use Liip\ImagineBundle\Imagine\Data\DataManager;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use PhpParser\Comment\Doc;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -98,6 +102,11 @@ class DocumentaryController extends BaseController implements ClassResourceInter
     private $commentService;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * @var Request
      */
     private $request;
@@ -124,6 +133,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         DocumentaryVideoSourceService $documentaryVideoSourceService,
         ActivityService $activityService,
         CommentService $commentService,
+        EventDispatcherInterface $eventDispatcher,
         RequestStack $requestStack)
     {
         $this->documentaryService = $documentaryService;
@@ -135,6 +145,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $this->documentaryVideoSourceService = $documentaryVideoSourceService;
         $this->activityService = $activityService;
         $this->commentService = $commentService;
+        $this->eventDispatcher = $eventDispatcher;
         $this->request = $requestStack->getCurrentRequest();
     }
 
@@ -146,6 +157,11 @@ class DocumentaryController extends BaseController implements ClassResourceInter
      */
     public function listAction(Request $request)
     {
+
+        $comment = new Comment();
+        $commentEvent = new CommentEvent($comment);
+        $this->eventDispatcher->dispatch($commentEvent, CommentEvents::COMMENT_CREATED);
+
         $page = $request->query->get('page', 1);
 
         $criteria = new DocumentaryCriteria();

@@ -1,7 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Jonny
- * Date: 11/07/2020
- * Time: 17:49
- */
+
+namespace App\Event;
+
+class CommentEvents
+{
+    const COMMENT_CREATED = "comment.comment_created";
+}
