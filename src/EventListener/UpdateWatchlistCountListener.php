@@ -2,13 +2,13 @@
 
 namespace App\EventListener;
 
-use App\Event\CommentEvent;
-use App\Event\CommentEvents;
+use App\Event\WatchlistEvent;
+use App\Event\WatchlistEvents;
 use App\Service\DocumentaryService;
 use App\Service\UserService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class UpdateCommentCountListener implements EventSubscriberInterface
+class UpdateWatchlistCountListener implements EventSubscriberInterface
 {
     /**
      * @var DocumentaryService
@@ -39,22 +39,22 @@ class UpdateCommentCountListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            CommentEvents::COMMENT_CREATED => "onCommentCreated"
+            WatchlistEvents::WATCHLIST_CREATED => "onWatchlistCreated"
         );
     }
 
     /**
-     * @param CommentEvent $commentEvent
+     * @param WatchlistEvent $watchlistEvent
      * @throws \Doctrine\ORM\ORMException
      */
-    public function onCommentCreated(CommentEvent $commentEvent)
+    public function onWatchlistCreated(WatchlistEvent $watchlistEvent)
     {
-        $comment = $commentEvent->getComment();
+        $watchlist = $watchlistEvent->getWatchlist();
 
-        $documentary = $comment->getDocumentary();
-        $user = $comment->getUser();
+        $documentary = $watchlist->getDocumentary();
+        $user = $watchlist->getUser();
 
-        $this->documentaryService->updateCommentCountForDocumentary($documentary);
-        $this->userService->updateCommentCountForUser($user);
+        $this->documentaryService->updateWatchlistCountForDocumentary($documentary);
+        $this->userService->updateWatchlistCountForUser($user);
     }
 }

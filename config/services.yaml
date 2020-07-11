@@ -37,6 +37,11 @@ services:
         tags:
             - { name: kernel.event_listener, event: comment.comment_created, method: onCommentCreated }
 
+    App\EventListener\UpdateWatchlistCountListener:
+        class: App\EventListener\UpdateWatchlistCountListener
+        tags:
+        - { name: kernel.event_listener, event: watchlist.watchlist_created, method: onWatchlistCreated }
+
     app.http_kernel.cors_subscriber:
         class: App\EventListener\CorsSubscriber
         tags:

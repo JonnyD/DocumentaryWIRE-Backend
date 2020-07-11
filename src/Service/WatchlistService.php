@@ -4,6 +4,8 @@ namespace App\Service;
 
 use App\Criteria\WatchlistCriteria;
 use App\Enum\YesNo;
+use App\Event\WatchlistEvent;
+use App\Event\WatchlistEvents;
 use App\Repository\WatchlistRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
@@ -17,6 +19,7 @@ use App\Enum\Order;
 use App\Entity\Comment;
 use App\Entity\User;
 use App\Entity\Watchlist;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -28,19 +31,27 @@ class WatchlistService
     private $watchlistRepository;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * @var Request
      */
     private $request;
 
     /**
      * @param WatchlistRepository $watchlistRepository
+     * @param EventDispatcherInterface $eventDispatcher
      * @param RequestStack $requestStack
      */
     public function __construct(
         WatchlistRepository $watchlistRepository,
+        EventDispatcherInterface $eventDispatcher,
         RequestStack $requestStack)
     {
         $this->watchlistRepository = $watchlistRepository;
+        $this->eventDispatcher = $eventDispatcher;
         $this->request = $requestStack->getCurrentRequest();
     }
 
@@ -80,8 +91,7 @@ class WatchlistService
     {
         $this->watchlistRepository->save($watchlist, $sync);
 
-        //@TODO
-        //$this->documentaryService->updateWatchlistCountForDocumentary($watchlist->getDocumentary());
-        //$this->userService->updateWatchlistCountForUser($watchlist->getUser());
+        $watchlistEvent = new WatchlistEvent($watchlist);
+        $this->eventDispatcher->dispatch($watchlistEvent, WatchlistEvents::WATCHLIST_CREATED);
     }
 }
