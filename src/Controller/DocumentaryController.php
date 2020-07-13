@@ -157,11 +157,6 @@ class DocumentaryController extends BaseController implements ClassResourceInter
      */
     public function listAction(Request $request)
     {
-
-        $comment = new Comment();
-        $commentEvent = new CommentEvent($comment);
-        $this->eventDispatcher->dispatch($commentEvent, CommentEvents::COMMENT_CREATED);
-
         $page = $request->query->get('page', 1);
 
         $criteria = new DocumentaryCriteria();

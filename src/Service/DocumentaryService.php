@@ -294,6 +294,20 @@ class DocumentaryService
     }
 
     /**
+     * @param Category $category
+     * @return Documentary[]|ArrayCollection
+     */
+    public function getDocumentariesByCategory(Category $category)
+    {
+        $criteria = new DocumentaryCriteria();
+        $criteria->setCategory($category);
+        $criteria->setLimit(20);
+
+        $documentaries = $this->getDocumentariesByCriteria($criteria);
+        return $documentaries;
+    }
+
+    /**
      * @param Documentary $documentary
      */
     public function updateViews(Documentary $documentary)

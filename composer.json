@@ -12,6 +12,7 @@
         "friendsofsymfony/user-bundle": "^2.1",
         "google/apiclient": "~2.0",
         "hshn/base64-encoded-file": "2.x@dev",
+        "iflylabs/iflychat-php": "^2.1",
         "jms/serializer-bundle": "^2.4",
         "liip/imagine-bundle": "^2.3",
         "nelmio/api-doc-bundle": "^2.13",

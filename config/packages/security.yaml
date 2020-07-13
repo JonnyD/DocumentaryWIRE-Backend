@@ -210,6 +210,13 @@ security:
             fos_oauth:  true
             stateless:  false
 
+        api_chat:
+            methods: [GET]
+            pattern: ^/api/v1/chat
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
 
         main:
             pattern: ^/

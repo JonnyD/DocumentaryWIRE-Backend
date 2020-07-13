@@ -85,3 +85,13 @@ api_season:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\SeasonController
+
+api_chat:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\ChatController
+
+api_rss:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\RssFeedController
