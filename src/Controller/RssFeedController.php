@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Criteria\DocumentaryCriteria;
+use App\Enum\DocumentaryOrderBy;
+use App\Enum\Order;
 use App\Service\CategoryService;
 use App\Service\DocumentaryService;
 use App\Service\XmlService;
@@ -53,7 +56,11 @@ class RssFeedController extends AbstractFOSRestController implements ClassResour
         $limitAmountOfDocumentaries = 20;
         $documentaries = $this->documentaryService->getLatestDocumentaries($limitAmountOfDocumentaries);
 
-        $xml = $this->xmlService->generateXml($documentaries);
+        $xml = $this->xmlService->generateXml(
+            "DocumentaryWIRE",
+            "documentarywire.com",
+            "Watch Documentaries Online",
+            $documentaries);
 
         $response = new Response();
         $response->headers->set("Content-type", "text/xml");
@@ -62,7 +69,7 @@ class RssFeedController extends AbstractFOSRestController implements ClassResour
     }
 
     /**
-     * @FOSRest\Get("/rss/category/{slug}", name="get_site_rss", options={ "method_prefix" = false })
+     * @FOSRest\Get("/rss/category/{slug}", name="get_category_rss", options={ "method_prefix" = false })
      *
      * @param string $slug
      * @return string
@@ -70,9 +77,17 @@ class RssFeedController extends AbstractFOSRestController implements ClassResour
     public function categoryFeedAction(string $slug)
     {
         $category = $this->categoryService->getCategoryBySlug($slug);
-        $documentaries = $this->documentaryService->getDocumentariesByCategory($category);
+        $documentaryCriteira = new DocumentaryCriteria();
+        $documentaryCriteira->setCategory($category);
+        $documentaryCriteira->setSort([DocumentaryOrderBy::CREATED_AT => Order::DESC]);
 
-        $xml = $this->xmlService->generateXml($documentaries);
+        $documentaries = $this->documentaryService->getDocumentariesByCriteria($documentaryCriteira);
+
+        $xml = $this->xmlService->generateXml(
+            "DocumentaryWIRE - {$category->getName()}",
+            "documentarywire.com/category/{$slug}",
+            "Watch {$category->getName()} Documentaries Online",
+            $documentaries);
 
         $response = new Response();
         $response->headers->set("Content-type", "text/xml");

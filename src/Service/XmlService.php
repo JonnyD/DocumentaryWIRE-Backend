@@ -5,10 +5,13 @@ namespace App\Service;
 class XmlService
 {
     /**
+     * @param string $title
+     * @param string $link
+     * @param string $description
      * @param array $documentaries
      * @return string
      */
-    public function generateXml(array $documentaries)
+    public function generateXml(string $title, string $link, string $description, array $documentaries)
     {
         $http = 'http://';
 
@@ -16,9 +19,9 @@ class XmlService
 <?xml version='1.0' encoding='UTF-8'?>
 <rss version='2.0'>
 <channel>
-<title>DocumentaryWIRE</title>
-<link>{$http}documentarywire.como</link>
-<description>Watch Documentaries Online</description>
+<title>{$title}</title>
+<link>{$http}{$link}</link>
+<description>{$description}</description>
 <language>en-us</language>
 xml;
         foreach ($documentaries as $documentary) {

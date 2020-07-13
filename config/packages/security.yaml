@@ -217,6 +217,12 @@ security:
             stateless:  false
             anonymous: true
 
+        api_rss_site:
+            methods: [GET]
+            pattern: ^/api/v1/rss
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
 
         main:
             pattern: ^/
