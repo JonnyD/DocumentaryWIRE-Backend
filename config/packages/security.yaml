@@ -224,6 +224,13 @@ security:
             stateless:  false
             anonymous: true
 
+        api_sitemap:
+            methods: [GET]
+            pattern: ^/api/v1/sitemap
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
         main:
             pattern: ^/
             form_login:
