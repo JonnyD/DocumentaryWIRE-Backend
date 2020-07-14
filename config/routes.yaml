@@ -95,3 +95,8 @@ api_rss:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\RssFeedController
+
+api_sitemap:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\SitemapController

@@ -247,6 +247,47 @@ class DocumentaryService
     }
 
     /**
+     * @param int $limit
+     * @return ArrayCollection|Documentary[]
+     */
+    public function getLatestDocumentariesInCategory(Category $category, int $limit)
+    {
+        $criteria = new DocumentaryCriteria();
+        $criteria->setCategory($category);
+        $criteria->setStatus(DocumentaryStatus::PUBLISHED);
+        $criteria->setLimit($limit);
+        $criteria->setIsParent(IsParent::YES);
+        $criteria->setSort([
+            DocumentaryOrderBy::CREATED_AT => Order::DESC
+        ]);
+
+        return $this->documentaryRepository->findDocumentariesByCriteria($criteria);
+    }
+
+    /**
+     * @return Documentary|mixed
+     */
+    public function getLastUpdatedDocumentary()
+    {
+        $latestDocumentaries = $this->getLatestDocumentaries(1);
+        $latestDocumentary = $latestDocumentaries[0];
+
+        return $latestDocumentary;
+    }
+
+    /**
+     * @param Category $category
+     * @return Documentary|mixed
+     */
+    public function getLastUpdatedDocumentaryInCategory(Category $category)
+    {
+        $latestDocumentaries = $this->getLatestDocumentariesInCategory($category, 1);
+        $latestDocumentary = $latestDocumentaries[0];
+
+        return $latestDocumentary;
+    }
+
+    /**
      * @param string $video_src
      * @param string $video_url
      * @param int $video_width

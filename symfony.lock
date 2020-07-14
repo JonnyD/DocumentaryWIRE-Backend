@@ -58,9 +58,6 @@
     "codeception/stub": {
         "version": "3.6.1"
     },
-    "container-interop/container-interop": {
-        "version": "1.2.0"
-    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -264,33 +261,6 @@
     },
     "justinrainbow/json-schema": {
         "version": "5.2.9"
-    },
-    "laminas/laminas-escaper": {
-        "version": "2.6.1"
-    },
-    "laminas/laminas-feed": {
-        "version": "2.12.2"
-    },
-    "laminas/laminas-http": {
-        "version": "2.12.0"
-    },
-    "laminas/laminas-loader": {
-        "version": "2.6.1"
-    },
-    "laminas/laminas-servicemanager": {
-        "version": "2.7.11"
-    },
-    "laminas/laminas-stdlib": {
-        "version": "3.2.1"
-    },
-    "laminas/laminas-uri": {
-        "version": "2.7.1"
-    },
-    "laminas/laminas-validator": {
-        "version": "2.13.4"
-    },
-    "laminas/laminas-zendframework-bridge": {
-        "version": "1.0.4"
     },
     "liip/imagine-bundle": {
         "version": "1.8",
