@@ -100,3 +100,8 @@ api_sitemap:
   type:     rest
   prefix:   api/v1
   resource: App\Controller\SitemapController
+
+api_contact:
+  type:     rest
+  prefix:   api/v1
+  resource: App\Controller\ContactController

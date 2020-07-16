@@ -231,6 +231,19 @@ security:
             stateless:  false
             anonymous: true
 
+        api_public_contact:
+            methods: [POST]
+            pattern: ^/api/v1/contact
+            fos_oauth:  true
+            stateless:  false
+            anonymous: true
+
+        api_contact:
+            methods: [GET, PATCH, PUT]
+            pattern: ^/api/v1/contact
+            fos_oauth:  true
+            stateless:  false
+
         main:
             pattern: ^/
             form_login:

@@ -95,22 +95,6 @@ class Documentary
     private $views;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(type="integer")
-     * @Gedmo\Versioned
-     */
-    private $todayViews;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Gedmo\Versioned
-     */
-    private $viewsDate;
-
-    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Versioned
      */
@@ -259,8 +243,6 @@ class Documentary
         $this->documentaryVideoSources = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->views = 0;
-        $this->todayViews = 0;
-        $this->viewsDate = new \DateTime();
         $this->commentCount = 0;
         $this->watchlistCount = 0;
         $this->featured = Featured::NO;
@@ -418,21 +400,8 @@ class Documentary
     }
 
     /**
-     * @return \DateTime
+     * @return null|string
      */
-    public function getViewsDate(): ?\DateTime
-    {
-        return $this->viewsDate;
-    }
-
-    /**
-     * @param \DateTime $viewsDate
-     */
-    public function setViewsDate(\DateTime $viewsDate): void
-    {
-        $this->viewsDate = $viewsDate;
-    }
-
     public function getShortUrl(): ?string
     {
         return $this->shortUrl;
