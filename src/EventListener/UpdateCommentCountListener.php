@@ -39,7 +39,7 @@ class UpdateCommentCountListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            CommentEvents::COMMENT_CREATED => "onCommentCreated"
+            CommentEvents::COMMENT_SAVED => "onCommentSaved"
         );
     }
 
@@ -47,7 +47,7 @@ class UpdateCommentCountListener implements EventSubscriberInterface
      * @param CommentEvent $commentEvent
      * @throws \Doctrine\ORM\ORMException
      */
-    public function onCommentCreated(CommentEvent $commentEvent)
+    public function onCommentSaved(CommentEvent $commentEvent)
     {
         $comment = $commentEvent->getComment();
 

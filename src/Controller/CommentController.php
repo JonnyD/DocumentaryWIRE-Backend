@@ -216,8 +216,6 @@ class CommentController extends BaseController implements ClassResourceInterface
             if ($form->isValid()) {
                 $this->commentService->save($comment);
 
-                //@TODO $this->documentaryService->updateCommentCountForDocumentary($comment->getDocumentary());
-
                 $commentHydrator = new CommentHydrator($comment, $this->isGranted('ROLE_ADMIN'));
                 $serializedComment = $commentHydrator->toArray();
                 return $this->createApiResponse($serializedComment, 200);
@@ -226,6 +224,11 @@ class CommentController extends BaseController implements ClassResourceInterface
                 return $this->createApiResponse($errors, 200);
             }
         }
+    }
+
+    public function deleteCommentAction()
+    {
+        //@TODO
     }
 
     public function createCommentAction()

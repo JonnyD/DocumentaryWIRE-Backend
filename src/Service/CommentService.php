@@ -120,6 +120,6 @@ class CommentService
         $this->commentRepository->save($comment, $sync);
 
         $commentEvent = new CommentEvent($comment);
-        $this->eventDispatcher->dispatch($commentEvent, CommentEvents::COMMENT_CREATED);
+        $this->eventDispatcher->dispatch($commentEvent, CommentEvents::COMMENT_SAVED);
     }
 }
