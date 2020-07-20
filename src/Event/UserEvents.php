@@ -2,36 +2,7 @@
 
 namespace App\Event;
 
-use App\Entity\User;
-
-class UserEvent
+class UserEvents
 {
-    /**
-     * @var User 
-     */
-    private $user;
-
-    /**
-     * @param User $user
-     */
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-    }
-
-    /**
-     * @return User
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * @param User $user
-     */
-    public function setUser(User $user)
-    {
-        $this->user = $user;
-    }
+    const USER_CONFIRMED = "user.user_confirmed";
 }

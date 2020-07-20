@@ -7,10 +7,13 @@ use App\Entity\User;
 use App\Enum\Order;
 use App\Enum\Sync;
 use App\Enum\UserOrderBy;
+use App\Event\UserEvent;
+use App\Event\UserEvents;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserService
 {
@@ -35,21 +38,29 @@ class UserService
     private $encoder;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * @param UserRepository $userRepository
      * @param EmailService $emailService
      * @param ActivityService $activityService
      * @param UserPasswordEncoderInterface $encoder
+     * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
         UserRepository $userRepository,
         EmailService $emailService,
         ActivityService $activityService,
-        UserPasswordEncoderInterface $encoder)
+        UserPasswordEncoderInterface $encoder,
+        EventDispatcherInterface $eventDispatcher)
     {
         $this->userRepository = $userRepository;
         $this->emailService = $emailService;
         $this->activityService = $activityService;
         $this->encoder = $encoder;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -198,10 +209,10 @@ class UserService
         $user->setActivatedAt(new \DateTime());
         $user->setEnabled(true);
 
-        //@TODO
-        //$this->emailService->subscribe($user->getEmailCanonical());
-
         $this->save($user);
+
+        $userEvent = new UserEvent($user);
+        $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_CONFIRMED);
 
         //$this->activityService->addJoinedActivity($user);
     }
