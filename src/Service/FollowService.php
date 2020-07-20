@@ -5,7 +5,10 @@ namespace App\Service;
 use App\Criteria\FollowCriteria;
 use App\Entity\Follow;
 use App\Enum\Sync;
+use App\Event\FollowEvent;
+use App\Event\FollowEvents;
 use App\Repository\FollowRepository;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class FollowService
 {
@@ -15,20 +18,21 @@ class FollowService
     private $followRepository;
 
     /**
-     * @var UserService
+     * @var EventDispatcherInterface
      */
-    private $userService;
+    private $eventDispatcher;
 
     /**
      * @param FollowRepository $followRepository
+     * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
         FollowRepository $followRepository,
-        UserService $userService
+        EventDispatcherInterface $eventDispatcher
     )
     {
         $this->followRepository = $followRepository;
-        $this->userService = $userService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -81,12 +85,8 @@ class FollowService
 
         $this->followRepository->save($follow, $sync);
 
-        //@TODO
-        //$userFrom = $follow->getUserFrom();
-        //$userTo = $follow->getUserTo();
-
-        //$this->userService->updateFollowerCountForUser($userTo);
-        //$this->userService->updateFollowingCountForUser($userFrom);
+        $followEvent = new FollowEvent($follow);
+        $this->eventDispatcher->dispatch($followEvent, FollowEvents::FOLLOW_SAVED);
     }
 
     /**
@@ -96,5 +96,8 @@ class FollowService
     public function remove(Follow $follow)
     {
         $this->followRepository->remove($follow);
+
+        $followEvent = new FollowEvent($follow);
+        $this->eventDispatcher->dispatch($followEvent, FollowEvents::FOLLOW_SAVED);
     }
 }

@@ -38,6 +38,17 @@ services:
             - { name: kernel.event_listener, event: comment.comment_created, method: onCommentCreated }
             - { name: kernel.event_listener, event: comment.comment_deleted, method: onCommentDeleted }
 
+    App\EventListener\EmailSubscriptionListener:
+        class: App\EventListener\EmailSubscriptionListener
+        tags:
+        - { name: kernel.event_listener, event: user.user_confirmed, method: onUserConfirmed }
+
+    App\EventListener\UpdateFollowerAndFollowingCountListener:
+        class: App\EventListener\UpdateFollowerAndFollowingCountListener
+        tags:
+        - { name: kernel.event_listener, event: follow.follow_saved, method: onFollowSaved }:
+      - { name: kernel.event_listener, event: follow.follow_deleted, method: onFollowDeleted }
+
     App\EventListener\UpdateWatchlistCountListener:
         class: App\EventListener\UpdateWatchlistCountListener
         tags:
