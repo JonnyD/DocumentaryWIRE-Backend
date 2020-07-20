@@ -94,6 +94,13 @@ class CommentService
         return $this->commentRepository->findDCommentsByCriteria($criteria);
     }
 
+    public function delete(Comment $comment)
+    {
+        $this->commentRepository->remove($comment, Sync::YES);
+
+        $commentEvent = new CommentEvent($comment);
+        $this->eventDispatcher->dispatch($commentEvent, CommentEvents::COMMENT_DELETED);
+    }
     /**
      * @param Comment $comment
      * @param string $sync

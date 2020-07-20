@@ -39,7 +39,8 @@ class UpdateCommentCountListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            CommentEvents::COMMENT_SAVED => "onCommentSaved"
+            CommentEvents::COMMENT_SAVED => "onCommentSaved",
+            CommentEvents::COMMENT_DELETED => "onCommentDeleted"
         );
     }
 
@@ -55,6 +56,23 @@ class UpdateCommentCountListener implements EventSubscriberInterface
         $user = $comment->getUser();
 
         $this->documentaryService->updateCommentCountForDocumentary($documentary);
+        $this->userService->updateCommentCountForUser($user);
+    }
+
+    /**
+     * @param CommentEvent $commentEvent
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function onCommentDeleted(CommentEvent $commentEvent)
+    {
+        $comment = $commentEvent->getComment();
+
+        $documentary = $comment->getDocumentary();
+        $documentary->removeComment($comment);
+        $this->documentaryService->updateCommentCountForDocumentary($documentary);
+
+        $user = $comment->getUser();
+        $user->removeComment($comment);
         $this->userService->updateCommentCountForUser($user);
     }
 }
