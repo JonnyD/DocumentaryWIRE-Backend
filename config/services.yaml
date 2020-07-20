@@ -50,6 +50,21 @@ services:
         tags:
         - { name: kernel.event_listener, event: watchlist.watchlist_created, method: onWatchlistCreated }
 
+    App\EventListener\CommentActivityListener:
+        class: App\EventListener\CommentActivityListener
+        tags:
+        - { name: kernel.event_listener, event: comment.comment_saved, method: onCommentSaved }
+
+    App\EventListener\JoinedActivityListener:
+        class: App\EventListener\JoinedActivityListener
+        tags:
+        - { name: kernel.event_listener, event: user.user_confirmed, method: onUserConfirmed }
+
+    App\EventListener\WatchlistActivityListener:
+        class: App\EventListener\WatchlistActivityListener
+        tags:
+        - { name: kernel.event_listener, event: watchlist.watchlist_created, method: onWatchlistCreated }
+
     object_normalizer:
         class: Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer
         # Important! Tag this service or it wouldn't work
