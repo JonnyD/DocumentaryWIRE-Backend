@@ -2,14 +2,12 @@
 
 namespace App\EventListener;
 
-use App\Event\WatchlistEvent;
-use App\Event\WatchlistEvents;
+use App\Event\UserEvent;
+use App\Event\UserEvents;
 use App\Service\ActivityService;
-use App\Service\DocumentaryService;
-use App\Service\UserService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class AddWatchlistActivityListener implements EventSubscriberInterface
+class JoinedActivityListener implements EventSubscriberInterface
 {
     /**
      * @var ActivityService
@@ -32,17 +30,16 @@ class AddWatchlistActivityListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            WatchlistEvents::WATCHLIST_CREATED => "onWatchlistCreated"
+            UserEvents::USER_CONFIRMED => "onUserConfirmed"
         );
     }
 
     /**
-     * @param WatchlistEvent $watchlistEvent
-     * @throws \Doctrine\ORM\ORMException
+     * @param UserEvent $userEvent
      */
-    public function onWatchlistCreated(WatchlistEvent $watchlistEvent)
+    public function onUserConfirmed(UserEvent $userEvent)
     {
-        $watchlist = $watchlistEvent->getWatchlist();
-        $this->activityService->addWatchlistActivity($watchlist);
+        $user = $userEvent->getUser();
+        $this->activityService->addJoinedActivity($user);
     }
 }
