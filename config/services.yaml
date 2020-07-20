@@ -27,10 +27,6 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    App\EventListener\UpdateLastActiveAtListener:
-        tags:
-        - { name: kernel.event_listener, event: fos_oauth_server.pre_authorization_process, method: onPreAuthorizationProcess }
-        - { name: kernel.event_listener, event: fos_oauth_server.post_authorization_process, method: onPostAuthorizationProcess }
 
     App\EventListener\UpdateCommentCountListener:
         class: App\EventListener\UpdateCommentCountListener
@@ -46,18 +42,13 @@ services:
     App\EventListener\UpdateFollowerAndFollowingCountListener:
         class: App\EventListener\UpdateFollowerAndFollowingCountListener
         tags:
-        - { name: kernel.event_listener, event: follow.follow_saved, method: onFollowSaved }:
-      - { name: kernel.event_listener, event: follow.follow_deleted, method: onFollowDeleted }
+        - { name: kernel.event_listener, event: follow.follow_saved, method: onFollowSaved }
+        - { name: kernel.event_listener, event: follow.follow_deleted, method: onFollowDeleted }
 
     App\EventListener\UpdateWatchlistCountListener:
         class: App\EventListener\UpdateWatchlistCountListener
         tags:
         - { name: kernel.event_listener, event: watchlist.watchlist_created, method: onWatchlistCreated }
-
-    app.http_kernel.cors_subscriber:
-        class: App\EventListener\CorsSubscriber
-        tags:
-        - { name: kernel.event_subscriber }
 
     object_normalizer:
         class: Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer
