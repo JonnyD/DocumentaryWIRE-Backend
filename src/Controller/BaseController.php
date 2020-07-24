@@ -14,7 +14,7 @@ class BaseController extends AbstractFOSRestController
     /**
      * @param $data
      * @param int $statusCode
-     * @return Response
+     * @return JsonResponse
      */
     protected function createApiResponse($data, $statusCode = 200)
     {
@@ -22,7 +22,8 @@ class BaseController extends AbstractFOSRestController
             'Access-Control-Allow-Origin'=> '*'
         ];
 
-        return new JsonResponse($data, $statusCode, $headers);
+        $jsonResponse = new JsonResponse($data, $statusCode, $headers);
+        return $jsonResponse;
     }
 
     /**
@@ -60,6 +61,12 @@ class BaseController extends AbstractFOSRestController
         if (is_string($this->getLoggedInUser())){
             return false;
         }
-        return $this->getLoggedInUser()->isGranted("ROLE_USER");
+
+        $loggedInUser = $this->getLoggedInUser();
+        if ($loggedInUser == null) {
+            return false;
+        }
+
+        return $loggedInUser->isGranted("ROLE_USER");
     }
 }
