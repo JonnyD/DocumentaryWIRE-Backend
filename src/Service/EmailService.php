@@ -195,6 +195,8 @@ class EmailService
 
             $this->save($email);
         }
+        
+        //@TODO add to mailing list
     }
 
     /**
