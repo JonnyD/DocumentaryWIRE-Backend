@@ -78,7 +78,6 @@ class CategoryCriteria
      */
     public function setSort(array $sort): void
     {
-        //@TODO check sort
         $this->sort = $sort;
     }
 
