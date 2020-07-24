@@ -364,6 +364,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 
                 $this->documentaryService->save($documentary);
 
+                //@TODO
                 $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
 
                 $movieHydrator = new MovieHydrator($documentary, $this->request);
