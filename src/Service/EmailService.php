@@ -173,9 +173,10 @@ class EmailService
 
     /**
      * @param string $emailAddress
+     * @param string $source
      * @throws \Doctrine\ORM\ORMException
      */
-    public function subscribe(string $emailAddress)
+    public function subscribe(string $emailAddress, string $source)
     {
         $subscriptionKey = $resetKey = sha1(mt_rand(10000,99999).time().$emailAddress);;
 
@@ -192,6 +193,7 @@ class EmailService
             $email->setEmail($emailAddress);
             $email->setSubscriptionKey($subscriptionKey);
             $email->setSubscribed(Subscribed::YES);
+            $email->setSource($source);
 
             $this->save($email);
         }

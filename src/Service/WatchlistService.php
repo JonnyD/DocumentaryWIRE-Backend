@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Criteria\WatchlistCriteria;
+use App\Enum\Sync;
 use App\Enum\YesNo;
 use App\Event\WatchlistEvent;
 use App\Event\WatchlistEvents;
@@ -84,14 +85,23 @@ class WatchlistService
 
     /**
      * @param Watchlist $watchlist
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function createWatchlist(Watchlist $watchlist)
+    {
+        $this->save($watchlist, Sync::YES);
+
+        $watchlistEvent = new WatchlistEvent($watchlist);
+        $this->eventDispatcher->dispatch($watchlistEvent, WatchlistEvents::WATCHLIST_CREATED);
+    }
+
+    /**
+     * @param Watchlist $watchlist
      * @param bool $sync
      * @throws \Doctrine\ORM\ORMException
      */
     public function save(Watchlist $watchlist, string $sync = YesNo::YES)
     {
         $this->watchlistRepository->save($watchlist, $sync);
-
-        $watchlistEvent = new WatchlistEvent($watchlist);
-        $this->eventDispatcher->dispatch($watchlistEvent, WatchlistEvents::WATCHLIST_CREATED);
     }
 }

@@ -173,7 +173,7 @@ class WatchlistController extends BaseController implements ClassResourceInterfa
             $form->submit($data);
 
             if ($form->isValid()) {
-                $this->watchlistService->save($watchlist);
+                $this->watchlistService->createWatchlist($watchlist);
 
                 $watchlistHydrator = new WatchlistHydrator($watchlist, $this->request);
                 $serializedCategory = $watchlistHydrator->toArray();

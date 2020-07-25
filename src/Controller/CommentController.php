@@ -234,5 +234,8 @@ class CommentController extends BaseController implements ClassResourceInterface
     public function createCommentAction()
     {
         //@TODO
+        $comment = new Comment();
+
+        $this->commentService->createComment($comment);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\EventListener;
 
+use App\Enum\EmailSource;
 use App\Event\CommentEvent;
 use App\Event\CommentEvents;
 use App\Event\UserEvent;
@@ -34,7 +35,8 @@ class EmailSubscriptionListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            UserEvents::USER_CONFIRMED => "onUserConfirmed"
+            UserEvents::USER_CONFIRMED => "onUserConfirmed",
+            UserEvents::USER_CREATED_BY_ADMIN => "onUserCreatedByAdmin"
         );
     }
 
@@ -47,6 +49,18 @@ class EmailSubscriptionListener implements EventSubscriberInterface
         $user = $userEvent->getUser();
         $email = $user->getEmail();
 
-        $this->emailService->subscribe($email);
+        $this->emailService->subscribe($email, EmailSource::USER);
+    }
+
+    /**
+     * @param UserEvent $userEvent
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function onUserCreatedByAdmin(UserEvent $userEvent)
+    {
+        $user = $userEvent->getUser();
+        $email = $user->getEmail();
+
+        $this->emailService->subscribe($email, EmailSource::USER);
     }
 }

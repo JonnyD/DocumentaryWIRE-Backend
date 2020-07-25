@@ -12,6 +12,7 @@ use App\Event\UserEvents;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
+use FOS\UserBundle\Model\UserManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -33,6 +34,11 @@ class UserService
     private $activityService;
 
     /**
+     * @var UserManagerInterface
+     */
+    private $userManager;
+
+    /**
      * @var UserPasswordEncoderInterface
      */
     private $encoder;
@@ -46,6 +52,7 @@ class UserService
      * @param UserRepository $userRepository
      * @param EmailService $emailService
      * @param ActivityService $activityService
+     * @param UserManagerInterface $userManager
      * @param UserPasswordEncoderInterface $encoder
      * @param EventDispatcherInterface $eventDispatcher
      */
@@ -53,12 +60,14 @@ class UserService
         UserRepository $userRepository,
         EmailService $emailService,
         ActivityService $activityService,
+        UserManagerInterface $userManager,
         UserPasswordEncoderInterface $encoder,
         EventDispatcherInterface $eventDispatcher)
     {
         $this->userRepository = $userRepository;
         $this->emailService = $emailService;
         $this->activityService = $activityService;
+        $this->userManager = $userManager;
         $this->encoder = $encoder;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -214,7 +223,44 @@ class UserService
         $userEvent = new UserEvent($user);
         $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_CONFIRMED);
 
+        //@TODO
         //$this->activityService->addJoinedActivity($user);
+    }
+
+    /**
+     * @param User $user
+     */
+    public function resendConfirmationKey(User $user)
+    {
+        $userEvent = new UserEvent($user);
+        $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_RESEND_CONFIRMATION_KEY);
+    }
+
+    /**
+     * @param User $user
+     */
+    public function forgotUsername(User $user)
+    {
+        $userEvent = new UserEvent($user);
+        $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_FORGOT_USERNAME);
+    }
+
+    /**
+     * @param User $user
+     */
+    public function forgotPassword(User $user)
+    {
+        $userEvent = new UserEvent($user);
+        $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_FORGOT_PASSWORD);
+    }
+
+    /**
+     * @param User $user
+     */
+    public function changePassword(User $user)
+    {
+        $userEvent = new UserEvent($user);
+        $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_CHANGE_PASSWORD);
     }
 
     /**
@@ -328,5 +374,18 @@ class UserService
     public function flush()
     {
         $this->userRepository->flush();
+    }
+
+    public function updateUser(User $user, bool $isCreatedByAdmin)
+    {
+        $this->userManager->updateUser($user);
+
+        $userEvent = new UserEvent($user);
+        if ($isCreatedByAdmin) {
+            $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_CREATED_BY_ADMIN);
+        } else {
+            $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_JOINED);
+        }
+
     }
 }

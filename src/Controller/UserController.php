@@ -41,7 +41,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Carbon\Carbon;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserController extends BaseController implements ClassResourceInterface
 {
@@ -66,11 +65,6 @@ class UserController extends BaseController implements ClassResourceInterface
     private $userManager;
 
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @var Request
      */
     private $request;
@@ -90,7 +84,6 @@ class UserController extends BaseController implements ClassResourceInterface
      * @param UserService $userService
      * @param ImageService $imageService
      * @param UserManagerInterface $userManager
-     * @param EventDispatcherInterface $eventDispatcher
      * @param RequestStack $requestStack
      * @param UserPasswordEncoderInterface $passwordEncoder
      * @param \Swift_Mailer $mailer
@@ -100,7 +93,6 @@ class UserController extends BaseController implements ClassResourceInterface
         UserService $userService,
         ImageService $imageService,
         UserManagerInterface $userManager,
-        EventDispatcherInterface $eventDispatcher,
         RequestStack $requestStack,
         UserPasswordEncoderInterface $passwordEncoder,
         \Swift_Mailer $mailer)
@@ -108,7 +100,6 @@ class UserController extends BaseController implements ClassResourceInterface
         $this->tokenStorage = $tokenStorage;
         $this->userService = $userService;
         $this->userManager = $userManager;
-        $this->eventDispatcher = $eventDispatcher;
         $this->imageService = $imageService;
         $this->passwordEncoder = $passwordEncoder;
         $this->request = $requestStack->getCurrentRequest();
@@ -186,15 +177,7 @@ class UserController extends BaseController implements ClassResourceInterface
             $user->setRoles($roles);
             $confirmationToken = sha1(mt_rand(10000,99999).time().$user->getUsername());
             $user->setConfirmationToken($confirmationToken);
-            $this->userManager->updateUser($user);
-
-            $userEvent = new UserEvent($user);
-            if ($isCreatedByAdmin) {
-                $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_CREATED_BY_ADMIN);
-            } else {
-                $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_JOINED);
-            }
-
+            $this->userService->updateUser($user, $isCreatedByAdmin);
 
             $userHydrator = new UserHydrator(
                 $user,
@@ -260,15 +243,10 @@ class UserController extends BaseController implements ClassResourceInterface
         }
 
         if ($confirmationToken != $userInDatabase->getConfirmationToken()) {
-            return $this->createApiResponse("Confirmation Token cant be found", 400);
+            return $this->createApiResponse("Wrong Confirmation Token", 400);
         }
 
-        $disableActivation = $request->query->get('disableActivation');
-        if ($disableActivation === false) {
-            $this->userService->confirmUser($userInDatabase);
-        } else {
-            $this->userService->save($userInDatabase);
-        }
+        $this->userService->confirmUser($userInDatabase);
 
         return $this->createApiResponse("Successfully confirmed", 200);
     }
@@ -296,7 +274,7 @@ class UserController extends BaseController implements ClassResourceInterface
             return $this->createApiResponse("Already confirmed", 200);
         }
 
-        //@TODO send email
+        $this->userService->resendConfirmationKey($userInDatabase);
 
         return $this->createApiResponse('We have resent a new confirmation email', 200);
     }
@@ -394,7 +372,8 @@ class UserController extends BaseController implements ClassResourceInterface
             }
 
             if ($form->isSubmitted() && $form->isValid()) {
-                //@TODO send email with username
+                $this->userService->forgotUsername($user);
+
                 return $this->createApiResponse("Email has been sent", 200);
             } else {
                 $errors = (string)$form->getErrors(true, false);
@@ -609,7 +588,7 @@ class UserController extends BaseController implements ClassResourceInterface
                 if ($form->isValid()) {
                     $user->setPlainPassword($newPassword);
                     $user->setPassword($newPassword);
-                    $this->userService->save($user);
+                    $this->userService->changePassword($user);
 
                     $userHydrator = new UserHydrator(
                         $user,
@@ -665,20 +644,7 @@ class UserController extends BaseController implements ClassResourceInterface
                     $user->setResetKey($resetKey);
                     $user->setPasswordRequestedAt($resetTime);
 
-                    $this->userService->save($user);
-
-
-/**@TODO
-                    $email = (new \Swift_Message('Hello Email'))
-                        ->setFrom(array('contact@documentarywire.com' => 'DocumentaryWIRE'))
-                        ->setTo(array('facebook@jonnydevine.com' => 'Test'))
-                        ->setSubject('Time for Symfony Mailer!')#
-                        ->setBody('<p>Someone requested that the password be reset for the following account: " . $user->getUsername() . ".
-If this was a mistake, just ignore this email and nothing will happen.
-To reset your password, visit the following address: " . $url</p>');
-
-                    $this->mailer->send($email);
- * **/
+                    $this->userService->forgotPassword($user);
 
                     return $this->createApiResponse("An email has been sent", 200);
                 }

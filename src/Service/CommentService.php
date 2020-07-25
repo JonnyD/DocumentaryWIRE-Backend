@@ -94,6 +94,9 @@ class CommentService
         return $this->commentRepository->findDCommentsByCriteria($criteria);
     }
 
+    /**
+     * @param Comment $comment
+     */
     public function delete(Comment $comment)
     {
         $this->commentRepository->remove($comment, Sync::YES);
@@ -101,6 +104,19 @@ class CommentService
         $commentEvent = new CommentEvent($comment);
         $this->eventDispatcher->dispatch($commentEvent, CommentEvents::COMMENT_DELETED);
     }
+
+    /**
+     * @param Comment $comment
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function createComment(Comment $comment)
+    {
+        $this->save($comment);
+
+        $commentEvent = new CommentEvent($comment);
+        $this->eventDispatcher->dispatch($commentEvent, CommentEvents::COMMENT_CREATED);
+    }
+
     /**
      * @param Comment $comment
      * @param string $sync
@@ -125,8 +141,5 @@ class CommentService
     public function saveAndDontUpdateTimestamps(Comment $comment, string $sync = Sync::YES)
     {
         $this->commentRepository->save($comment, $sync);
-
-        $commentEvent = new CommentEvent($comment);
-        $this->eventDispatcher->dispatch($commentEvent, CommentEvents::COMMENT_SAVED);
     }
 }

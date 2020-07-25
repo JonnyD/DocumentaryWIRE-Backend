@@ -51,20 +51,12 @@ services:
         tags:
         - { name: kernel.event_listener, event: watchlist.watchlist_created, method: onWatchlistCreated }
 
-    App\EventListener\CommentActivityListener:
-        class: App\EventListener\CommentActivityListener
-        tags:
-        - { name: kernel.event_listener, event: comment.comment_saved, method: onCommentSaved }
-
-    App\EventListener\JoinedActivityListener:
-        class: App\EventListener\JoinedActivityListener
-        tags:
-        - { name: kernel.event_listener, event: user.user_confirmed, method: onUserConfirmed }
-
-    App\EventListener\WatchlistActivityListener:
-        class: App\EventListener\WatchlistActivityListener
+    App\EventListener\AddorDeleteActivityListener:
+        class: App\EventListener\AddorDeleteActivityListener
         tags:
         - { name: kernel.event_listener, event: watchlist.watchlist_created, method: onWatchlistCreated }
+        - { name: kernel.event_listener, event: user.user_confirmed, method: onUserConfirmed }
+        - { name: kernel.event_listener, event: comment.comment_created, method: onCommentCreated }
 
     App\EventListener\SendActivationEmailLIstener:
         class: App\EventListener\SendActivationEmailLIstener
@@ -81,6 +73,30 @@ services:
         tags:
         - { name: kernel.event_listener, event: documentary.documentary_saved, method: onDocumentarySaved }
 
+    App\EventListener\ResendConfirmationKeyListener:
+        class: App\EventListener\ResendConfirmationKeyListener
+        tags:
+        - { name: kernel.event_listener, event: user.user_resend_confirmation_key, method: onResendConfirmationKey }
+
+    App\EventListener\SendChangePasswordListener:
+        class: App\EventListener\SendChangePasswordListener
+        tags:
+        - { name: kernel.event_listener, event: user.user_change_password, method: onChangePassword }
+
+    App\EventListener\SendForgotPasswordEmailListener:
+        class: App\EventListener\SendForgotPasswordEmailListener
+        tags:
+        - { name: kernel.event_listener, event: user.user_forgot_password, method: onForgotPassword }
+
+    App\EventListener\SendForgotUsernameEmailListener:
+        class: App\EventListener\SendForgotUsernameEmailListener
+        tags:
+        - { name: kernel.event_listener, event: user.user_forgot_username, method: onForgotUsername }
+
+    App\EventListener\UpdateDocumentaryVideoSourcesListener:
+        class: App\EventListener\UpdateDocumentaryVideoSourcesListener
+        tags:
+        - { name: kernel.event_listener, event: documentary.documentary_saved, method: onDocumentarySaved }
 
     app.http_kernel.cors_subscriber:
         class: App\EventListener\CorsSubscriber
