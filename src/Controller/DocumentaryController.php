@@ -121,6 +121,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
      * @param DocumentaryVideoSourceService $documentaryVideoSourceService
      * @param ActivityService $activityService
      * @param CommentService $commentService
+     * @param EventDispatcherInterface $eventDispatcher
      * @param RequestStack $requestStack
      */
     public function __construct(
