@@ -6,6 +6,8 @@ use App\Criteria\UserCriteria;
 use App\Entity\User;
 use App\Enum\UserOrderBy;
 use App\Enum\UserStatus;
+use App\Event\UserEvent;
+use App\Event\UserEvents;
 use App\Form\ChangePasswordForm;
 use App\Form\ForgotPasswordForm;
 use App\Form\ForgotUsernameForm;
@@ -13,6 +15,7 @@ use App\Form\RegisterForm;
 use App\Form\ResetPasswordForm;
 use App\Form\UserForm;
 use App\Hydrator\UserHydrator;
+use App\Service\ImageService;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -38,6 +41,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 use Carbon\Carbon;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserController extends BaseController implements ClassResourceInterface
 {
@@ -52,9 +56,19 @@ class UserController extends BaseController implements ClassResourceInterface
     private $userService;
 
     /**
+     * @var ImageService
+     */
+    private $imageService;
+
+    /**
      * @var UserManagerInterface
      */
     private $userManager;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
     /**
      * @var Request
@@ -74,7 +88,9 @@ class UserController extends BaseController implements ClassResourceInterface
     /**
      * @param TokenStorageInterface $tokenStorage
      * @param UserService $userService
+     * @param ImageService $imageService
      * @param UserManagerInterface $userManager
+     * @param EventDispatcherInterface $eventDispatcher
      * @param RequestStack $requestStack
      * @param UserPasswordEncoderInterface $passwordEncoder
      * @param \Swift_Mailer $mailer
@@ -82,7 +98,9 @@ class UserController extends BaseController implements ClassResourceInterface
     public function __construct(
         TokenStorageInterface $tokenStorage,
         UserService $userService,
+        ImageService $imageService,
         UserManagerInterface $userManager,
+        EventDispatcherInterface $eventDispatcher,
         RequestStack $requestStack,
         UserPasswordEncoderInterface $passwordEncoder,
         \Swift_Mailer $mailer)
@@ -90,6 +108,8 @@ class UserController extends BaseController implements ClassResourceInterface
         $this->tokenStorage = $tokenStorage;
         $this->userService = $userService;
         $this->userManager = $userManager;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->imageService = $imageService;
         $this->passwordEncoder = $passwordEncoder;
         $this->request = $requestStack->getCurrentRequest();
         $this->mailer = $mailer;
@@ -103,7 +123,10 @@ class UserController extends BaseController implements ClassResourceInterface
      */
     public function registerAction(Request $request)
     {
-        if ($this->isLoggedIn()) {
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+        $isCreatedByAdmin = false;
+
+        if ($this->isLoggedIn() && !$isRoleAdmin) {
             return $this->createApiResponse("Already Logged In", 400);
         }
 
@@ -133,10 +156,28 @@ class UserController extends BaseController implements ClassResourceInterface
                 return $this->createApiResponse("Username ".$username." already exists", 200);
             }
 
+            if ($isRoleAdmin) {
+                $user->setEnabled(true);
+                $user->setActivatedAt(new \DateTime());
+                $user->setConfirmationToken(new \DateTime());
+
+                $avatar = $data['avatar'];
+                if ($avatar == null) {
+                    $formError = new FormError("Avatar is required");
+                    $form->addError($formError);
+                }
+
+                $this->imageService->mapAvatarImage($user, $data);
+
+                $isCreatedByAdmin = true;
+            } else {
+                $user->setEnabled(false);
+            }
+
+            $user->setCreatedAt(new \DateTime());
             $user->setName($name);
             $user->setUsername($username);
             $user->setEmail($email);
-            $user->setEnabled(false);
             $user->setPlainPassword($password);
             $roles = ["ROLE_USER"];
             if ($username === "jonnydevine") {
@@ -147,7 +188,13 @@ class UserController extends BaseController implements ClassResourceInterface
             $user->setConfirmationToken($confirmationToken);
             $this->userManager->updateUser($user);
 
-            //@TODO send activation code email
+            $userEvent = new UserEvent($user);
+            if ($isCreatedByAdmin) {
+                $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_CREATED_BY_ADMIN);
+            } else {
+                $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_JOINED);
+            }
+
 
             $userHydrator = new UserHydrator(
                 $user,
@@ -621,7 +668,7 @@ class UserController extends BaseController implements ClassResourceInterface
                     $this->userService->save($user);
 
 
-/**
+/**@TODO
                     $email = (new \Swift_Message('Hello Email'))
                         ->setFrom(array('contact@documentarywire.com' => 'DocumentaryWIRE'))
                         ->setTo(array('facebook@jonnydevine.com' => 'Test'))

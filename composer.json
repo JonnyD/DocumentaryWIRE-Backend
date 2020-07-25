@@ -3,6 +3,7 @@
     "license": "proprietary",
     "require": {
         "php": "^7.1.3",
+        "ext-SimpleXML": "*",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "api-platform/api-pack": "^1.2",
@@ -44,8 +45,7 @@
         "symfony/validator": "4.3.*",
         "symfony/web-link": "4.3.*",
         "symfony/yaml": "4.3.*",
-        "white-october/pagerfanta-bundle": "^1.2",
-        "ext-SimpleXML": "*"
+        "white-october/pagerfanta-bundle": "^1.2"
     },
     "require-dev": {
         "codeception/codeception": "^4.1",

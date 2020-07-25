@@ -13,10 +13,13 @@ use App\Enum\Featured;
 use App\Enum\IsParent;
 use App\Enum\Order;
 use App\Enum\Sync;
+use App\Event\DocumentaryEvent;
+use App\Event\DocumentaryEvents;
 use App\Repository\DocumentaryRepository;
 use App\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DocumentaryService
 {
@@ -36,18 +39,26 @@ class DocumentaryService
     private $videoSourceService;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * @param DocumentaryRepository $documentaryRepository
      * @param MovieRepository $movieRepository
      * @param VideoSourceService $videoSourceService
+     * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
         DocumentaryRepository $documentaryRepository,
         MovieRepository $movieRepository,
-        VideoSourceService $videoSourceService)
+        VideoSourceService $videoSourceService,
+        EventDispatcherInterface $eventDispatcher)
     {
         $this->documentaryRepository = $documentaryRepository;
         $this->movieRepository = $movieRepository;
         $this->videoSourceService = $videoSourceService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -404,6 +415,9 @@ class DocumentaryService
         }
 
         $this->documentaryRepository->save($documentary, $sync);
+
+        $documentaryEvent = new DocumentaryEvent($documentary);
+        $this->eventDispatcher->dispatch($documentaryEvent, DocumentaryEvents::DOCUMENTARY_SAVED);
     }
 
     /**
@@ -413,6 +427,9 @@ class DocumentaryService
     public function saveAndDontUpdateTimestamps(Documentary $documentary, string $sync = Sync::YES)
     {
         $this->documentaryRepository->save($documentary, $sync);
+
+        $documentaryEvent = new DocumentaryEvent($documentary);
+        $this->eventDispatcher->dispatch($documentaryEvent, DocumentaryEvents::DOCUMENTARY_SAVED);
     }
 
     /**

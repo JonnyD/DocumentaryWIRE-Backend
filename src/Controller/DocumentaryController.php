@@ -364,9 +364,6 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 
                 $this->documentaryService->save($documentary);
 
-                //@TODO
-                $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
-
                 $movieHydrator = new MovieHydrator($documentary, $this->request);
                 $serialized = $movieHydrator->toArray();
                 return $this->createApiResponse($serialized, 200);
@@ -405,8 +402,6 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 $documentary = $this->imageService->mapImages($documentary, $data);
 
                 $this->documentaryService->save($documentary);
-
-                $this->categoryService->updateDocumentaryCountForCategory($documentary->getCategory());
 
                 $seriesHydrator = new SeriesHydrator($documentary, $this->request);
                 $serialized = $seriesHydrator->toArray();
@@ -497,12 +492,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                     ->addDocumentaryVideoSourcesFromMovieDocumentary($data['movie'], $documentary);
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
+                $documentary->setOldCategory($oldCategory);
                 $this->documentaryService->save($documentary);
-
-                //@TODO
-                $newCategory = $documentary->getCategory();
-                $this->categoryService->updateDocumentaryCountForCategories(
-                    $newCategory, $oldCategory, $documentary);
 
                 $movieHydrator = new MovieHydrator($documentary, $this->request);
                 $serialized = $movieHydrator->toArray();
@@ -548,11 +539,8 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             if ($form->isSubmitted() && $form->isValid()) {
                 $documentary = $this->imageService->mapImages($documentary, $data);
 
+                $documentary->setOldCategory($oldCategory);
                 $this->documentaryService->save($documentary);
-
-                $newCategory = $documentary->getCategory();
-                $this->categoryService->updateDocumentaryCountForCategories(
-                    $newCategory, $oldCategory, $documentary);
 
                 $seriesHydrator = new SeriesHydrator($documentary, $this->request);
                 $serialized = $seriesHydrator->toArray();

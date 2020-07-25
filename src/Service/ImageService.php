@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Documentary;
+use App\Entity\User;
 use Liip\ImagineBundle\Imagine\Data\DataManager;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -144,6 +145,24 @@ class ImageService
     }
 
     /**
+     * @param User $user
+     * @param array $data
+     * @return User
+     */
+    public function mapAvatarImage(User $user, array $data)
+    {
+        if ($avatar = $data['avatar']) {
+            $currentAvatar = $this->params->get('avatarsUrl') . $user->getAvatar();
+            if ($avatar != $currentAvatar) {
+                $avatarFileName = $this->uploadAvatar($avatar);
+                $user->setAvatar($avatarFileName);
+            }
+        }
+
+        return $user;
+    }
+
+    /**
      * @param Documentary $documentary
      * @param array $data
      * @return Documentary
@@ -220,6 +239,18 @@ class ImageService
     public function getThumbnailFromDataBySeasonAndEpisode(array $data, int $seasonIndex, int $episodeIndex)
     {
         return $data['series']['seasons'][$seasonIndex]['episodes'][$episodeIndex]['thumbnail'];
+    }
+
+    /**
+     * @param string $avatar
+     * @param Documentary $documentary
+     * @return string
+     */
+    public function uploadAvatar(string $avatar)
+    {
+        $path = 'uploads/avatar/';
+        $avatarFileName = $this->uploadImage($avatar, $path);
+        return $avatarFileName;
     }
 
     /**

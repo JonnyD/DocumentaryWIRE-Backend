@@ -1,7 +1,33 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Jonny
- * Date: 24/07/2020
- * Time: 19:00
- */
+
+namespace App\EventListener;
+
+use App\Event\UserEvent;
+use App\Event\UserEvents;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class SendActivationEmailLIstener implements EventSubscriberInterface
+{
+
+    /**
+     * @return array
+     */
+    public static function getSubscribedEvents()
+    {
+        return array(
+            UserEvents::USER_JOINED => "onUserJoined"
+        );
+    }
+
+    /**
+     * @param UserEvent $userEvent
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function onUserJoined(UserEvent $userEvent)
+    {
+        $user = $userEvent->getUser();
+        $email = $user->getEmail();
+
+        //@TODO send activation email
+    }
+}

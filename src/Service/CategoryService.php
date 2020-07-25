@@ -85,7 +85,7 @@ class CategoryService
         Category $oldCategory,
         Documentary $documentary)
     {
-        if ($oldCategory->getId() != $newCategory->getId()) {
+        if ($oldCategory != null && $oldCategory->getId() != $newCategory->getId()) {
             $oldCategory->removeDocumentary($documentary);
             $this->updateDocumentaryCountForCategory($oldCategory);
         }

@@ -6,6 +6,7 @@
 parameters:
     postersUrl: 'http://localhost:8000/uploads/posters/'
     wideImagesUrl: 'http://localhost:8000/uploads/wide/'
+    avatarsUrl: 'http://localhost:8000/uploads/avatar/'
 
 services:
     # default configuration for services in *this* file
@@ -64,6 +65,27 @@ services:
         class: App\EventListener\WatchlistActivityListener
         tags:
         - { name: kernel.event_listener, event: watchlist.watchlist_created, method: onWatchlistCreated }
+
+    App\EventListener\SendActivationEmailLIstener:
+        class: App\EventListener\SendActivationEmailLIstener
+        tags:
+        - { name: kernel.event_listener, event: user.user_joined, method: onUserJoined }
+
+    App\EventListener\SendConfirmationEmailFromAdminListener:
+        class: App\EventListener\SendConfirmationEmailFromAdminListener
+        tags:
+        - { name: kernel.event_listener, event: user.user_created_by_admin, method: onUserCreatedByAdmin }
+
+    App\EventListener\UpdateDocumentaryCount:
+        class: App\EventListener\UpdateDocumentaryCount
+        tags:
+        - { name: kernel.event_listener, event: documentary.documentary_saved, method: onDocumentarySaved }
+
+
+    app.http_kernel.cors_subscriber:
+        class: App\EventListener\CorsSubscriber
+        tags:
+        - { name: kernel.event_subscriber }
 
     object_normalizer:
         class: Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer

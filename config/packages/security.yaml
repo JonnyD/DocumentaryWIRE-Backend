@@ -56,7 +56,7 @@ security:
             methods: [GET, POST]
             pattern:    ^/api/v1/user
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_public_forgot_username:

@@ -200,6 +200,11 @@ class Documentary
     private $category;
 
     /**
+     * @var Category
+     */
+    private $oldCategory;
+
+    /**
      * @var Comment
      *
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="documentary")
@@ -572,6 +577,22 @@ class Documentary
         $this->category = $category;
 
         return $this;
+    }
+
+    /**
+     * @return Category|null
+     */
+    public function getOldCategory(): ?Category
+    {
+        return $this->oldCategory;
+    }
+
+    /**
+     * @param Category|null $oldCategory
+     */
+    public function setOldCategory(?Category $oldCategory)
+    {
+        $this->oldCategory = $oldCategory;
     }
 
     /**
