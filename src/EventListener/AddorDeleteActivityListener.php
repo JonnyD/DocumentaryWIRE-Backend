@@ -2,6 +2,9 @@
 
 namespace App\EventListener;
 
+use App\Criteria\ActivityCriteria;
+use App\Enum\ActivityComponent;
+use App\Enum\ActivityType;
 use App\Event\CommentEvent;
 use App\Event\CommentEvents;
 use App\Event\UserEvent;
@@ -47,7 +50,8 @@ class AddorDeleteActivityListener implements EventSubscriberInterface
         return array(
             WatchlistEvents::WATCHLIST_CREATED => "onWatchlistCreated",
             CommentEvents::COMMENT_CREATED => "onCommentCreated",
-            UserEvents::USER_CONFIRMED => "onUserConfirmed"
+            UserEvents::USER_CONFIRMED => "onUserConfirmed",
+            UserEvents::USER_CREATED_BY_ADMIN => "onCreatedByAdmin"
         );
     }
 
@@ -74,6 +78,15 @@ class AddorDeleteActivityListener implements EventSubscriberInterface
      * @param UserEvent $userEvent
      */
     public function onUserConfirmed(UserEvent $userEvent)
+    {
+        $user = $userEvent->getUser();
+        $this->activityService->addJoinedActivity($user);
+    }
+
+    /**
+     * @param UserEvent $userEvent
+     */
+    public function onCreatedByAdmin(UserEvent $userEvent)
     {
         $user = $userEvent->getUser();
         $this->activityService->addJoinedActivity($user);

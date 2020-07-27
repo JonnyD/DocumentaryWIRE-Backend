@@ -370,16 +370,19 @@ class UserService
         $this->userRepository->flush();
     }
 
+    /**
+     * @param User $user
+     * @param bool $isCreatedByAdmin
+     */
     public function updateUser(User $user, bool $isCreatedByAdmin)
     {
         $this->userManager->updateUser($user);
 
         $userEvent = new UserEvent($user);
-        if ($isCreatedByAdmin) {
+        if ($isCreatedByAdmin === true) {
             $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_CREATED_BY_ADMIN);
         } else {
             $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_JOINED);
         }
-
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Criteria\WatchlistCriteria;
+use App\Entity\Documentary;
 use App\Enum\Sync;
 use App\Enum\UpdateTimestamps;
 use App\Enum\YesNo;
@@ -79,9 +80,26 @@ class WatchlistService
      * @param WatchlistCriteria $criteria
      * @return QueryBuilder
      */
-    public function getWatchlistByCriteriaQueryBuilder(WatchlistCriteria $criteria)
+    public function getWatchlistsByCriteriaQueryBuilder(WatchlistCriteria $criteria)
     {
-        return $this->watchlistRepository->findWatchlistByCriteriaQueryBuilder($criteria);
+        return $this->watchlistRepository->findWatchlistsByCriteriaQueryBuilder($criteria);
+    }
+
+    /**
+     * @param User $user
+     * @param Documentary $documentary
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getWatchlistByUserAndDocumentary(User $user, Documentary $documentary)
+    {
+        $criteria = new WatchlistCriteria();
+        $criteria->setUser($user);
+        $criteria->setDocumentary($documentary);
+        $criteria->setLimit(1);
+
+        $watchlist = $this->watchlistRepository->findWatchlistByCriteria($criteria);
+        return $watchlist;
     }
 
     /**
@@ -90,7 +108,7 @@ class WatchlistService
      */
     public function createWatchlist(Watchlist $watchlist)
     {
-        $this->save($watchlist, Sync::YES);
+        $this->save($watchlist, UpdateTimestamps::YES, Sync::YES);
 
         $watchlistEvent = new WatchlistEvent($watchlist);
         $this->eventDispatcher->dispatch($watchlistEvent, WatchlistEvents::WATCHLIST_CREATED);

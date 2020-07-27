@@ -48,6 +48,11 @@ class ActivityRepository extends ServiceEntityRepository
                 ->setParameter('objectId', $criteria->getObjectId());
         }
 
+        if ($criteria->getGroupNumber()) {
+            $qb->andWhere('activity.groupNumber = :groupNumber')
+                ->setParameter('groupNumber', $criteria->getGroupNumber());
+        }
+
         if ($criteria->getType()) {
             $qb->andWhere('activity.type = :type')
                 ->setParameter('type', $criteria->getType());

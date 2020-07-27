@@ -155,8 +155,16 @@ class WatchlistController extends BaseController implements ClassResourceInterfa
         return $response;
     }
 
+    /**
+     * @FOSRest\Post("/watchlist", name="create_watchlist", options={ "method_prefix" = false })
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function createWatchlistAction(Request $request)
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         $watchlist = new Watchlist();
 
         $form = $this->createForm(WatchlistForm::class, $watchlist);

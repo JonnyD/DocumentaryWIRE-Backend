@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Documentary;
+use App\Enum\ActivityComponent;
 use App\Enum\Sync;
 use App\Enum\UpdateTimestamps;
 use App\Object\Activity\Activity as ActivityObject;
@@ -100,7 +101,54 @@ class ActivityService
 
     public function addAddedActivity(Documentary $documentary)
     {
-        //@TODO
+        $user = $documentary->getAddedBy();
+
+        $latestActivity = $this->getLatestActivity();
+        $groupNumber = $latestActivity->getGroupNumber();
+
+        $activity = $this->getAddedActivity($documentary);
+        if (!$activity) {
+            $latestAddedActivity = $this->getLatestAddedActivityByUser($user);
+
+            if ($latestAddedActivity) {
+                $oldGroupNumber = $latestAddedActivity->getGroupNumber();
+
+                $isSameType = $latestActivity->getType() === $latestAddedActivity->getType();
+                $isSameUser = $latestActivity->getUser() === $latestAddedActivity->getUser();
+                if (!$isSameType || !$isSameUser) {
+                    $groupNumber++;
+                }
+
+                $activitiesGroupNumber = $this->getActivityByGroupNumberAndUser($oldGroupNumber, $user);
+                $isGreaterThanOrEqualTo10 = count($activitiesGroupNumber) >= 10;
+
+                if ($isGreaterThanOrEqualTo10) {
+                    $groupNumber++;
+                }
+
+                if (!$isGreaterThanOrEqualTo10) {
+                    $now = new \DateTime();
+
+                    $editedActivity = [];
+                    foreach ($activitiesGroupNumber as $activity) {
+                        $createdAt = $activity->getCreatedAt();
+
+                        $isLessThan7DaysApart = ($createdAt->diff($now)->days) < 7;
+                        if ($isLessThan7DaysApart) {
+                            $activity->setGroupNumber($groupNumber);
+                            $editedActivity[] = $activity;
+                        }
+                    }
+
+                    $this->saveAll($editedActivity);
+
+                }
+            } else {
+                $groupNumber++;
+            }
+        }
+        $createdAt = new \DateTime();
+        $this->addActivity($user, $documentary->getId(), ActivityType::ADDED, ComponentType::DOCUMENTARY, $groupNumber, $createdAt);
     }
 
     /**
@@ -111,34 +159,106 @@ class ActivityService
         $user = $watchlist->getUser();
         $documentary = $watchlist->getDocumentary();
 
-        $criteria = new ActivityCriteria();
-        $criteria->setUser($user);
-        $criteria->setObjectId($documentary->getId());
-        $criteria->setType(ActivityType::WATCHLIST);
-        $criteria->setComponent(ComponentType::DOCUMENTARY);
+        $latestActivity = $this->getLatestActivity();
+        $groupNumber = $latestActivity->getGroupNumber();
 
-        $activity = $this->getActivityByCriteria($criteria);
+        $activity = $this->getWatchlistActivity($user, $documentary);
+        if (!$activity) {
+            $latestWatchlistActivity = $this->getLatestWatchlistActivityByUser($user);
 
-        if ($activity) {
-            $activity->setCreatedAt(new \DateTime());
-            $this->activityRepository->save($activity);
-        } else {
-            $latestActivity = $this->getLatestActivity();
-            $groupNumber = $latestActivity->getGroupNumber();
+            if ($latestWatchlistActivity) {
+                $oldGroupNumber = $latestWatchlistActivity->getGroupNumber();
 
-            if ($latestActivity->getType() != ActivityType::WATCHLIST) {
-                $groupNumber++;
-            } else {
-                if ($latestActivity->getUser() == $user) {
-                    $activityGroupNumber = $this->getActivityByGroupNumber($groupNumber);
-                    if (count($activityGroupNumber) >= 20) {
-                        $groupNumber++;
-                    }
+                $isSameType = $latestActivity->getType() === $latestWatchlistActivity->getType();
+                $isSameUser = $latestActivity->getUser() === $latestWatchlistActivity->getUser();
+                if (!$isSameType || !$isSameUser) {
+                    $groupNumber++;
                 }
+
+                $activitiesGroupNumber = $this->getActivityByGroupNumberAndUser($oldGroupNumber, $user);
+                $isGreaterThanOrEqualTo10 = count($activitiesGroupNumber) >= 10;
+
+                if ($isGreaterThanOrEqualTo10) {
+                    $groupNumber++;
+                }
+
+                if (!$isGreaterThanOrEqualTo10) {
+                    $now = new \DateTime();
+
+                    $editedActivity = [];
+                    foreach ($activitiesGroupNumber as $activity) {
+                        $createdAt = $activity->getCreatedAt();
+
+                        $isLessThan7DaysApart = ($createdAt->diff($now)->days) < 7;
+                        if ($isLessThan7DaysApart) {
+                            $activity->setGroupNumber($groupNumber);
+                            $editedActivity[] = $activity;
+                        }
+                    }
+
+                    $this->saveAll($editedActivity);
+                }
+            } else {
+                $groupNumber++;
             }
 
             $createdAt = new \DateTime();
             $this->addActivity($user, $documentary->getId(), ActivityType::WATCHLIST, ComponentType::DOCUMENTARY, $groupNumber, $createdAt);
+        }
+    }
+
+    /**
+     * @param User $user
+     */
+    public function addJoinedActivity(User $user)
+    {
+        $latestActivity = $this->getLatestActivity();
+        $latestJoinedActivity = $this->getLatestJoinedActivity();
+
+        $groupNumber = $latestActivity->getGroupNumber();
+        $oldGroupNumber = $latestJoinedActivity->getGroupNumber();
+
+        $activity = $this->getJoinedActivity($user);
+        if (!$activity) {
+            $isSameType = $latestActivity->getType() === $latestJoinedActivity->getType();
+            if (!$isSameType) {
+                $groupNumber++;
+            }
+
+            $activitiesGroupNumber = $this->getActivityByGroupNumber($oldGroupNumber);
+            $isGreaterThanOrEqualTo20 = count($activitiesGroupNumber) >= 20;
+
+            if ($isGreaterThanOrEqualTo20) {
+                $groupNumber++;
+            }
+
+            if (!$isGreaterThanOrEqualTo20) {
+                $editedActivity = [];
+                foreach ($activitiesGroupNumber as $activity) {
+                    $activity->setGroupNumber($groupNumber);
+                    $editedActivity[] = $activity;
+                }
+                $this->saveAll($editedActivity);
+            }
+        }
+
+        $this->addActivity($user, $user->getId(), ActivityType::JOINED, ComponentType::USER, $groupNumber, $user->getActivatedAt());
+    }
+
+    /**
+     * @param Comment $comment
+     */
+    public function addCommentActivity(Comment $comment)
+    {
+        $user = $comment->getUser();
+
+        if ($user) {
+            $latestActivity = $this->getLatestActivity();
+            $groupNumber = $latestActivity->getGroupNumber();
+            $groupNumber++;
+
+            $createdAt = new \DateTime();
+            $this->addActivity($user, $comment->getId(), ActivityType::COMMENT, ComponentType::DOCUMENTARY, $groupNumber, $createdAt);
         }
     }
 
@@ -163,44 +283,53 @@ class ActivityService
 
     /**
      * @param User $user
+     * @param Documentary $documentary
+     * @return Activity
+     * @throws \Exception
      */
-    public function addJoinedActivity(User $user)
+    public function getWatchlistActivity(User $user, Documentary $documentary)
     {
-        $latestActivity = $this->getLatestActivity();
-        if ($latestActivity) {
-            $groupNumber = $latestActivity->getGroupNumber();
+        $criteria = new ActivityCriteria();
+        $criteria->setUser($user);
+        $criteria->setObjectId($documentary->getId());
+        $criteria->setType(ActivityType::WATCHLIST);
+        $criteria->setComponent(ComponentType::DOCUMENTARY);
 
-            if ($latestActivity->getType() != ActivityType::JOINED) {
-                $groupNumber++;
-            } else {
-                $activityGroupNumber = $this->getActivityByGroupNumber($groupNumber);
-                if (count($activityGroupNumber) >= 20) {
-                    $groupNumber++;
-                }
-            }
-        } else {
-            $groupNumber = 1;
-        }
+        $watchlistActivity = $this->getActivityByCriteria($criteria);
+        return $watchlistActivity;
+    }
+    /**
+     * @param User $user
+     * @return Activity
+     * @throws \Exception
+     */
+    public function getJoinedActivity(User $user)
+    {
+        $criteria = new ActivityCriteria();
+        $criteria->setUser($user);
+        $criteria->setComponent(ActivityComponent::USER);
+        $criteria->setType(ActivityType::JOINED);
 
-        $this->addActivity($user, $user->getId(), ActivityType::JOINED, ComponentType::USER, $groupNumber, $user->getActivatedAt());
+        $joinedActivity = $this->getActivityByCriteria($criteria);
+        return $joinedActivity;
     }
 
     /**
-     * @param Comment $comment
+     * @param Documentary $documentary
+     * @return Activity
+     * @throws \Exception
      */
-    public function addCommentActivity(Comment $comment)
+    public function getAddedActivity(Documentary $documentary)
     {
-        $user = $comment->getUser();
+        $criteria = new ActivityCriteria();
+        $criteria->setComponent(ActivityComponent::DOCUMENTARY);
+        $criteria->setType(ActivityType::ADDED);
+        $criteria->setObjectId($documentary->getId());
 
-        if ($user) {
-            $latestActivity = $this->getLatestActivity();
-            $groupNumber = $latestActivity->getGroupNumber();
-            $groupNumber++;
-
-            $createdAt = new \DateTime();
-            $this->addActivity($user, $comment->getId(), ActivityType::COMMENT, ComponentType::DOCUMENTARY, $groupNumber, $createdAt);
-        }
+        $addedActivity = $this->getActivityByCriteria($criteria);
+        return $addedActivity;
     }
+
     /**
      * @param Comment $comment
      */
@@ -246,11 +375,67 @@ class ActivityService
         $criteria = new ActivityCriteria();
         $criteria->setLimit(1);
         $criteria->setSort([
+            ActivityOrderBy::GROUP_NUMBER => Order::DESC,
             ActivityOrderBy::CREATED_AT => Order::DESC
         ]);
 
         return $this->getActivityByCriteria($criteria);
     }
+
+    /**
+     * @return Activity
+     */
+    public function getLatestJoinedActivity()
+    {
+        $criteria = new ActivityCriteria();
+        $criteria->setType(ActivityType::JOINED);
+        $criteria->setLimit(1);
+        $criteria->setSort([
+            ActivityOrderBy::GROUP_NUMBER => Order::DESC,
+            ActivityOrderBy::CREATED_AT => Order::DESC
+        ]);
+
+        return $this->getActivityByCriteria($criteria);
+    }
+
+    /**
+     * @param User $user
+     * @return Activity
+     * @throws \Exception
+     */
+    public function getLatestWatchlistActivityByUser(User $user)
+    {
+        $criteria = new ActivityCriteria();
+        $criteria->setUser($user);
+        $criteria->setType(ActivityType::WATCHLIST);
+        $criteria->setLimit(1);
+        $criteria->setSort([
+            ActivityOrderBy::GROUP_NUMBER => Order::DESC,
+            ActivityOrderBy::CREATED_AT => Order::DESC
+        ]);
+
+        return $this->getActivityByCriteria($criteria);
+    }
+
+    /**
+     * @param User $user
+     * @return Activity
+     * @throws \Exception
+     */
+    public function getLatestAddedActivityByUser(User $user)
+    {
+        $criteria = new ActivityCriteria();
+        $criteria->setUser($user);
+        $criteria->setType(ActivityType::ADDED);
+        $criteria->setLimit(1);
+        $criteria->setSort([
+            ActivityOrderBy::GROUP_NUMBER => Order::DESC,
+            ActivityOrderBy::CREATED_AT => Order::DESC
+        ]);
+
+        return $this->getActivityByCriteria($criteria);
+    }
+
 
     /**
      * @param User $user
@@ -281,6 +466,24 @@ class ActivityService
 
         return $this->activityRepository->findAllByCriteria($criteria);
     }
+
+    /**
+     * @param int $groupNumber
+     * @param User $user
+     * @return ArrayCollection|Activity[]
+     */
+    public function getActivityByGroupNumberAndUser(int $groupNumber, User $user)
+    {
+        $criteria = new ActivityCriteria();
+        $criteria->setUser($user);
+        $criteria->setGroupNumber($groupNumber);
+        $criteria->setSort([
+            ActivityOrderBy::CREATED_AT => Order::DESC
+        ]);
+
+        return $this->activityRepository->findAllByCriteria($criteria);
+    }
+
 
     /**
      * @param ActivityCriteria $criteria
@@ -489,6 +692,17 @@ class ActivityService
         }
 
         $this->activityRepository->save($activity, $sync);
+    }
+
+    /**
+     * @param $activities
+     */
+    public function saveAll($activities)
+    {
+        foreach ($activities as $activity) {
+            $this->save($activity, UpdateTimestamps::YES, Sync::NO);
+        }
+        $this->flush();
     }
 
     public function flush()

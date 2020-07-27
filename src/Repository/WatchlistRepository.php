@@ -54,11 +54,27 @@ class WatchlistRepository extends ServiceEntityRepository
 
     /**
      * @param WatchlistCriteria $criteria
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findWatchlistByCriteria(WatchlistCriteria $criteria)
+    {
+        $criteria->setLimit(1);
+        $qb = $this->findWatchlistsByCriteriaQueryBuilder($criteria);
+
+        $query = $qb->getQuery();
+        $result = $query->getOneOrNullResult();
+
+        return $result;
+    }
+
+    /**
+     * @param WatchlistCriteria $criteria
      * @return ArrayCollection|Watchlist[]
      */
     public function findWatchlistsByCriteria(WatchlistCriteria $criteria)
     {
-        $qb = $this->findWatchlistByCriteriaQueryBuilder($criteria);
+        $qb = $this->findWatchlistsByCriteriaQueryBuilder($criteria);
 
         $query = $qb->getQuery();
         $query->useResultCache(true, 3600, 'my_region')
@@ -72,7 +88,7 @@ class WatchlistRepository extends ServiceEntityRepository
      * @param WatchlistCriteria $criteria
      * @return QueryBuilder
      */
-    public function findWatchlistByCriteriaQueryBuilder(WatchlistCriteria $criteria)
+    public function findWatchlistsByCriteriaQueryBuilder(WatchlistCriteria $criteria)
     {
         $em = $this->getEntityManager();
         $qb = $em->createQueryBuilder();

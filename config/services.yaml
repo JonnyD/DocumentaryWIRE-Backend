@@ -57,6 +57,7 @@ services:
         - { name: kernel.event_listener, event: watchlist.watchlist_created, method: onWatchlistCreated }
         - { name: kernel.event_listener, event: user.user_confirmed, method: onUserConfirmed }
         - { name: kernel.event_listener, event: comment.comment_created, method: onCommentCreated }
+        - { name: kernel.event_listener, event: user.user_created_by_admin, method: onCreatedByAdmin }
 
     App\EventListener\SendActivationEmailLIstener:
         class: App\EventListener\SendActivationEmailLIstener

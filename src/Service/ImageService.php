@@ -151,7 +151,8 @@ class ImageService
      */
     public function mapAvatarImage(User $user, array $data)
     {
-        if ($avatar = $data['avatar']) {
+        $avatar = $data['avatar'];
+        if ($avatar) {
             $currentAvatar = $this->params->get('avatarsUrl') . $user->getAvatar();
             if ($avatar != $currentAvatar) {
                 $avatarFileName = $this->uploadAvatar($avatar);
