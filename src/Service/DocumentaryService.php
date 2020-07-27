@@ -13,6 +13,7 @@ use App\Enum\Featured;
 use App\Enum\IsParent;
 use App\Enum\Order;
 use App\Enum\Sync;
+use App\Enum\UpdateTimestamps;
 use App\Event\DocumentaryEvent;
 use App\Event\DocumentaryEvents;
 use App\Repository\DocumentaryRepository;
@@ -403,41 +404,34 @@ class DocumentaryService
     }
 
     /**
+     * @return array
+     */
+    public function getYearsExtractedFromDocumentaries()
+    {
+        return $this->documentaryRepository->findYearsExtractedFromDocumentaries();
+    }
+
+    /**
      * @param Documentary $documentary
+     * @param string $updateTimestamps
      * @param bool $sync
      */
-    public function save(Documentary $documentary, bool $sync = true)
+    public function save(Documentary $documentary, string $updateTimestamps = UpdateTimestamps::YES, bool $sync = true)
     {
-        if ($documentary->getCreatedAt() == null) {
-            $documentary->setCreatedAt(new \DateTime());
-        } else {
-            $documentary->setUpdatedAt(new \DateTime());
+        if ($updateTimestamps === UpdateTimestamps::YES) {
+            $currentDateTime = new \DateTime();
+
+            if ($documentary->getCreatedAt() == null) {
+                $documentary->setCreatedAt($currentDateTime);
+            } else {
+                $documentary->setUpdatedAt($currentDateTime);
+            }
         }
 
         $this->documentaryRepository->save($documentary, $sync);
 
         $documentaryEvent = new DocumentaryEvent($documentary);
         $this->eventDispatcher->dispatch($documentaryEvent, DocumentaryEvents::DOCUMENTARY_SAVED);
-    }
-
-    /**
-     * @param Documentary $documentary
-     * @param string $sync
-     */
-    public function saveAndDontUpdateTimestamps(Documentary $documentary, string $sync = Sync::YES)
-    {
-        $this->documentaryRepository->save($documentary, $sync);
-
-        $documentaryEvent = new DocumentaryEvent($documentary);
-        $this->eventDispatcher->dispatch($documentaryEvent, DocumentaryEvents::DOCUMENTARY_SAVED);
-    }
-
-    /**
-     * @return array
-     */
-    public function getYearsExtractedFromDocumentaries()
-    {
-        return $this->documentaryRepository->findYearsExtractedFromDocumentaries();
     }
 
     public function flush()

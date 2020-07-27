@@ -8,6 +8,7 @@ use App\Entity\Documentary;
 use App\Entity\User;
 use App\Enum\CommentStatus;
 use App\Enum\Sync;
+use App\Enum\UpdateTimestamps;
 use App\Event\CommentEvent;
 use App\Event\CommentEvents;
 use App\Repository\CommentRepository;
@@ -119,27 +120,22 @@ class CommentService
 
     /**
      * @param Comment $comment
+     * @param string $updateTimestamps
      * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Comment $comment, string $sync = Sync::YES)
+    public function save(Comment $comment, string $updateTimestamps = UpdateTimestamps::YES, string $sync = Sync::YES)
     {
-        if ($comment->getCreatedAt() == null) {
-            $comment->setCreatedAt(new \DateTime());
-        } else {
-            $comment->setUpdatedAt(new \DateTime());
+        if ($updateTimestamps === UpdateTimestamps::YES) {
+            $currentDateTime = new \DateTime();
+
+            if ($comment->getCreatedAt() == null) {
+                $comment->setCreatedAt($currentDateTime);
+            } else {
+                $comment->setUpdatedAt($currentDateTime);
+            }
         }
 
-        $this->saveAndDontUpdateTimestamps($comment, $sync);
-    }
-
-    /**
-     * @param Comment $comment
-     * @param string $sync
-     * @throws \Doctrine\ORM\ORMException
-     */
-    public function saveAndDontUpdateTimestamps(Comment $comment, string $sync = Sync::YES)
-    {
         $this->commentRepository->save($comment, $sync);
     }
 }

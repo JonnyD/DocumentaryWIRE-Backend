@@ -6,6 +6,7 @@ use App\Entity\Documentary;
 use App\Entity\DocumentaryVideoSource;
 use App\Entity\Episode;
 use App\Enum\Sync;
+use App\Enum\UpdateTimestamps;
 use App\Repository\DocumentaryVideoSourceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -148,27 +149,22 @@ class DocumentaryVideoSourceService
 
     /**
      * @param DocumentaryVideoSource $documentaryVideoSource
+     * @param string $updateTimestamps
      * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(DocumentaryVideoSource $documentaryVideoSource, string $sync = Sync::YES)
+    public function save(DocumentaryVideoSource $documentaryVideoSource, string $updateTimestamps = UpdateTimestamps::YES, string $sync = Sync::YES)
     {
-        if ($documentaryVideoSource->getCreatedAt() == null) {
-            $documentaryVideoSource->setCreatedAt(new \DateTime());
-        } else {
-            $documentaryVideoSource->setUpdatedAt(new \DateTime());
+        if ($updateTimestamps === UpdateTimestamps::YES) {
+            $currentDateTime = new \DateTime();
+
+            if ($documentaryVideoSource->getCreatedAt() == null) {
+                $documentaryVideoSource->setCreatedAt($currentDateTime);
+            } else {
+                $documentaryVideoSource->setUpdatedAt($currentDateTime);
+            }
         }
 
-        $this->documentaryVideoSourceRepository->save($documentaryVideoSource, $sync);
-    }
-
-    /**
-     * @param DocumentaryVideoSource $documentaryVideoSource
-     * @param string $sync
-     * @throws \Doctrine\ORM\ORMException
-     */
-    public function saveButDontUpdateTimestamps(DocumentaryVideoSource $documentaryVideoSource, string $sync = Sync::YES)
-    {
         $this->documentaryVideoSourceRepository->save($documentaryVideoSource, $sync);
     }
 
@@ -179,7 +175,7 @@ class DocumentaryVideoSourceService
     public function saveAll($documentaryVideoSources)
     {
         foreach ($documentaryVideoSources as $documentaryVideoSource) {
-            $this->saveButDontUpdateTimestamps($documentaryVideoSource, Sync::NO);
+            $this->save($documentaryVideoSource, UpdateTimestamps::YES, Sync::NO);
         }
 
         $this->documentaryVideoSourceRepository->flush();

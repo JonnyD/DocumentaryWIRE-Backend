@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Criteria\WatchlistCriteria;
 use App\Enum\Sync;
+use App\Enum\UpdateTimestamps;
 use App\Enum\YesNo;
 use App\Event\WatchlistEvent;
 use App\Event\WatchlistEvents;
@@ -97,11 +98,22 @@ class WatchlistService
 
     /**
      * @param Watchlist $watchlist
-     * @param bool $sync
+     * @param string $updateTimestamps
+     * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Watchlist $watchlist, string $sync = YesNo::YES)
+    public function save(Watchlist $watchlist, string $updateTimestamps = UpdateTimestamps::YES, string $sync = YesNo::YES)
     {
+        if ($updateTimestamps === UpdateTimestamps::YES) {
+            $currentDateTime = new \DateTime();
+
+            if ($watchlist->getCreatedAt() == null) {
+                $watchlist->setCreatedAt($currentDateTime);
+            } else {
+                $watchlist->setUpdatedAt($currentDateTime);
+            }
+        }
+
         $this->watchlistRepository->save($watchlist, $sync);
     }
 }

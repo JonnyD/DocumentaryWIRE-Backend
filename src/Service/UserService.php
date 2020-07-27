@@ -6,6 +6,7 @@ use App\Criteria\UserCriteria;
 use App\Entity\User;
 use App\Enum\Order;
 use App\Enum\Sync;
+use App\Enum\UpdateTimestamps;
 use App\Enum\UserOrderBy;
 use App\Event\UserEvent;
 use App\Event\UserEvents;
@@ -287,7 +288,7 @@ class UserService
         }
 
         $user->setWatchlistCount($count);
-        $this->saveAndDontUpdateTimestamps($user);
+        $this->save($user, UpdateTimestamps::NO);
     }
 
     /**
@@ -306,7 +307,7 @@ class UserService
         }
 
         $user->setCommentCount($count);
-        $this->saveAndDontUpdateTimestamps($user);
+        $this->save($user, UpdateTimestamps::NO);
     }
 
     /**
@@ -323,7 +324,7 @@ class UserService
         }
 
         $user->setFollowFromCount($count);
-        $this->saveAndDontUpdateTimestamps($user);
+        $this->save($user, UpdateTimestamps::NO);
     }
 
     /**
@@ -340,32 +341,25 @@ class UserService
         }
 
         $user->setFollowToCount($count);
-        $this->saveAndDontUpdateTimestamps($user);
-    }
-
-
-    /**
-     * @param User $user
-     * @param string $sync
-     * @throws \Doctrine\ORM\ORMException
-     */
-    public function saveAndDontUpdateTimestamps(User $user, string $sync = Sync::YES)
-    {
-        $this->userRepository->save($user, $sync);
+        $this->save($user, UpdateTimestamps::NO);
     }
 
     /**
      * @param User $user
+     * @param string $updateTimestamps
      * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(User $user, string $sync = Sync::YES)
-
+    public function save(User $user, string $updateTimestamps = UpdateTimestamps::YES, string $sync = Sync::YES)
     {
-        if ($user->getCreatedAt() == null) {
-            $user->setCreatedAt(new \DateTime());
-        } else {
-            $user->setUpdatedAt(new \DateTime());
+        if ($updateTimestamps === UpdateTimestamps::YES) {
+            $currentDateTime = new \DateTime();
+
+            if ($user->getCreatedAt() == null) {
+                $user->setCreatedAt($currentDateTime);
+            } else {
+                $user->setUpdatedAt($currentDateTime);
+            }
         }
 
         $this->userRepository->save($user, $sync);

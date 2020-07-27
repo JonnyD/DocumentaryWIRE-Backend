@@ -18,6 +18,7 @@ use App\Enum\CommentStatus;
 use App\Enum\DocumentaryStatus;
 use App\Enum\IsParent;
 use App\Enum\Order;
+use App\Enum\UpdateTimestamps;
 use App\Enum\UserOrderBy;
 use App\Service\ActivityService;
 use App\Service\CategoryService;
@@ -166,7 +167,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         $previousType = $activity[0]->getType();
         $previousUserId = $activity[0]->getUser()->getId();
         $activity[0]->setGroupNumber($groupNumber);
-        $this->activityService->save($activity[0], false);
+        $this->activityService->save($activity[0], UpdateTimestamps::NO, false);
 
         $count = 1;
         foreach ($activity as $act) {
@@ -212,7 +213,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
                 $act->setGroupNumber($groupNumber);
             }
 
-            $this->activityService->save($act, false);
+            $this->activityService->save($act, UpdateTimestamps::NO, false);
         }
 
         $this->activityService->flush();
@@ -256,7 +257,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         }
 
         foreach ($updatedDocumentaries as $updatedDocumentary) {
-            $this->documentaryService->save($updatedDocumentary, false);
+            $this->documentaryService->save($updatedDocumentary, UpdateTimestamps::NO, false);
         }
 
         $this->documentaryService->flush();
@@ -362,7 +363,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         foreach ($documentaries as $documentary) {
             $documentary->setViewsDate(new \DateTime());
 
-            $this->documentaryService->save($documentary, false);
+            $this->documentaryService->save($documentary, UpdateTimestamps::NO, false);
         }
 
         $this->documentaryService->flush();
@@ -390,7 +391,7 @@ class SyncCont extends AbstractFOSRestController implements ClassResourceInterfa
         foreach ($documentaries as $documentary) {
             $documentary->setIsParent(IsParent::YES);
 
-            $this->documentaryService->save($documentary, false);
+            $this->documentaryService->save($documentary, UpdateTimestamps::NO,false);
         }
 
         $this->documentaryService->flush();

@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Criteria\VideoSourceCriteria;
 use App\Entity\VideoSource;
 use App\Enum\Sync;
+use App\Enum\UpdateTimestamps;
 use App\Repository\VideoSourceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -51,16 +52,21 @@ class VideoSourceService
 
     /**
      * @param VideoSource $videoSource
+     * @param string $updateTimestamps
      * @param string $sync
      * @return VideoSource|null
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(VideoSource $videoSource, string $sync = Sync::YES)
+    public function save(VideoSource $videoSource, string $updateTimestamps = UpdateTimestamps::YES, string $sync = Sync::YES)
     {
-        if ($videoSource->getCreatedAt() == null) {
-            $videoSource->setCreatedAt(new \DateTime());
-        } else {
-            $videoSource->setUpdatedAt(new \DateTime());
+        if ($updateTimestamps === UpdateTimestamps::YES) {
+            $currentDateTime = new \DateTime();
+
+            if ($videoSource->getCreatedAt() == null) {
+                $videoSource->setCreatedAt($currentDateTime);
+            } else {
+                $videoSource->setUpdatedAt($currentDateTime);
+            }
         }
 
         $this->videoSourceRepository->save($videoSource, $sync);

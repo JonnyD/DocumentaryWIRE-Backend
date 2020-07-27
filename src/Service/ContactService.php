@@ -6,6 +6,7 @@ use App\Criteria\ContactCriteria;
 use App\Entity\Category;
 use App\Entity\Contact;
 use App\Enum\Sync;
+use App\Enum\UpdateTimestamps;
 use App\Repository\ContactRepository;
 
 class ContactService
@@ -53,15 +54,20 @@ class ContactService
 
     /**
      * @param Contact $contact
+     * @param string $updateTimestamps
      * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Contact $contact, string $sync = Sync::YES)
+    public function save(Contact $contact, string $updateTimestamps = UpdateTimestamps::YES, string $sync = Sync::YES)
     {
-        if ($contact->getCreatedAt() == null) {
-            $contact->setCreatedAt(new \DateTime());
-        } else {
-            $contact->setUpdatedAt(new \DateTime());
+        if ($updateTimestamps === UpdateTimestamps::YES) {
+            $currentDateTime = new \DateTime();
+
+            if ($contact->getCreatedAt() == null) {
+                $contact->setCreatedAt($currentDateTime);
+            } else {
+                $contact->setUpdatedAt($currentDateTime);
+            }
         }
 
         $this->contactRepository->save($contact, $sync);

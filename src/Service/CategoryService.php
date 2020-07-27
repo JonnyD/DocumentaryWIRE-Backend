@@ -9,6 +9,7 @@ use App\Enum\CategoryOrderBy;
 use App\Enum\CategoryStatus;
 use App\Enum\Order;
 use App\Enum\Sync;
+use App\Enum\UpdateTimestamps;
 use App\Repository\CategoryRepository;
 
 class CategoryService
@@ -113,10 +114,22 @@ class CategoryService
 
     /**
      * @param Category $category
+     * @param string $updateTimestamps
      * @param string $sync
+     * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Category $category, string $sync = Sync::YES)
+    public function save(Category $category, string $updateTimestamps = UpdateTimestamps::YES, string $sync = Sync::YES)
     {
+        if ($updateTimestamps === UpdateTimestamps::YES) {
+            $currentDateTime = new \DateTime();
+
+            if ($category->getCreatedAt() == null) {
+                $category->setCreatedAt($currentDateTime);
+            } else {
+                $category->setUpdatedAt($currentDateTime);
+            }
+        }
+
         $this->categoryRepository->save($category, $sync);
     }
 }

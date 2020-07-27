@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Documentary;
 use App\Enum\Sync;
+use App\Enum\UpdateTimestamps;
 use App\Object\Activity\Activity as ActivityObject;
 use App\Object\Activity\ActivityItemObject;
 use App\Object\Activity\Strategy\DataStrategyContext;
@@ -472,10 +473,21 @@ class ActivityService
 
     /**
      * @param Activity $activity
-     * @param bool $sync
+     * @param string $updateTimestamps
+     * @param string $sync
      */
-    public function save(Activity $activity, string $sync = Sync::YES)
+    public function save(Activity $activity, string $updateTimestamps = UpdateTimestamps::YES, string $sync = Sync::YES)
     {
+        if ($updateTimestamps === UpdateTimestamps::YES) {
+            $currentDateTime = new \DateTime();
+
+            if ($activity->getCreatedAt() == null) {
+                $activity->setCreatedAt($currentDateTime);
+            } else {
+                $activity->setUpdatedAt($currentDateTime);
+            }
+        }
+
         $this->activityRepository->save($activity, $sync);
     }
 

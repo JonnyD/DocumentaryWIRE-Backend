@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Criteria\FollowCriteria;
 use App\Entity\Follow;
 use App\Enum\Sync;
+use App\Enum\UpdateTimestamps;
 use App\Event\FollowEvent;
 use App\Event\FollowEvents;
 use App\Repository\FollowRepository;
@@ -72,15 +73,20 @@ class FollowService
 
     /**
      * @param Follow $follow
+     * @param string $updateTimestamps
      * @param string $sync
      * @throws \Doctrine\ORM\ORMException
      */
-    public function save(Follow $follow, string $sync = Sync::YES)
+    public function save(Follow $follow, string $updateTimestamps = UpdateTimestamps::YES, string $sync = Sync::YES)
     {
-        if ($follow->getCreatedAt() == null) {
-            $follow->setCreatedAt(new \DateTime());
-        } else {
-            $follow->setUpdatedAt(new \DateTime());
+        if ($updateTimestamps === UpdateTimestamps::YES) {
+            $currentDateTime = new \DateTime();
+
+            if ($follow->getCreatedAt() == null) {
+                $follow->setCreatedAt($currentDateTime);
+            } else {
+                $follow->setUpdatedAt($currentDateTime);
+            }
         }
 
         $this->followRepository->save($follow, $sync);
@@ -98,6 +104,6 @@ class FollowService
         $this->followRepository->remove($follow);
 
         $followEvent = new FollowEvent($follow);
-        $this->eventDispatcher->dispatch($followEvent, FollowEvents::FOLLOW_SAVED);
+        $this->eventDispatcher->dispatch($followEvent, FollowEvents::FOLLOW_SAVED); //@TODO change to follow_deleted
     }
 }
