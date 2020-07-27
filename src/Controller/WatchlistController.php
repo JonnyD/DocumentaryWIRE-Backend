@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Criteria\WatchlistCriteria;
 use App\Entity\Documentary;
 use App\Entity\Watchlist;
+use App\Enum\Order;
 use App\Enum\WatchlistOrderBy;
 use App\Form\WatchlistForm;
 use App\Hydrator\WatchlistHydrator;
@@ -68,23 +69,13 @@ class WatchlistController extends BaseController implements ClassResourceInterfa
      */
     public function listAction(Request $request)
     {
-        if (!$this->isLoggedIn()) {
-            return $this->createApiResponse('Not authorized', 401);
-        }
-
         $page = $request->query->get('page', 1);
 
         $criteria = new WatchlistCriteria();
 
-        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
-        if ($isRoleAdmin) {
-            $username = $request->query->get('user');
-            if (isset($username)) {
-                $user = $this->userService->getUserByUsername($username);
-                $criteria->setUser($user);
-            }
-        } else {
-            $user = $this->getLoggedInUser();
+        $username = $request->query->get('user');
+        if (isset($username)) {
+            $user = $this->userService->getUserByUsername($username);
             $criteria->setUser($user);
         }
 
@@ -105,7 +96,10 @@ class WatchlistController extends BaseController implements ClassResourceInterfa
             }
             $criteria->setSort($sort);
         } else {
-            //@TODO
+            $sort = [
+                WatchlistOrderBy::CREATED_AT => Order::ASC
+            ];
+            $criteria->setSort($sort);
         }
 
         $amountPerPage = $request->query->get('amountPerPage', 12);

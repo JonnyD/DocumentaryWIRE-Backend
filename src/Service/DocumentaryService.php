@@ -366,7 +366,7 @@ class DocumentaryService
     public function updateViews(Documentary $documentary)
     {
         $documentary->incrementViews();
-        $this->saveAndDontUpdateTimestamps($documentary);
+        $this->save($documentary, UpdateTimestamps::NO);
     }
 
     /**
@@ -384,7 +384,7 @@ class DocumentaryService
         }
 
         $documentary->setCommentCount($count);
-        $this->saveAndDontUpdateTimestamps($documentary);
+        $this->save($documentary, UpdateTimestamps::NO);
     }
 
     /**
@@ -400,7 +400,7 @@ class DocumentaryService
         }
 
         $documentary->setWatchlistCount($count);
-        $this->saveAndDontUpdateTimestamps($documentary);
+        $this->save($documentary, UpdateTimestamps::NO);
     }
 
     /**

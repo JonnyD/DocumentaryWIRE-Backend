@@ -129,7 +129,7 @@ class ActivityController extends BaseController implements ClassResourceInterfac
 
         $adapter = new DoctrineORMAdapter($qb, false);
         $pagerfanta = new Pagerfanta($adapter);
-        $pagerfanta->setMaxPerPage(50);
+        $pagerfanta->setMaxPerPage(12);
         $pagerfanta->setCurrentPage($page);
 
         $items = (array) $pagerfanta->getCurrentPageResults();

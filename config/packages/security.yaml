@@ -174,7 +174,7 @@ security:
             methods: [GET]
             pattern: ^/api/v1/watchlist
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 #
         api_public_follow:
