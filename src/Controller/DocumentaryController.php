@@ -354,7 +354,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             if ($form->isSubmitted() && $form->isValid()) {
                 $documentary = $this->imageService->mapMovieImages($documentary, $data);
                 
-                $this->documentaryService->save($documentary);
+                $this->documentaryService->createMovie($documentary);
 
                 $movieHydrator = new MovieHydrator($documentary, $this->request);
                 $serialized = $movieHydrator->toArray();
@@ -393,7 +393,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
             if ($form->isSubmitted() && $form->isValid()) {
                 $documentary = $this->imageService->mapImages($documentary, $data);
 
-                $this->documentaryService->save($documentary);
+                $this->documentaryService->createSeries($documentary);
 
                 $seriesHydrator = new SeriesHydrator($documentary, $this->request);
                 $serialized = $seriesHydrator->toArray();
@@ -435,7 +435,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
 
                 $documentary = $this->imageService->mapImages($documentary, $data);
 
-                $this->documentaryService->save($documentary);
+                $this->documentaryService->createEpisode($documentary);
 
                 $serialized = ['test'=>'test'];
                 return $this->createApiResponse($serialized, 200);
@@ -485,7 +485,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 $documentary->setDocumentaryVideoSources($documentaryVideoSources);
 
                 $documentary->setOldCategory($oldCategory);
-                $this->documentaryService->save($documentary);
+                $this->documentaryService->editMovie($documentary);
 
                 $movieHydrator = new MovieHydrator($documentary, $this->request);
                 $serialized = $movieHydrator->toArray();
@@ -532,7 +532,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
                 $documentary = $this->imageService->mapImages($documentary, $data);
 
                 $documentary->setOldCategory($oldCategory);
-                $this->documentaryService->save($documentary);
+                $this->documentaryService->editSeries($documentary);
 
                 $seriesHydrator = new SeriesHydrator($documentary, $this->request);
                 $serialized = $seriesHydrator->toArray();
@@ -571,7 +571,7 @@ class DocumentaryController extends BaseController implements ClassResourceInter
         $documentary->setMovie(null);
         $documentary->setType(DocumentaryType::SERIES);
 
-        $this->documentaryService->save($documentary);
+        $this->documentaryService->convertToSeries($documentary);
 
         $this->documentaryService->removeMovie($movie);
 

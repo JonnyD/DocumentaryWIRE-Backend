@@ -67,16 +67,26 @@ class Comment
      */
     private $documentary;
 
+    /**
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * @return null|string
+     */
     public function getCommentText(): ?string
     {
         return $this->commentText;
     }
 
+    /**
+     * @param string $commentText
+     * @return Comment
+     */
     public function setCommentText(string $commentText): self
     {
         $this->commentText = $commentText;
@@ -84,11 +94,18 @@ class Comment
         return $this;
     }
 
+    /**
+     * @return null|string
+     */
     public function getStatus(): ?string
     {
         return $this->status;
     }
 
+    /**
+     * @param string $status
+     * @return Comment
+     */
     public function setStatus(string $status): self
     {
         $this->status = $status;
@@ -101,7 +118,7 @@ class Comment
      */
     public function isPublished()
     {
-        return ($this->status === CommentStatus::PUBLISH);
+        return ($this->status === CommentStatus::PUBLISHED);
     }
 
     /**
@@ -112,11 +129,18 @@ class Comment
         return ($this->status === CommentStatus::PENDING);
     }
 
+    /**
+     * @return null|string
+     */
     public function getAuthor(): ?string
     {
         return $this->author;
     }
 
+    /**
+     * @param null|string $author
+     * @return Comment
+     */
     public function setAuthor(?string $author): self
     {
         $this->author = $author;
@@ -124,11 +148,18 @@ class Comment
         return $this;
     }
 
+    /**
+     * @return null|string
+     */
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
+    /**
+     * @param null|string $email
+     * @return Comment
+     */
     public function setEmail(?string $email): self
     {
         $this->email = $email;
@@ -136,11 +167,18 @@ class Comment
         return $this;
     }
 
+    /**
+     * @return User|null
+     */
     public function getUser(): ?User
     {
         return $this->user;
     }
 
+    /**
+     * @param User|null $user
+     * @return Comment
+     */
     public function setUser(?User $user): self
     {
         $this->user = $user;
@@ -148,11 +186,18 @@ class Comment
         return $this;
     }
 
+    /**
+     * @return Documentary|null
+     */
     public function getDocumentary(): ?Documentary
     {
         return $this->documentary;
     }
 
+    /**
+     * @param Documentary|null $documentary
+     * @return Comment
+     */
     public function setDocumentary(?Documentary $documentary): self
     {
         $this->documentary = $documentary;
