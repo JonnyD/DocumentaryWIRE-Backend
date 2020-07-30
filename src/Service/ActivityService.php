@@ -602,8 +602,12 @@ class ActivityService
             $name = $user->getName();
             $avatar = $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $user->getAvatar();
             $username = $user->getUsername();
+            $objectId = $activityItem->getObjectId();
+            $id = $activityItem->getId();
 
             $activityObject = new ActivityObject();
+            $activityObject->setId($id);
+            $activityObject->setObjectId($objectId);
             $activityObject->setType($type);
             $activityObject->setCreatedAt($created);
             $activityObject->setName($name);

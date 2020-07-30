@@ -30,6 +30,56 @@ class UserCest
         $I->seeResponseContainsJson($expectedResponse);
     }
 
+    public function registerUserAsAdmin(ApiTester $I)
+    {
+        $username = 'user1';
+        $password = 'password';
+
+        $logInDetails = [
+            'grant_type' => 'password',
+            'client_id' => '1_5w8zrdasdafr4tregd454cw0c0kswcgs0oks40s',
+            'client_secret' => 'sdgggskokererg4232404gc4csdgfdsgf8s8ck5s',
+            'username' => $username,
+            'password' => $password
+        ];
+        $I->sendPOST('oauth/v2/token', $logInDetails);
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $I->seeResponseIsJson();
+        $I->seeResponseContains('access_token');
+        $I->seeResponseContains('expires_in');
+        $I->seeResponseContains('token_type');
+        $I->seeResponseContains('scope');
+        $I->seeResponseContains('refresh_token');
+
+        $response = json_decode($I->grabResponse(), true);
+        $accessToken = $response['access_token'];
+        $I->amBearerAuthenticated($accessToken);
+
+        $userClass = \App\Entity\User::class;
+
+        $registerUserAsAdmin = [
+            "username" => "codeception_admin",
+            "password" => "codeception_admin",
+            "name" => "Codeception Admin Name",
+            "email" => "codeception_admin_email@jonnydevine.com",
+            "avatar" => null
+        ];
+
+        $I->dontSeeInRepository($userClass, $registerUserAsAdmin);
+
+        $I->haveHttpHeader('Content-Type', 'application/json');
+        $I->sendPOST('/api/v1/user', $registerUserAsAdmin);
+
+        $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK);
+        $I->seeResponseIsJson();
+        $expectedResponse = [
+            'username' => $registerUserAsAdmin['username']
+        ];
+        $I->seeResponseContainsJson($expectedResponse);
+
+        //@TODO delete user
+    }
+
     public function registerExistingUser(ApiTester $I)
     {
         $userClass = \App\Entity\User::class;

@@ -156,9 +156,10 @@ class UserController extends BaseController implements ClassResourceInterface
                 if ($avatar == null) {
                     $formError = new FormError("Avatar is required");
                     $form->addError($formError);
+                } else {
+                    $this->imageService->mapAvatarImage($user, $data);
                 }
 
-                $this->imageService->mapAvatarImage($user, $data);
 
                 $isCreatedByAdmin = true;
             } else {
