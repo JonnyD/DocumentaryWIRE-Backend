@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Entity\VideoSource;
 use App\Enum\DocumentaryType;
 use App\Enum\Featured;
+use App\Enum\IsParent;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -267,6 +268,9 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         $documentary->setLength($length);
         $documentary->setYearFrom($year);
         $documentary->setAddedBy($user);
+        $documentary->setIsParent(IsParent::YES);
+        $documentary->setCreatedAt(new \DateTime());
+        
         return $documentary;
     }
 
@@ -314,6 +318,8 @@ class DocumentaryFixtures extends Fixture implements DependentFixtureInterface
         $documentary->setLength($length);
         $documentary->setYearFrom($yearFrom);
         $documentary->setAddedBy($user);
+        $documentary->setIsParent(IsParent::YES);
+        $documentary->setCreatedAt(new \DateTime());
 
         return $documentary;
     }
