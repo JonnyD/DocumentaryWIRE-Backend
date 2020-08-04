@@ -48,6 +48,7 @@ class UserHydrator implements HydratorInterface
     public function toArray()
     {
         $array = [
+            'id' => $this->user->getId(),
             'name' => $this->user->getName(),
             'username' => $this->user->getUsername(),
             'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $this->user->getAvatar(),
