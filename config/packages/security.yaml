@@ -181,14 +181,14 @@ security:
             methods: [GET]
             pattern: ^/api/v1/follow
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_follow:
             methods: [PUT, POST, PATCH, DELETE]
             pattern:    ^/api/v1/follow
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
 
         api_omdb:
             methods: [GET]
