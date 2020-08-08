@@ -21,6 +21,13 @@ security:
             pattern:    ^/oauth/v2/token
             security:   false
 
+        api_public_forgot_password:
+            methods: [POST]
+            pattern:    ^/api/v1/user/forgot-password
+            fos_oauth:  true
+            stateless:  true
+            anonymous: true
+
         api_user:
             methods: [PUT, PATCH, POST]
             pattern:    ^/api/v1/user
@@ -50,13 +57,6 @@ security:
             fos_oauth:  true
             stateless:  false
 
-        api_public_forgot_password:
-            methods: [POST]
-            pattern:    ^/api/v1/user/forgot-password
-            fos_oauth:  true
-            stateless:  false
-            anonymous: true
-
         api_public_user:
             methods: [GET, POST]
             pattern:    ^/api/v1/user
@@ -68,7 +68,7 @@ security:
             methods: [POST]
             pattern:    ^/api/v1/user/forgot-username
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_public_resend:
