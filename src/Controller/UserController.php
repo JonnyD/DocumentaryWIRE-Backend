@@ -8,6 +8,7 @@ use App\Enum\UserOrderBy;
 use App\Enum\UserStatus;
 use App\Event\UserEvent;
 use App\Event\UserEvents;
+use App\Form\ChangeEmailForm;
 use App\Form\ChangePasswordForm;
 use App\Form\ForgotPasswordForm;
 use App\Form\ForgotUsernameForm;
@@ -608,6 +609,65 @@ class UserController extends BaseController implements ClassResourceInterface
     }
 
     /**
+     * @FOSRest\Post("/user/change-email/{id}", name="change_email", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function changeEmailAction(int $id, Request $request)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->userService->getUserById($id);
+        $loggedInUser = $this->getLoggedInUser();
+
+        if ($user !== $loggedInUser) {
+            return $this->createApiResponse("You cannot change email of someone else", 403);
+        }
+
+        $form = $this->createForm(ChangeEmailForm::class);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            if ($form->isSubmitted()) {
+                if ($form->isValid()) {
+                    $data = $form->getData();
+
+                    $newEmail = $data["email"];
+
+                    $userForEmail = $this->userService->getUserByEmail($newEmail);
+                    $loggedInUser = $this->getLoggedInUser();
+
+                    if ($userForEmail != null) {
+                        if ($userForEmail->getId() !== $loggedInUser->getId()) {
+                            return $this->createApiResponse("This email is already in use", 400);
+                        }
+                    }
+
+                    $user->setEmail($newEmail);
+                    $this->userService->save($user);
+
+                    $userHydrator = new UserHydrator(
+                        $user,
+                        $this->request,
+                        $this->isGranted("ROLE_ADMIN"),
+                        $loggedInUser
+                    );
+                    $serialized = $userHydrator->toArray();
+                    return $this->createApiResponse($serialized, 200);
+                } else {
+                    $errors = (string)$form->getErrors(true, false);
+                    return $this->createApiResponse($errors, 400);
+                }
+            }
+        }
+    }
+
+    /**
      * @FOSRest\Post("/user/forgot-password", name="forgot_password", options={ "method_prefix" = false })
      *
      * @param Request $request
@@ -619,7 +679,7 @@ class UserController extends BaseController implements ClassResourceInterface
             'username' => $request->request->get("username")
         ];
 
-        $form = $this->createForm(ForgotPasswordForm::class, $userInfo);
+        $form = $this->createForm(ForgotPasswordForm::class,$userInfo);
         $form->handleRequest($request);
 
         if ($request->isMethod('POST')) {

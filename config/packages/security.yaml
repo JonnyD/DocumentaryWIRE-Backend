@@ -22,15 +22,20 @@ security:
             security:   false
 
         api_user:
-            methods: [PUT, PATCH]
+            methods: [PUT, PATCH, POST]
             pattern:    ^/api/v1/user
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
 
         api_user_change_password:
             pattern:    ^/api/v1/user/change-password
             fos_oauth:  true
             stateless:  false
+
+        api_user_change_email:
+            pattern:    ^/api/v1/user/change-email
+            fos_oauth:  true
+            stateless:  true
 
         api_email_unsubscribe:
             methods: [GET]
