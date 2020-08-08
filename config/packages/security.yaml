@@ -34,7 +34,7 @@ security:
             fos_oauth:  true
             stateless:  true
             anonymous: true
-            
+
         api_user:
             methods: [PUT, PATCH, POST]
             pattern:    ^/api/v1/user
@@ -44,7 +44,7 @@ security:
         api_user_change_password:
             pattern:    ^/api/v1/user/change-password
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
 
         api_user_change_email:
             pattern:    ^/api/v1/user/change-email
@@ -55,14 +55,14 @@ security:
             methods: [GET]
             pattern:    ^/api/v1/email/unsubscribe
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_email:
             methods: [POST, GET, PATCH]
             pattern:    ^/api/v1/email
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
 
         api_public_user:
             methods: [GET]
@@ -74,105 +74,105 @@ security:
         api_public_resend:
             pattern:    ^/api/v1/user/resend
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_me:
             pattern:    ^/api/v1/user/me
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
 
         api_public_confirm:
             methods: [GET]
             pattern:    ^/api/v1/user/confirm
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_documentary:
             methods: [PUT, POST, PATCH]
             pattern:    ^/api/v1/documentary
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
 
         api_public_documentary:
             methods: [GET]
             pattern: ^/api/v1/documentary
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_public_video_source:
             methods: [GET]
             pattern: ^/api/v1/video-source
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_admin_video_source:
             methods: [POST, PUT, PATCH, DELETE]
             pattern: ^/api/v1/video-source
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
 
         api_public_comment:
             methods: [GET]
             pattern: ^/api/v1/comment
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_comment:
             methods: [POST, PUT, DELETE, PATCH]
             pattern: ^/api/v1/comment
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
 
         api_public_category:
             methods: [GET]
             pattern: ^/api/v1/category
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_category:
             methods: [PUT, POST, PATCH]
             pattern:    ^/api/v1/category
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
 
         api_public_activity:
             methods: [GET]
             pattern: ^/api/v1/activity
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_public_community:
             methods: [GET]
             pattern: ^/api/v1/community
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_public_uploads:
             pattern: ^/uploads/posters
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_sync:
             methods: [GET]
             pattern: ^/api/v1/sync
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_year:
             methods: [GET]
             pattern: ^/api/v1/year
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_watchlist:
@@ -199,55 +199,55 @@ security:
             methods: [GET]
             pattern: ^/api/v1/omdb
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_youtube:
             methods: [GET]
             pattern: ^/api/v1/youtube
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_season:
             methods: [POST]
             pattern:    ^/api/v1/season
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
 
         api_chat:
             methods: [GET]
             pattern: ^/api/v1/chat
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_rss_site:
             methods: [GET]
             pattern: ^/api/v1/rss
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_sitemap:
             methods: [GET]
             pattern: ^/api/v1/sitemap
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_public_contact:
             methods: [POST]
             pattern: ^/api/v1/contact
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
             anonymous: true
 
         api_contact:
             methods: [GET, PATCH, PUT]
             pattern: ^/api/v1/contact
             fos_oauth:  true
-            stateless:  false
+            stateless:  true
 
         main:
             pattern: ^/
