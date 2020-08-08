@@ -139,6 +139,7 @@ class UserFixtures extends Fixture implements ContainerAwareInterface
         $user->setResetKey($confirmationToken);
         $user->setAvatar("0d91cca62a1a31a612b2a6366c7ef56b3e468ce8.jpg");
         $user->setPasswordRequestedAt($passwordRequestedAt);
+        $user->setCreatedAt(new \DateTime());
         return $user;
     }
 
