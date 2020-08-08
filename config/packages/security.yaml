@@ -28,6 +28,13 @@ security:
             stateless:  true
             anonymous: true
 
+        api_public_forgot_username:
+            methods: [POST]
+            pattern:    ^/api/v1/user/forgot-username
+            fos_oauth:  true
+            stateless:  true
+            anonymous: true
+            
         api_user:
             methods: [PUT, PATCH, POST]
             pattern:    ^/api/v1/user
@@ -58,15 +65,8 @@ security:
             stateless:  false
 
         api_public_user:
-            methods: [GET, POST]
+            methods: [GET]
             pattern:    ^/api/v1/user
-            fos_oauth:  true
-            stateless:  true
-            anonymous: true
-
-        api_public_forgot_username:
-            methods: [POST]
-            pattern:    ^/api/v1/user/forgot-username
             fos_oauth:  true
             stateless:  true
             anonymous: true
