@@ -16,10 +16,4 @@ class ChangePasswordForm extends AbstractType
             ->add('newPassword', PasswordType::class)
             ->add('confirmPassword', PasswordType::class);
     }
-
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-        ]);
-    }
 }
