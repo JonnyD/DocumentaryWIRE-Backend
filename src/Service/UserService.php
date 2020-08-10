@@ -260,6 +260,8 @@ class UserService
      */
     public function changePassword(User $user)
     {
+        $this->save($user);
+
         $userEvent = new UserEvent($user);
         $this->eventDispatcher->dispatch($userEvent, UserEvents::USER_CHANGE_PASSWORD);
     }

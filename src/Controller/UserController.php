@@ -363,6 +363,7 @@ class UserController extends BaseController implements ClassResourceInterface
             $data = json_decode($request->getContent(), true);
             $form->submit($data);
 
+            //@TODO check is valid
             $email = $data['email'];
             if ($email === null) {
                 return new JsonResponse("Email not found", 400);
@@ -553,21 +554,19 @@ class UserController extends BaseController implements ClassResourceInterface
         $user = $this->userService->getUserById($id);
         $loggedInUser = $this->getLoggedInUser();
 
-        if ($user !== $loggedInUser) {
+        $isRoleAdmin = $this->isGranted('ROLE_ADMIN');
+
+        $canChangePassword = $isRoleAdmin || $user === $loggedInUser;
+        if (!$canChangePassword) {
             return $this->createApiResponse("You cannot change password of someone else", 403);
         }
 
-        $userInfo = [
-            'currentPassword' => $request->request->get("currentPassword"),
-            'newPassword' => $request->request->get("newPassword"),
-            'confirmPassword' => $request->request->get("confirmPassword")
-        ];
-
-        $form = $this->createForm(ChangePasswordForm::class, $userInfo);
+        $form = $this->createForm(ChangePasswordForm::class);
         $form->handleRequest($request);
 
         if ($request->isMethod('POST')) {
-            $form->submit($userInfo);
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
 
             if ($form->isSubmitted()) {
                 $data = $form->getData();
@@ -576,8 +575,10 @@ class UserController extends BaseController implements ClassResourceInterface
                 $newPassword = $data["newPassword"];
                 $confirmPassword = $data["confirmPassword"];
 
-                $valid = $this->passwordEncoder->isPasswordValid($user, $currentPassword);
-                if (!$valid) {
+                $currentEncodedPassword = $this->passwordEncoder->encodePassword($user, $currentPassword);
+                $storedEncodedPassword = $user->getPassword();
+
+                if ($currentEncodedPassword !== $storedEncodedPassword) {
                     $form->addError(new FormError("Password does not match the one in your account"));
                 }
                 if (strlen($newPassword) < 6 || strlen($newPassword) > 40) {
