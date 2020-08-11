@@ -51,4 +51,9 @@ class WatchlistHydrator implements HydratorInterface
             'updatedAt' => $this->watchlist->getUpdatedAt()
         ];
     }
+
+    public function toObject(array $data)
+    {
+        // TODO: Implement toObject() method.
+    }
 }

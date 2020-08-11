@@ -30,4 +30,9 @@ class VideoSourceHydrator implements HydratorInterface
             'status' => $this->videoSource->getStatus()
         ];
     }
+
+    public function toObject(array $data)
+    {
+        // TODO: Implement toObject() method.
+    }
 }

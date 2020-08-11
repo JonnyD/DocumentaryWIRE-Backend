@@ -32,4 +32,9 @@ class CategoryHydrator implements HydratorInterface
 
         return $array;
     }
+
+    public function toObject(array $data)
+    {
+        // TODO: Implement toObject() method.
+    }
 }

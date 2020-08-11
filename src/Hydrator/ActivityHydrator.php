@@ -80,4 +80,9 @@ class ActivityHydrator implements HydratorInterface
 
         return $activityObject->toArray();
     }
+
+    public function toObject(array $data)
+    {
+        // TODO: Implement toObject() method.
+    }
 }

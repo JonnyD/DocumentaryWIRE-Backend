@@ -66,13 +66,16 @@ class UserHydrator implements HydratorInterface
             $isUser = true;
         }
 
-        if ($isUser || $this->isRoleAdmin) {
-            $array['id'] = $this->user->getId();
+        if ($isUser) {
+            $array['activatedAt'] = $this->user->getActivatedAt();
+            $array['email'] = $this->user->getEmailCanonical();
+        }
+
+        if ($this->isRoleAdmin) {
             $array['usernameCanonical'] = $this->user->getUsernameCanonical();
             $array['email'] = $this->user->getEmail();
             $array['emailCanonical'] = $this->user->getEmailCanonical();
             $array['resetKey'] = $this->user->getResetKey();
-            $array['activatedAt'] = $this->user->getActivatedAt();
             $array['enabled'] = $this->user->isEnabled();
             $array['password'] = $this->user->getPassword();
             $array['lastLogin'] = $this->user->getLastLogin();
@@ -82,5 +85,10 @@ class UserHydrator implements HydratorInterface
         }
 
         return $array;
+    }
+
+    public function toObject(array $data)
+    {
+        // TODO: Implement toObject() method.
     }
 }

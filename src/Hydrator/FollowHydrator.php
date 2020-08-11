@@ -36,4 +36,9 @@ class FollowHydrator implements HydratorInterface
             'updatedAt' => $this->follow->getUpdatedAt()
         ];
     }
+
+    public function toObject(array $data)
+    {
+        // TODO: Implement toObject() method.
+    }
 }

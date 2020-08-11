@@ -20,6 +20,9 @@ class ContactHydrator implements HydratorInterface
         $this->contact = $contact;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         $array = [
@@ -32,5 +35,29 @@ class ContactHydrator implements HydratorInterface
         ];
 
         return $array;
+    }
+
+    /**
+     * @param array $data
+     * @return Contact
+     */
+    public function toObject(array $data)
+    {
+        $subject = $data['subject'];
+        if (isset($subject)) {
+            $this->contact->setSubject($subject);
+        }
+
+        $email = $data['emailAddress'];
+        if (isset($email)) {
+            $this->contact->setEmailAddress($email);
+        }
+
+        $message = $data['message'];
+        if (isset($message)) {
+            $this->contact->setMessage($message);
+        }
+
+        return $this->contact;
     }
 }
