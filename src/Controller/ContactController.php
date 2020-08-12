@@ -111,19 +111,13 @@ class ContactController extends BaseController implements ClassResourceInterface
             $form->submit($data);
 
             if ($form->isValid()) {
-                $subject = $data["subject"];
-                $email = $data["emailAddress"];
-                $message = $data["message"];
+                $contactHydrator = new ContactHydrator($contact);
 
-                $contact = new Contact();
-                $contact->setSubject($subject);
-                $contact->setEmailAddress($email);
-                $contact->setMessage($message);
-
+                $contact = $contactHydrator->toObject($data);
                 $this->contactService->save($contact);
 
-                $contactHydrator = new ContactHydrator($contact);
                 $serializedContact = $contactHydrator->toArray();
+
                 return $this->createApiResponse($serializedContact, 200);
 
             } else {
