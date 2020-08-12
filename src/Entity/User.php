@@ -92,6 +92,11 @@ class User extends BaseUser
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $aboutMe;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"user:read", "user:write"})
      */
     private $avatar;
@@ -232,6 +237,22 @@ class User extends BaseUser
     public function setName(string $name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAboutMe()
+    {
+        return $this->aboutMe;
+    }
+
+    /**
+     * @param string $aboutMe
+     */
+    public function setAboutMe(string $aboutMe)
+    {
+        $this->aboutMe = $aboutMe;
     }
 
     /**

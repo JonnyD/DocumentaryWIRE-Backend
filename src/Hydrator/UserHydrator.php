@@ -50,6 +50,7 @@ class UserHydrator implements HydratorInterface
         $array = [
             'id' => $this->user->getId(),
             'name' => $this->user->getName(),
+            'aboutMe' => $this->user->getAboutMe(),
             'username' => $this->user->getUsername(),
             'avatar' => $this->request->getScheme() .'://' . $this->request->getHttpHost() . $this->request->getBasePath() . '/uploads/avatar/' . $this->user->getAvatar(),
             'roles' => $this->user->getRoles(),

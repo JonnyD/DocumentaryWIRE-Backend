@@ -8,6 +8,7 @@ use App\Enum\UserOrderBy;
 use App\Enum\UserStatus;
 use App\Event\UserEvent;
 use App\Event\UserEvents;
+use App\Form\ChangeAboutMeForm;
 use App\Form\ChangeEmailForm;
 use App\Form\ChangePasswordForm;
 use App\Form\ForgotPasswordForm;
@@ -650,6 +651,57 @@ class UserController extends BaseController implements ClassResourceInterface
                     }
 
                     $user->setEmail($newEmail);
+                    $this->userService->save($user);
+
+                    $userHydrator = new UserHydrator(
+                        $user,
+                        $this->request,
+                        $this->isGranted("ROLE_ADMIN"),
+                        $loggedInUser
+                    );
+                    $serialized = $userHydrator->toArray();
+                    return $this->createApiResponse($serialized, 200);
+                } else {
+                    $errors = (string)$form->getErrors(true, false);
+                    return $this->createApiResponse($errors, 400);
+                }
+            }
+        }
+    }
+
+    /**
+     * @FOSRest\Post("/user/{id}/change-about-me", name="change_email", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function changeAboutMeAction(int $id, Request $request)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->userService->getUserById($id);
+        $loggedInUser = $this->getLoggedInUser();
+
+        $canChangeAboutMe = $user !== $loggedInUser;
+        if ($canChangeAboutMe) {
+            return $this->createApiResponse("You cannot change about me of someone else", 403);
+        }
+
+        $form = $this->createForm(ChangeAboutMeForm::class);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            if ($form->isSubmitted()) {
+                if ($form->isValid()) {
+                    $data = $form->getData();
+
+                    $aboutMe = $data["aboutMe"];
+
+                    $user->setAboutMe($aboutMe);
                     $this->userService->save($user);
 
                     $userHydrator = new UserHydrator(
