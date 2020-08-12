@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Criteria\FollowCriteria;
 use App\Entity\Follow;
+use App\Entity\User;
 use App\Enum\Sync;
 use App\Enum\UpdateTimestamps;
 use App\Event\FollowEvent;
@@ -51,6 +52,21 @@ class FollowService
     public function getFollowById(int $id)
     {
         return $this->followRepository->find($id);
+    }
+
+    /**
+     * @param User $userFrom
+     * @param User $userTo
+     * @return Follow
+     */
+    public function getFollowForUserFromAndUserTo(User $userFrom, User $userTo)
+    {
+        $criteria = new FollowCriteria();
+        $criteria->setFrom($userFrom);
+        $criteria->setTo($userTo);
+        $follow = $this->getFollowByCriteria($criteria);
+
+        return $follow;
     }
 
     /**
@@ -104,6 +120,6 @@ class FollowService
         $this->followRepository->remove($follow);
 
         $followEvent = new FollowEvent($follow);
-        $this->eventDispatcher->dispatch($followEvent, FollowEvents::FOLLOW_SAVED); //@TODO change to follow_deleted
+        $this->eventDispatcher->dispatch($followEvent, FollowEvents::FOLLOW_DELETED);
     }
 }
