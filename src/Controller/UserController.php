@@ -9,6 +9,7 @@ use App\Enum\UserStatus;
 use App\Event\UserEvent;
 use App\Event\UserEvents;
 use App\Form\ChangeAboutMeForm;
+use App\Form\ChangeAvatarForm;
 use App\Form\ChangeEmailForm;
 use App\Form\ChangePasswordForm;
 use App\Form\ForgotPasswordForm;
@@ -161,7 +162,6 @@ class UserController extends BaseController implements ClassResourceInterface
                 } else {
                     $this->imageService->mapAvatarImage($user, $data);
                 }
-
 
                 $isCreatedByAdmin = true;
             } else {
@@ -670,7 +670,7 @@ class UserController extends BaseController implements ClassResourceInterface
     }
 
     /**
-     * @FOSRest\Post("/user/{id}/change-about-me", name="change_email", options={ "method_prefix" = false })
+     * @FOSRest\Post("/user/{id}/change-about-me", name="change_aboutme", options={ "method_prefix" = false })
      *
      * @param int $id
      * @param Request $request
@@ -717,6 +717,95 @@ class UserController extends BaseController implements ClassResourceInterface
                     return $this->createApiResponse($errors, 400);
                 }
             }
+        }
+    }
+
+    /**
+     * @FOSRest\Post("/user/{id}/change-avatar", name="change_avatar", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function changeAvatarAction(int $id, Request $request)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->userService->getUserById($id);
+        $loggedInUser = $this->getLoggedInUser();
+
+        $canChangeAvatar = $user !== $loggedInUser;
+        if ($canChangeAvatar) {
+            return $this->createApiResponse("You cannot change avatar of someone else", 403);
+        }
+
+        $form = $this->createForm(ChangeAvatarForm::class);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST')) {
+            $data = json_decode($request->getContent(), true);
+            $form->submit($data);
+
+            if ($form->isSubmitted()) {
+                if ($form->isValid()) {
+                    $data = $form->getData();
+
+                    $this->imageService->mapAvatarImage($user, $data);
+                    $this->userService->save($user);
+
+                    $userHydrator = new UserHydrator(
+                        $user,
+                        $this->request,
+                        $this->isGranted("ROLE_ADMIN"),
+                        $loggedInUser
+                    );
+                    $serialized = $userHydrator->toArray();
+                    return $this->createApiResponse($serialized, 200);
+                } else {
+                    $errors = (string)$form->getErrors(true, false);
+                    return $this->createApiResponse($errors, 400);
+                }
+            }
+        }
+    }
+
+    /**
+     * @FOSRest\Post("/user/{id}/remove-avatar", name="remove_avatar", options={ "method_prefix" = false })
+     *
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function removeAvatarAction(int $id, Request $request)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->userService->getUserById($id);
+        $loggedInUser = $this->getLoggedInUser();
+
+        $canChangeAvatar = $user !== $loggedInUser;
+        if ($canChangeAvatar) {
+            return $this->createApiResponse("You cannot remove avatar of someone else", 403);
+        }
+
+        $form = $this->createForm(ChangeAvatarForm::class);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST')) {
+            $user->setAvatar(null);
+            $this->userService->save($user);
+
+            $userHydrator = new UserHydrator(
+                $user,
+                $this->request,
+                $this->isGranted("ROLE_ADMIN"),
+                $loggedInUser
+            );
+            $serialized = $userHydrator->toArray();
+            return $this->createApiResponse($serialized, 200);
+        } else {
+            $errors = (string)$form->getErrors(true, false);
+            return $this->createApiResponse($errors, 400);
         }
     }
 
